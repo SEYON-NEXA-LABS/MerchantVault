@@ -1,0 +1,37 @@
+D2C Clothing Business - Core Software Modules
+
+1. Inventory Management
+---------------------------------------------
+• SKU-wise stock management
+• Size-wise stock tracking (S, M, L, XL, XXL)
+• Colour-wise stock tracking
+• Low stock alerts
+• Purchase order management
+• Return stock management
+
+2. Barcode Management
+---------------------------------------------
+• Barcode generation
+• Barcode printing
+• Barcode scanning
+• Stock inward tracking
+• Stock outward tracking
+• Faster inventory audits
+
+3. CRM (Customer Relationship Management)
+---------------------------------------------
+• Customer database
+• Customer purchase history
+• Repeat customer tracking
+• WhatsApp marketing campaigns---------------
+• Email marketing----------------------------
+• Abandoned cart recovery--------------------
+
+4. Order Management
+---------------------------------------------
+• Order processing
+• Order status tracking
+• Shipping label generation
+• Courier integration
+• Return and RTO management
+• Delivery tracking
