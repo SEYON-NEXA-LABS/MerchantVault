@@ -23,9 +23,9 @@ D2C Clothing Business - Core Software Modules
 • Customer database
 • Customer purchase history
 • Repeat customer tracking
-• WhatsApp marketing campaigns---------------
-• Email marketing----------------------------
-• Abandoned cart recovery--------------------
+• WhatsApp marketing campaigns---------------Is this our scope?
+• Email marketing----------------------------Is this our scope?
+• Abandoned cart recovery--------------------Is this our scope?
 
 4. Order Management
 ---------------------------------------------

@@ -16,6 +16,7 @@ import {
   Sparkles,
   Link2
 } from "lucide-react";
+import { RoleGuard } from "../../../components/RoleGuard";
 
 interface SyncLog {
   id: string;
@@ -28,6 +29,14 @@ interface SyncLog {
 }
 
 export default function ShopifySyncPage() {
+  return (
+    <RoleGuard allowedRoles={["SUPERADMIN", "TENANTADMIN"]}>
+      <ShopifySyncContent />
+    </RoleGuard>
+  );
+}
+
+function ShopifySyncContent() {
   const [syncing, setSyncing] = useState<string | null>(null);
   const [logs, setLogs] = useState<SyncLog[]>([
     { id: "SYN-983", module: "Orders Sync", direction: "Shopify → ERP", records: 14, status: "Success", duration: "1.2s", time: "Just now" },

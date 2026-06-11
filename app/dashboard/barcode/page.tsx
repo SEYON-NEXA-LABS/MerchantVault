@@ -74,10 +74,35 @@ export default function BarcodePage() {
     fetchProducts();
   }, []);
 
+  // Active Warehouse states
+  const [activeWhId, setActiveWhId] = useState("");
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+
+  useEffect(() => {
+    const savedWh = localStorage.getItem("activeWarehouseId");
+    if (savedWh) setActiveWhId(savedWh);
+
+    const fetchWhs = async () => {
+      try {
+        const res = await fetch("/api/warehouses");
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setWarehouses(data);
+        }
+      } catch (err) {
+        console.error("Failed to load warehouses in barcode view", err);
+      }
+    };
+    fetchWhs();
+  }, []);
+
+  const activeWh = warehouses.find(w => w.id === activeWhId);
+  const activeWhCode = activeWh?.code || "MUM-01";
+
   // Configuration options
   const [codeType, setCodeType] = useState<"BARCODE" | "QR">("QR");
   const [barcodeFormat, setBarcodeFormat] = useState<"CODE128" | "CODE39">("CODE128");
-  const [qrPayloadType, setQrPayloadType] = useState<"SKU" | "URL">("URL");
+  const [qrPayloadType, setQrPayloadType] = useState<"SKU" | "URL" | "SERIALIZED">("SERIALIZED");
   const [tagPreset, setTagPreset] = useState<"STANDARD" | "COMPACT" | "MICRO">("STANDARD");
   const [printCopies, setPrintCopies] = useState<number>(1);
   
@@ -134,6 +159,9 @@ export default function BarcodePage() {
       if (numericSku) return numericSku;
       const numericId = variant?.id ? variant.id.replace(/\D/g, "") : "";
       return numericId || "999901";
+    }
+    if (qrPayloadType === "SERIALIZED") {
+      return `vtex:${activeWhCode}:${variant?.sku || ""}:0001`;
     }
     return qrPayloadType === "URL" ? getShopifyUrl(variant) : (variant?.sku || "");
   };
@@ -332,6 +360,7 @@ export default function BarcodePage() {
                       onChange={(e) => setQrPayloadType(e.target.value as any)}
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none"
                     >
+                      <option value="SERIALIZED">Serialized QR Token (vtex:wh:sku:serial)</option>
                       <option value="URL">Shopify URL Redirect</option>
                       <option value="SKU">SKU Raw Text</option>
                     </select>
@@ -437,6 +466,41 @@ export default function BarcodePage() {
           </div>
 
         </div>
+
+        {/* Explanation of Serialized QR token */}
+        {qrPayloadType === "SERIALIZED" && (
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
+            <h3 className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
+              <span>🔍</span> Structured Serialized QR Token Explanation
+            </h3>
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              When printing serialized tags, the QR payload is formatted as a structured token delimited by colons. 
+              This enables instantaneous scanning and validation on check-in/check-out.
+            </p>
+            <div className="p-3 bg-white border rounded-lg space-y-1.5 font-mono text-[10px]">
+              <div className="flex justify-between border-b pb-1">
+                <span className="text-gray-400">Token Format:</span>
+                <span className="font-bold text-indigo-700">company:warehouse:sku:serial</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">1. Company Slug:</span>
+                <span className="text-slate-800">vtex</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">2. Warehouse:</span>
+                <span className="text-slate-800">{activeWhCode} (Active printed origin)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">3. SKU Code:</span>
+                <span className="text-slate-800">{selectedProduct.sku}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">4. Serial:</span>
+                <span className="text-slate-800">0001 (Unique unit index)</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tag Preview */}
         <div className="lg:col-span-4">

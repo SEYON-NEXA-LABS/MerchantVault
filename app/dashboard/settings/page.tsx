@@ -17,9 +17,11 @@ import {
   Trash2,
   Edit2,
   MapPin,
-  Check
+  Check,
+  Truck
 } from "lucide-react";
 import { toast } from "sonner";
+import { RoleGuard } from "../../../components/RoleGuard";
 
 interface HandshakeStep {
   id: number;
@@ -41,7 +43,15 @@ interface Warehouse {
 }
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<"shopify" | "company" | "warehouses">("shopify");
+  return (
+    <RoleGuard allowedRoles={["SUPERADMIN", "TENANTADMIN"]}>
+      <SettingsContent />
+    </RoleGuard>
+  );
+}
+
+function SettingsContent() {
+  const [activeTab, setActiveTab] = useState<"shopify" | "company" | "warehouses" | "logistics">("shopify");
   
   // Shopify credentials form states
   const [shopUrl, setShopUrl] = useState("");
@@ -82,6 +92,101 @@ export default function SettingsPage() {
   const [whCountry, setWhCountry] = useState("India");
   const [whIsDefault, setWhIsDefault] = useState(false);
   const [savingWarehouse, setSavingWarehouse] = useState(false);
+
+  // Courier Integrations States
+  const [courierConfigs, setCourierConfigs] = useState<any[]>([]);
+  const [loadingCouriers, setLoadingCouriers] = useState(false);
+  const [savingCourierPartner, setSavingCourierPartner] = useState<string | null>(null);
+
+  // States for each partner's fields
+  const [shiprocketEmail, setShiprocketEmail] = useState("");
+  const [shiprocketPassword, setShiprocketPassword] = useState("");
+  const [shiprocketActive, setShiprocketActive] = useState(true);
+
+  const [delhiveryKey, setDelhiveryKey] = useState("");
+  const [delhiveryActive, setDelhiveryActive] = useState(true);
+
+  const [bluedartLicense, setBluedartLicense] = useState("");
+  const [bluedartActive, setBluedartActive] = useState(true);
+
+  const [dtdcKey, setDtdcKey] = useState("");
+  const [dtdcActive, setDtdcActive] = useState(true);
+
+  const [xpressbeesKey, setXpressbeesKey] = useState("");
+  const [xpressbeesActive, setXpressbeesActive] = useState(true);
+
+  const [indiaPostKey, setIndiaPostKey] = useState("");
+  const [indiaPostActive, setIndiaPostActive] = useState(true);
+
+  const [professionalCouriersKey, setProfessionalCouriersKey] = useState("");
+  const [professionalCouriersActive, setProfessionalCouriersActive] = useState(true);
+
+  // Fetch courier settings
+  const fetchCourierConfigs = async () => {
+    setLoadingCouriers(true);
+    try {
+      const res = await fetch("/api/logistics/couriers");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setCourierConfigs(data);
+        // Map configs to inputs
+        data.forEach(cfg => {
+          if (cfg.courierPartner === "SHIPROCKET") {
+            setShiprocketEmail(cfg.apiEmail || "");
+            setShiprocketPassword(cfg.apiPassword || "");
+            setShiprocketActive(cfg.isActive);
+          } else if (cfg.courierPartner === "DELHIVERY") {
+            setDelhiveryKey(cfg.apiKey || "");
+            setDelhiveryActive(cfg.isActive);
+          } else if (cfg.courierPartner === "BLUEDART") {
+            setBluedartLicense(cfg.apiKey || "");
+            setBluedartActive(cfg.isActive);
+          } else if (cfg.courierPartner === "DTDC") {
+            setDtdcKey(cfg.apiKey || "");
+            setDtdcActive(cfg.isActive);
+          } else if (cfg.courierPartner === "XPRESSBEES") {
+            setXpressbeesKey(cfg.apiKey || "");
+            setXpressbeesActive(cfg.isActive);
+          } else if (cfg.courierPartner === "INDIA_POST") {
+            setIndiaPostKey(cfg.apiKey || "");
+            setIndiaPostActive(cfg.isActive);
+          } else if (cfg.courierPartner === "THE_PROFESSIONAL_COURIERS") {
+            setProfessionalCouriersKey(cfg.apiKey || "");
+            setProfessionalCouriersActive(cfg.isActive);
+          }
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to load courier configurations.");
+    } finally {
+      setLoadingCouriers(false);
+    }
+  };
+
+  const saveCourierConfig = async (partner: string, payload: any) => {
+    setSavingCourierPartner(partner);
+    try {
+      const res = await fetch("/api/logistics/couriers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courierPartner: partner,
+          ...payload
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success(`${partner} configuration saved successfully!`);
+        fetchCourierConfigs();
+      }
+    } catch (err) {
+      toast.error(`Failed to save ${partner} configuration.`);
+    } finally {
+      setSavingCourierPartner(null);
+    }
+  };
 
   // Fetch warehouses
   const fetchWarehouses = async () => {
@@ -133,6 +238,8 @@ export default function SettingsPage() {
   useEffect(() => {
     if (activeTab === "warehouses") {
       fetchWarehouses();
+    } else if (activeTab === "logistics") {
+      fetchCourierConfigs();
     }
   }, [activeTab]);
 
@@ -360,6 +467,16 @@ export default function SettingsPage() {
             }`}
           >
             <MapPin className="w-4 h-4" /> Warehouses & Stores
+          </button>
+          <button
+            onClick={() => setActiveTab("logistics")}
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all text-left ${
+              activeTab === "logistics" 
+                ? "bg-indigo-50 text-indigo-950 border border-indigo-100" 
+                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <Truck className="w-4 h-4" /> Courier Integrations
           </button>
         </div>
 
@@ -682,6 +799,406 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "logistics" && (
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6">
+              <div>
+                <h3 className="font-bold text-gray-950 text-base flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-indigo-950" /> Courier Integrations
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Configure API credentials for Shiprocket, Delhivery, Bluedart, and DTDC to enable automated tracking and shipping label generation.
+                </p>
+              </div>
+
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start gap-3">
+                <Truck className="w-5 h-5 text-indigo-700 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-indigo-900 text-xs sm:text-sm">Mock Integration Mode Enabled</h4>
+                  <p className="text-[11px] sm:text-xs text-indigo-850 mt-1 leading-relaxed">
+                    Credentials stored below will be saved securely in the database. Courier operations (Manifest generation, status transitions) are operating in <strong>Mock/Manual entry mode</strong> for development. These configurations are API-ready and can be seamlessly linked to live Shiprocket/Delhivery/Bluedart/DTDC REST API endpoints in the future.
+                  </p>
+                </div>
+              </div>
+
+              {loadingCouriers ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-gray-400">
+                  <RefreshCw className="w-8 h-8 animate-spin text-indigo-600" />
+                  <p className="text-xs">Loading configurations...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Shiprocket */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">SR</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">Shiprocket</h4>
+                            <p className="text-[10px] text-gray-400">API Credentials</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={shiprocketActive}
+                            onChange={(e) => setShiprocketActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Email Address</label>
+                          <input
+                            type="email"
+                            value={shiprocketEmail}
+                            onChange={(e) => setShiprocketEmail(e.target.value)}
+                            placeholder="email@shiprocket.in"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Password</label>
+                          <input
+                            type="password"
+                            value={shiprocketPassword}
+                            onChange={(e) => setShiprocketPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("SHIPROCKET", {
+                          apiEmail: shiprocketEmail,
+                          apiPassword: shiprocketPassword,
+                          isActive: shiprocketActive
+                        })}
+                        disabled={savingCourierPartner === "SHIPROCKET"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "SHIPROCKET" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save Shiprocket Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Delhivery */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">DV</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">Delhivery</h4>
+                            <p className="text-[10px] text-gray-400">API Token</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={delhiveryActive}
+                            onChange={(e) => setDelhiveryActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Token / Key</label>
+                          <input
+                            type="password"
+                            value={delhiveryKey}
+                            onChange={(e) => setDelhiveryKey(e.target.value)}
+                            placeholder="delhivery_api_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("DELHIVERY", {
+                          apiKey: delhiveryKey,
+                          isActive: delhiveryActive
+                        })}
+                        disabled={savingCourierPartner === "DELHIVERY"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "DELHIVERY" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save Delhivery Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bluedart */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">BD</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">Bluedart</h4>
+                            <p className="text-[10px] text-gray-400">License Key</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={bluedartActive}
+                            onChange={(e) => setBluedartActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API License Key</label>
+                          <input
+                            type="password"
+                            value={bluedartLicense}
+                            onChange={(e) => setBluedartLicense(e.target.value)}
+                            placeholder="bluedart_license_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("BLUEDART", {
+                          apiKey: bluedartLicense,
+                          isActive: bluedartActive
+                        })}
+                        disabled={savingCourierPartner === "BLUEDART"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "BLUEDART" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save Bluedart Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* DTDC */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">DT</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">DTDC</h4>
+                            <p className="text-[10px] text-gray-400">Client ID / Key</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={dtdcActive}
+                            onChange={(e) => setDtdcActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Client ID / Key</label>
+                          <input
+                            type="password"
+                            value={dtdcKey}
+                            onChange={(e) => setDtdcKey(e.target.value)}
+                            placeholder="dtdc_client_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("DTDC", {
+                          apiKey: dtdcKey,
+                          isActive: dtdcActive
+                        })}
+                        disabled={savingCourierPartner === "DTDC"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-750 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "DTDC" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save DTDC Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Xpressbees */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">XB</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">Xpressbees</h4>
+                            <p className="text-[10px] text-gray-400">API Key / Token</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={xpressbeesActive}
+                            onChange={(e) => setXpressbeesActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Key / Customer Key</label>
+                          <input
+                            type="password"
+                            value={xpressbeesKey}
+                            onChange={(e) => setXpressbeesKey(e.target.value)}
+                            placeholder="xpressbees_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("XPRESSBEES", {
+                          apiKey: xpressbeesKey,
+                          isActive: xpressbeesActive
+                        })}
+                        disabled={savingCourierPartner === "XPRESSBEES"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "XPRESSBEES" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save Xpressbees Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* India Post */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">IP</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">India Post</h4>
+                            <p className="text-[10px] text-gray-400">API Key / Account ID</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={indiaPostActive}
+                            onChange={(e) => setIndiaPostActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Key / License Key</label>
+                          <input
+                            type="password"
+                            value={indiaPostKey}
+                            onChange={(e) => setIndiaPostKey(e.target.value)}
+                            placeholder="indiapost_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("INDIA_POST", {
+                          apiKey: indiaPostKey,
+                          isActive: indiaPostActive
+                        })}
+                        disabled={savingCourierPartner === "INDIA_POST"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "INDIA_POST" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save India Post Config
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* The Professional Couriers */}
+                  <div className="border border-gray-200 rounded-xl p-5 bg-white space-y-4 flex flex-col justify-between">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">TP</div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-sm">The Professional Couriers</h4>
+                            <p className="text-[10px] text-gray-400">API License Key</p>
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={professionalCouriersActive}
+                            onChange={(e) => setProfessionalCouriersActive(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1">
+                          <label className="font-semibold text-gray-600">API Key</label>
+                          <input
+                            type="password"
+                            value={professionalCouriersKey}
+                            onChange={(e) => setProfessionalCouriersKey(e.target.value)}
+                            placeholder="tpc_key_..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 mt-4">
+                      <button
+                        onClick={() => saveCourierConfig("THE_PROFESSIONAL_COURIERS", {
+                          apiKey: professionalCouriersKey,
+                          isActive: professionalCouriersActive
+                        })}
+                        disabled={savingCourierPartner === "THE_PROFESSIONAL_COURIERS"}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white py-2 rounded-lg font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {savingCourierPartner === "THE_PROFESSIONAL_COURIERS" && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                        Save TPC Config
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

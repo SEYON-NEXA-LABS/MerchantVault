@@ -29,6 +29,11 @@ model Company {
   warehouses           Warehouse[]
   transfers            StockTransfer[]
   purchaseOrders       PurchaseOrder[]
+  courierConfigs       CourierConfig[]
+  manifests            ShippingManifest[]
+  subscription         Subscription?
+  audits               InventoryAudit[]
+  serializedUnits      SerializedUnit[]
   createdAt            DateTime          @default(now())
 }
 
@@ -51,6 +56,9 @@ model Warehouse {
   transfersFrom      StockTransfer[]  @relation("FromWarehouse")
   transfersTo        StockTransfer[]  @relation("ToWarehouse")
   purchaseOrders     PurchaseOrder[]
+  manifests          ShippingManifest[]
+  audits             InventoryAudit[]
+  serializedUnits    SerializedUnit[]
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
@@ -103,6 +111,10 @@ model ProductVariant {
   stocks            WarehouseStock[]
   transfers         StockTransfer[]
   purchaseOrderItems PurchaseOrderItem[]
+  auditItems         InventoryAuditItem[]
+  thumbnailConfig    String?
+  price              Float           @default(0.0)
+  serializedUnits    SerializedUnit[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
@@ -147,6 +159,8 @@ model OrderFulfillment {
   deliveryStatus        ShippingStatus @default(PROCESSING) 
   warehouseId           String?
   warehouse             Warehouse?     @relation(fields: [warehouseId], references: [id])
+  manifestId            String?
+  manifest              ShippingManifest? @relation(fields: [manifestId], references: [id])
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
 
@@ -172,6 +186,7 @@ model AbandonedCheckout {
 enum MovementType {
   INWARD
   OUTWARD
+  ADJUSTMENT
 }
 
 enum SyncState {
@@ -267,3 +282,151 @@ model PurchaseOrderItem {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
+
+model CourierConfig {
+  id             String         @id @default(uuid())
+  companyId      String
+  company        Company        @relation(fields: [companyId], references: [id])
+  courierPartner CourierPartner
+  apiEmail       String?
+  apiPassword    String?
+  apiKey         String?
+  apiSecret      String?
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([companyId, courierPartner])
+}
+
+enum CourierPartner {
+  SHIPROCKET
+  DELHIVERY
+  BLUEDART
+  DTDC
+  XPRESSBEES
+  INDIA_POST
+  THE_PROFESSIONAL_COURIERS
+}
+
+model ShippingManifest {
+  id             String           @id @default(uuid())
+  companyId      String
+  company        Company          @relation(fields: [companyId], references: [id])
+  manifestNumber String           
+  courierPartner CourierPartner
+  warehouseId    String
+  warehouse      Warehouse        @relation(fields: [warehouseId], references: [id])
+  status         ManifestStatus   @default(CREATED)
+  driverName     String?
+  driverPhone    String?
+  fulfillments   OrderFulfillment[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@unique([companyId, manifestNumber])
+}
+
+enum ManifestStatus {
+  CREATED
+  HANDED_OVER
+  CANCELLED
+}
+
+model Subscription {
+  id              String        @id @default(uuid())
+  companyId       String        @unique
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  planType        BillingPlan   @default(MONTHLY)
+  amount          Float         @default(0.0)
+  amcAmount       Float         @default(0.0)
+  currency        String        @default("INR")
+  status          PaymentStatus @default(ACTIVE)
+  startDate       DateTime      @default(now())
+  nextRenewalDate DateTime
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum BillingPlan {
+  FREE_TRIAL
+  MONTHLY
+  YEARLY
+  ONETIME_AMC
+  PAY_PER_ORDER
+  ENTERPRISE_CUSTOM
+}
+
+enum PaymentStatus {
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+}
+
+enum AuditStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditItemStatus {
+  PENDING
+  MATCHED
+  DISCREPANCY
+}
+
+model InventoryAudit {
+  id            String               @id @default(uuid())
+  companyId     String
+  company       Company              @relation(fields: [companyId], references: [id])
+  warehouseId   String
+  warehouse     Warehouse            @relation(fields: [warehouseId], references: [id])
+  status        AuditStatus          @default(IN_PROGRESS)
+  operatorEmail String
+  items         InventoryAuditItem[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model InventoryAuditItem {
+  id           String             @id @default(uuid())
+  auditId      String
+  audit        InventoryAudit     @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  variantId    String
+  variant      ProductVariant     @relation(fields: [variantId], references: [id])
+  expectedQty  Int                @default(0)
+  actualQty    Int                @default(0)
+  status       AuditItemStatus    @default(PENDING)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([auditId, variantId])
+}
+
+enum UnitStatus {
+  IN_TRANSIT
+  AVAILABLE
+  ALLOCATED
+  DISPATCHED
+  RETURNED_RTO
+  DAMAGED
+}
+
+model SerializedUnit {
+  id              String         @id @default(uuid())
+  companyId       String
+  company         Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  variantId       String
+  variant         ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  warehouseId     String
+  warehouse       Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  qrCodeString    String         @unique
+  status          UnitStatus     @default(AVAILABLE)
+  checkInDate     DateTime       @default(now())
+  checkOutDate    DateTime?
+  lastOperator    String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+

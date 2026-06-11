@@ -12,9 +12,11 @@ import {
   Power,
   KeyRound,
   CheckCircle2,
-  X
+  X,
+  ClipboardList
 } from "lucide-react";
 import { toast } from "sonner";
+import { RoleGuard } from "../../../components/RoleGuard";
 
 interface User {
   id: string;
@@ -26,8 +28,20 @@ interface User {
 }
 
 export default function StaffPage() {
+  return (
+    <RoleGuard allowedRoles={["SUPERADMIN", "TENANTADMIN"]}>
+      <StaffContent />
+    </RoleGuard>
+  );
+}
+
+function StaffContent() {
   const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Logs state
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
 
   // Add User Form states
   const [username, setUsername] = useState("");
@@ -59,8 +73,24 @@ export default function StaffPage() {
     }
   };
 
+  const fetchLogs = async () => {
+    setLoadingLogs(true);
+    try {
+      const res = await fetch("/api/staff/logs");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setLogs(data);
+      }
+    } catch (err) {
+      console.error("Failed to load audit logs:", err);
+    } finally {
+      setLoadingLogs(false);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchLogs();
   }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -88,6 +118,7 @@ export default function StaffPage() {
         setPassword("");
         setRole("STAFF");
         fetchUsers();
+        fetchLogs();
       }
     } catch (err) {
       toast.error("Error creating user account.");
@@ -112,6 +143,7 @@ export default function StaffPage() {
       } else {
         toast.success(`User "${user.username}" is now ${!user.isActive ? "Enabled" : "Disabled"}.`);
         fetchUsers();
+        fetchLogs();
       }
     } catch (err) {
       toast.error("Failed to toggle user status.");
@@ -163,6 +195,7 @@ export default function StaffPage() {
       if (data.success) {
         toast.success(`Access revoked for "${name}".`);
         fetchUsers();
+        fetchLogs();
       } else {
         toast.error(data.error || "Failed to remove user.");
       }
@@ -403,6 +436,71 @@ export default function StaffPage() {
           </div>
         </div>
       )}
+
+      {/* Staff Activity Ledger */}
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+              <ClipboardList className="w-4 h-4 text-indigo-950" /> Staff Operations Audit Ledger
+            </h3>
+            <p className="text-xs text-gray-500">Real-time ledger tracking warehouse stock adjustments, inward receipts, and outward dispatches.</p>
+          </div>
+          <button
+            onClick={fetchLogs}
+            disabled={loadingLogs}
+            className="text-xs font-semibold text-indigo-755 hover:text-indigo-950 flex items-center gap-1"
+          >
+            {loadingLogs ? <RefreshCw className="w-3 h-3 animate-spin" /> : "Refresh Logs"}
+          </button>
+        </div>
+
+        <div className="overflow-x-auto border border-gray-100 rounded-lg">
+          {loadingLogs ? (
+            <div className="text-center py-8 text-xs text-gray-400">Loading audit ledger...</div>
+          ) : logs.length === 0 ? (
+            <div className="text-center py-10 text-xs text-gray-400">No staff activities logged. Perform stock adjustments to view.</div>
+          ) : (
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className="bg-gray-50 text-gray-500 font-medium border-b border-gray-150 uppercase tracking-wider text-[10px]">
+                  <th className="py-2.5 px-4">Operator Handle</th>
+                  <th className="py-2.5 px-4">Operation</th>
+                  <th className="py-2.5 px-4">Product details</th>
+                  <th className="py-2.5 px-4">Warehouse</th>
+                  <th className="py-2.5 px-4 text-right">Date & Time</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
+                {logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-2.5 px-4 font-mono font-bold text-gray-900">{log.operatorEmail}</td>
+                    <td className="py-2.5 px-4">
+                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                        log.type === "INWARD" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                      }`}>
+                        {log.type} ({log.quantity} units)
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-4">
+                      <div className="font-bold text-gray-900">{log.variant?.title}</div>
+                      <div className="text-[10px] text-gray-400 font-mono mt-0.5">
+                        SKU: {log.variant?.sku} | Color: {log.variant?.color || "N/A"} | Size: {log.variant?.size || "N/A"}
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-4 text-gray-500">
+                      {log.warehouse ? `${log.warehouse.name} (${log.warehouse.code})` : "General/System"}
+                    </td>
+                    <td className="py-2.5 px-4 text-right text-gray-400">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
 
       {/* Permissions Matrix */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
