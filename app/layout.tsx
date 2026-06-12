@@ -9,8 +9,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "V Textile ERP Core",
-  description: "Shopify Sync Bridge for V Textile Company",
+  title: "FabricVault ERP",
+  description: "FabricVault - Inventory & Order Management",
 };
 
 export default function RootLayout({

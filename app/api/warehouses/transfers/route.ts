@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data: transfers, error: tfErr } = await supabase
@@ -29,7 +25,7 @@ export async function GET() {
         fromWarehouse:Warehouse!StockTransfer_fromWarehouseId_fkey(name, code),
         toWarehouse:Warehouse!StockTransfer_toWarehouseId_fkey(name, code)
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (tfErr) throw tfErr;
@@ -46,14 +42,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { id, fromWarehouseId, toWarehouseId, variantId, quantity, status, operatorEmail } = body;
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // 1. Create a new Stock Transfer request
@@ -65,13 +56,13 @@ export async function POST(request: Request) {
       const { data: transfer, error } = await supabase
         .from("StockTransfer")
         .insert({
-          companyId: company.id,
+          companyId,
           fromWarehouseId,
           toWarehouseId,
           variantId,
           quantity,
           status: "PENDING",
-          operatorEmail: operatorEmail || "dispatcher@vtex.local"
+          operatorEmail: operatorEmail || "dispatcher@seyon.local"
         })
         .select()
         .single();
@@ -144,21 +135,21 @@ export async function POST(request: Request) {
         .from("StockMovement")
         .insert([
           {
-            companyId: company.id,
+            companyId,
             variantId: existingTransfer.variantId,
             warehouseId: existingTransfer.fromWarehouseId,
             type: "OUTWARD",
             quantity: existingTransfer.quantity,
-            operatorEmail: operatorEmail || "system@vtex.local",
+            operatorEmail: operatorEmail || "system@seyon.local",
             syncStatus: "SUCCESS"
           },
           {
-            companyId: company.id,
+            companyId,
             variantId: existingTransfer.variantId,
             warehouseId: existingTransfer.toWarehouseId,
             type: "INWARD",
             quantity: existingTransfer.quantity,
-            operatorEmail: operatorEmail || "system@vtex.local",
+            operatorEmail: operatorEmail || "system@seyon.local",
             syncStatus: "SUCCESS"
           }
         ]);

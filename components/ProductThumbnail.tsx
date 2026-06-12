@@ -1,6 +1,21 @@
 "use client";
 
 import { useMemo } from "react";
+import {
+  Shirt,
+  ShoppingBag,
+  Gem,
+  Watch,
+  Glasses,
+  Footprints,
+  Crown,
+  Scissors,
+  Palette,
+  Sparkles,
+  Star,
+  Zap,
+  type LucideIcon
+} from "lucide-react";
 
 interface ProductThumbnailProps {
   imageUrl?: string;
@@ -11,22 +26,29 @@ interface ProductThumbnailProps {
   thumbnailConfig?: string | null;
 }
 
-// Map common colors to beautiful, curated HSL gradient palettes
-const COLOR_PALETTES: Record<string, { from: string; to: string; text: string; bg: string }> = {
-  red: { from: "from-red-500", to: "to-rose-600", text: "text-red-950", bg: "bg-red-100" },
-  blue: { from: "from-blue-500", to: "to-cyan-600", text: "text-blue-950", bg: "bg-blue-100" },
-  green: { from: "from-emerald-500", to: "to-teal-600", text: "text-emerald-950", bg: "bg-emerald-100" },
-  yellow: { from: "from-amber-400", to: "to-orange-500", text: "text-amber-950", bg: "bg-amber-100" },
-  orange: { from: "from-orange-500", to: "to-red-600", text: "text-orange-950", bg: "bg-orange-100" },
-  purple: { from: "from-purple-500", to: "to-indigo-600", text: "text-purple-950", bg: "bg-purple-100" },
-  pink: { from: "from-pink-500", to: "to-rose-500", text: "text-pink-950", bg: "bg-pink-100" },
-  indigo: { from: "from-indigo-500", to: "to-violet-600", text: "text-indigo-950", bg: "bg-indigo-100" },
-  black: { from: "from-gray-800", to: "to-black", text: "text-gray-250", bg: "bg-gray-800" },
-  white: { from: "from-slate-100", to: "to-slate-300", text: "text-slate-800", bg: "bg-slate-100" },
-  grey: { from: "from-gray-400", to: "to-slate-600", text: "text-gray-900", bg: "bg-gray-100" },
-  gray: { from: "from-gray-400", to: "to-slate-600", text: "text-gray-900", bg: "bg-gray-100" },
-  navy: { from: "from-sky-900", to: "to-slate-900", text: "text-sky-100", bg: "bg-sky-950" }
+// Clean color palettes: solid background + icon/text color
+const COLOR_PALETTES: Record<string, { bg: string; icon: string; text: string }> = {
+  red:    { bg: "bg-red-50",     icon: "text-red-400",     text: "text-red-700" },
+  blue:   { bg: "bg-blue-50",    icon: "text-blue-400",    text: "text-blue-700" },
+  green:  { bg: "bg-emerald-50", icon: "text-emerald-400", text: "text-emerald-700" },
+  yellow: { bg: "bg-amber-50",   icon: "text-amber-400",   text: "text-amber-700" },
+  orange: { bg: "bg-orange-50",  icon: "text-orange-400",  text: "text-orange-700" },
+  purple: { bg: "bg-purple-50",  icon: "text-purple-400",  text: "text-purple-700" },
+  pink:   { bg: "bg-pink-50",    icon: "text-pink-400",    text: "text-pink-700" },
+  indigo: { bg: "bg-indigo-50",  icon: "text-indigo-400",  text: "text-indigo-700" },
+  black:  { bg: "bg-gray-100",   icon: "text-gray-400",    text: "text-gray-700" },
+  white:  { bg: "bg-slate-50",   icon: "text-slate-300",   text: "text-slate-600" },
+  grey:   { bg: "bg-gray-50",    icon: "text-gray-400",    text: "text-gray-600" },
+  gray:   { bg: "bg-gray-50",    icon: "text-gray-400",    text: "text-gray-600" },
+  navy:   { bg: "bg-sky-50",     icon: "text-sky-400",     text: "text-sky-700" },
+  beige:  { bg: "bg-amber-50",   icon: "text-amber-300",   text: "text-amber-700" },
 };
+
+// Deterministic icon selection based on product title hash
+const PRODUCT_ICONS: LucideIcon[] = [
+  Shirt, ShoppingBag, Gem, Watch, Glasses, Footprints,
+  Crown, Scissors, Palette, Sparkles, Star, Zap
+];
 
 export default function ProductThumbnail({
   imageUrl,
@@ -36,23 +58,14 @@ export default function ProductThumbnail({
   className = "",
   thumbnailConfig
 }: ProductThumbnailProps) {
-  
-  // Size dimensions map
-  const sizeClasses = {
-    sm: "w-10 h-10 text-[9px] rounded-md",
-    md: "w-14 h-14 text-[11px] rounded-lg",
-    lg: "w-24 h-24 text-sm rounded-xl"
+
+  const sizeConfig = {
+    sm: { container: "w-10 h-10 rounded-md",  iconSize: 14, textSize: "text-[8px]" },
+    md: { container: "w-14 h-14 rounded-lg",  iconSize: 20, textSize: "text-[10px]" },
+    lg: { container: "w-24 h-24 rounded-xl",  iconSize: 32, textSize: "text-xs" },
   };
 
-  // Extract initials
-  const initials = useMemo(() => {
-    return skuTitle
-      .split(" ")
-      .slice(0, 2)
-      .map(word => word[0])
-      .join("")
-      .toUpperCase();
-  }, [skuTitle]);
+  const cfg = sizeConfig[size];
 
   // Parse persisted config if available
   const parsedConfig = useMemo(() => {
@@ -65,102 +78,55 @@ export default function ProductThumbnail({
     }
   }, [thumbnailConfig]);
 
-  // Determine dynamic gradient palette based on SKU color or custom config
+  // Determine palette
   const palette = useMemo(() => {
-    if (parsedConfig?.from && parsedConfig?.to && parsedConfig?.text) {
-      return {
-        from: parsedConfig.from,
-        to: parsedConfig.to,
-        text: parsedConfig.text,
-        bg: parsedConfig.bg || "bg-indigo-100"
-      };
-    }
     const colorKey = (parsedConfig?.color || skuColor).toLowerCase().trim();
     return COLOR_PALETTES[colorKey] || COLOR_PALETTES.indigo;
   }, [skuColor, parsedConfig]);
 
-  // Generate stable random offsets/sizes for circles based on the skuTitle string hash
-  const randomShapes = useMemo(() => {
+  // Deterministic icon pick from product title
+  const IconComponent = useMemo(() => {
     const hash = skuTitle.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const count = 3;
-    const shapesList = [];
-    for (let i = 0; i < count; i++) {
-      const shapeSize = 30 + ((hash + i * 13) % 40); // 30px to 70px
-      const top = ((hash * (i + 1)) % 70); // 0% to 70%
-      const left = ((hash + i * 27) % 70); // 0% to 70%
-      const opacity = 0.15 + ((hash + i) % 3) * 0.1; // 0.15 to 0.35
-      shapesList.push({ size: shapeSize, top, left, opacity });
-    }
-    return shapesList;
+    return PRODUCT_ICONS[hash % PRODUCT_ICONS.length];
   }, [skuTitle]);
 
-  // Use stored shapes if present, otherwise default to random shapes list
-  const shapes = useMemo(() => {
-    if (Array.isArray(parsedConfig?.shapes)) {
-      return parsedConfig.shapes;
-    }
-    return randomShapes;
-  }, [randomShapes, parsedConfig]);
+  // Extract initials
+  const initials = useMemo(() => {
+    return skuTitle
+      .split(" ")
+      .slice(0, 2)
+      .map(word => word[0])
+      .join("")
+      .toUpperCase();
+  }, [skuTitle]);
 
   if (imageUrl) {
     return (
-      <div className={`relative overflow-hidden border border-slate-200 flex-shrink-0 bg-white ${sizeClasses[size]} ${className}`}>
-        <img 
-          src={imageUrl} 
-          alt={skuTitle} 
+      <div className={`relative overflow-hidden border border-slate-200 flex-shrink-0 bg-white ${cfg.container} ${className}`}>
+        <img
+          src={imageUrl}
+          alt={skuTitle}
           className="w-full h-full object-cover"
         />
       </div>
     );
   }
 
-  // If no imageUrl, render default vector circle blended thumbnail
   return (
-    <div 
-      className={`relative overflow-hidden border border-slate-200/60 flex-shrink-0 flex items-center justify-center font-bold shadow-inner transition-all select-none ${sizeClasses[size]} ${className}`}
-      style={{
-        backgroundColor: "#f8fafc" // fallback background
-      }}
+    <div
+      className={`relative overflow-hidden border border-slate-200/60 flex-shrink-0 flex flex-col items-center justify-center select-none ${palette.bg} ${cfg.container} ${className}`}
     >
-      {/* Background vector circles (Shutterstock masked design) */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-25"
-        style={{
-          backgroundImage: `url('https://www.shutterstock.com/shutterstock/photos/220641787/display_1500/stock-vector-set-of-circles-220641787.jpg')`
-        }}
+      {/* Lucide icon as subtle backdrop */}
+      <IconComponent
+        className={`${palette.icon} opacity-30 absolute`}
+        style={{ width: cfg.iconSize * 1.6, height: cfg.iconSize * 1.6 }}
+        strokeWidth={1.2}
       />
 
-      {/* Dynamic SKU-Color theme overlay gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${palette.from} ${palette.to} opacity-30 mix-blend-color-burn`} />
-
-      {/* Layered random geometric shapes */}
-      {shapes.map((shape: any, idx: number) => (
-        <div
-          key={idx}
-          className={`absolute rounded-full bg-gradient-to-tr ${palette.from} ${palette.to}`}
-          style={{
-            width: `${shape.size}%`,
-            height: `${shape.size}%`,
-            top: `${shape.top}%`,
-            left: `${shape.left}%`,
-            opacity: shape.opacity,
-            filter: "blur(2px)"
-          }}
-        />
-      ))}
-
-      {/* Centered SKU text identifier */}
-      <div className={`relative z-10 font-extrabold tracking-wider ${palette.text} drop-shadow-sm flex flex-col items-center justify-center leading-none`}>
-        <span>{initials}</span>
-        {size === "lg" && (
-          <span className="text-[10px] opacity-75 font-semibold mt-1 uppercase">
-            {skuColor}
-          </span>
-        )}
-      </div>
-
-      {/* Subtle border shine */}
-      <div className="absolute inset-0 border border-white/20 rounded-md pointer-events-none" />
+      {/* Centered initials */}
+      <span className={`relative z-10 font-bold ${palette.text} ${cfg.textSize} tracking-wide leading-none`}>
+        {initials}
+      </span>
     </div>
   );
 }

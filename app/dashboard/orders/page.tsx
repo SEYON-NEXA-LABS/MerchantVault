@@ -276,7 +276,7 @@ export default function OrdersPage() {
           toWarehouseId: transferDestWh,
           variantId: targetVariant.id,
           quantity: transferQty,
-          operatorEmail: "dispatcher@vtex.local"
+          operatorEmail: "dispatcher@seyon.local"
         })
       });
       const data = await res.json();

@@ -1,16 +1,12 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Fetch product variants with nested warehouse stock levels
@@ -30,6 +26,11 @@ export async function GET() {
         velocity,
         leadTimeDays,
         averageDailySales,
+        thumbnailConfig,
+        price,
+        category,
+        targetGroup,
+        ageRange,
         createdAt,
         updatedAt,
         stocks:WarehouseStock(
@@ -38,7 +39,7 @@ export async function GET() {
           currentStockLevel
         )
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .order("title", { ascending: true });
 
     if (varErr) throw varErr;
@@ -49,3 +50,35 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PUT(req: Request) {
+  try {
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
+    const body = await req.json();
+    const { variantId, price } = body;
+
+    if (!variantId || price === undefined) {
+      return NextResponse.json({ error: "Missing variantId or price" }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from("ProductVariant")
+      .update({ price: parseFloat(price) })
+      .eq("id", variantId)
+      .eq("companyId", companyId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, variant: data });
+  } catch (error: any) {
+    console.error("Update Variant Price Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+

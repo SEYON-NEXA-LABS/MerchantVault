@@ -55,7 +55,7 @@ interface AuditSession {
 
 export default function InventoryAuditsPage() {
   const [activeWhId, setActiveWhId] = useState("");
-  const [operatorEmail, setOperatorEmail] = useState("operator@vtex.local");
+  const [operatorEmail, setOperatorEmail] = useState("operator@seyon.local");
   const [audits, setAudits] = useState<AuditSession[]>([]);
   const [activeAudit, setActiveAudit] = useState<AuditSession | null>(null);
   const [loading, setLoading] = useState(true);

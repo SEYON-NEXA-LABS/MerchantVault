@@ -328,5 +328,39 @@ CREATE INDEX IF NOT EXISTS "idx_serialized_unit_variant" ON "SerializedUnit"("va
 CREATE INDEX IF NOT EXISTS "idx_serialized_unit_warehouse" ON "SerializedUnit"("warehouseId");
 CREATE INDEX IF NOT EXISTS "idx_serialized_unit_qr" ON "SerializedUnit"("qrCodeString");
 
+-- Create Vendor Table
+CREATE TABLE IF NOT EXISTS "Vendor" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "address" TEXT,
+    "gstin" TEXT,
+    "taxId" TEXT,
+    "notes" TEXT,
+    "isActive" BOOLEAN DEFAULT TRUE NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "Vendor_companyId_name_key" UNIQUE ("companyId", "name")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_vendor_company" ON "Vendor"("companyId");
+
+-- Link PurchaseOrder to Vendor
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "vendorId" UUID REFERENCES "Vendor"("id") ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS "idx_purchase_order_vendor" ON "PurchaseOrder"("vendorId");
+
+-- Idempotent adjustments for Company table
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "taxId" TEXT;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "gstin" TEXT;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "lowStockMode" TEXT DEFAULT 'MANUAL' NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL;
+
+-- Idempotent adjustments for ProductVariant table
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "category" TEXT DEFAULT 'Top' NOT NULL;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "targetGroup" TEXT DEFAULT 'Adults' NOT NULL;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "ageRange" TEXT;
+
 
 

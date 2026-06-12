@@ -77,10 +77,19 @@ interface ProductVariant {
   color: string;
 }
 
+interface VendorOption {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  isActive: boolean;
+}
+
 export default function PurchaseOrdersPage() {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [variants, setVariants] = useState<ProductVariant[]>([]);
+  const [vendorsList, setVendorsList] = useState<VendorOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
@@ -95,6 +104,7 @@ export default function PurchaseOrdersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPO, setNewPO] = useState({
     poNumber: "",
+    vendorId: "",
     vendorName: "",
     vendorEmail: "",
     warehouseId: "",
@@ -111,14 +121,16 @@ export default function PurchaseOrdersPage() {
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [poRes, whRes, varRes] = await Promise.all([
+      const [poRes, whRes, varRes, vendorRes] = await Promise.all([
         fetch("/api/purchase-orders"),
         fetch("/api/warehouses"),
-        fetch("/api/inventory")
+        fetch("/api/inventory"),
+        fetch("/api/vendors")
       ]);
       const poData = await poRes.json();
       const whData = await whRes.json();
       const varData = await varRes.json();
+      const vendorData = await vendorRes.json();
 
       if (Array.isArray(poData)) setPurchaseOrders(poData);
       if (Array.isArray(whData)) {
@@ -128,6 +140,7 @@ export default function PurchaseOrdersPage() {
         }
       }
       if (Array.isArray(varData)) setVariants(varData);
+      if (Array.isArray(vendorData)) setVendorsList(vendorData.filter((v: VendorOption) => v.isActive));
     } catch (err) {
       console.error("Failed to load PO page data:", err);
       toast.error("Failed to load data");
@@ -142,7 +155,7 @@ export default function PurchaseOrdersPage() {
 
   const handleCreatePO = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPO.poNumber || !newPO.vendorName || !newPO.warehouseId) {
+    if (!newPO.poNumber || !newPO.vendorId || !newPO.warehouseId) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -171,6 +184,7 @@ export default function PurchaseOrdersPage() {
       // Reset form
       setNewPO({
         poNumber: "",
+        vendorId: "",
         vendorName: "",
         vendorEmail: "",
         warehouseId: warehouses[0]?.id || "",
@@ -208,7 +222,7 @@ export default function PurchaseOrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: itemsToReceive,
-          operatorEmail: "admin@vtex.local" // Mocked active user
+          operatorEmail: "admin@seyon.local" // Mocked active user
         })
       });
       const data = await res.json();
@@ -610,30 +624,32 @@ export default function PurchaseOrdersPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-700">Vendor Name *</label>
-                  <input
-                    type="text"
+              <div className="space-y-1">
+                  <label className="text-xs font-semibold text-gray-700">Vendor *</label>
+                  <select
                     required
-                    placeholder="e.g. Zeta Fabrics"
-                    value={newPO.vendorName}
-                    onChange={(e) => setNewPO(prev => ({ ...prev, vendorName: e.target.value }))}
+                    value={newPO.vendorId}
+                    onChange={(e) => {
+                      const vid = e.target.value;
+                      const v = vendorsList.find(x => x.id === vid);
+                      setNewPO(prev => ({
+                        ...prev,
+                        vendorId: vid,
+                        vendorName: v?.name || "",
+                        vendorEmail: v?.email || ""
+                      }));
+                    }}
                     className="w-full bg-slate-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
+                  >
+                    <option value="">Select a vendor...</option>
+                    {vendorsList.map(v => (
+                      <option key={v.id} value={v.id}>{v.name}{v.email ? ` (${v.email})` : ""}</option>
+                    ))}
+                  </select>
+                  {vendorsList.length === 0 && (
+                    <p className="text-[10px] text-amber-600 mt-1">No vendors found. Add vendors from the Vendor Directory first.</p>
+                  )}
                 </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-gray-700">Vendor Email</label>
-                  <input
-                    type="email"
-                    placeholder="e.g. orders@zeta.com"
-                    value={newPO.vendorEmail}
-                    onChange={(e) => setNewPO(prev => ({ ...prev, vendorEmail: e.target.value }))}
-                    className="w-full bg-slate-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  />
-                </div>
-              </div>
 
               {/* Items Section */}
               <div className="space-y-3 border-t border-gray-100 pt-4">

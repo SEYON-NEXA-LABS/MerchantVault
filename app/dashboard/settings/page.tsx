@@ -72,7 +72,10 @@ function SettingsContent() {
   const [companyName, setCompanyName] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [timezone, setTimezone] = useState("");
-  const [defaultThreshold, setDefaultThreshold] = useState(3);
+  const [defaultThreshold, setDefaultThreshold] = useState(5);
+  const [taxId, setTaxId] = useState("");
+  const [gstin, setGstin] = useState("");
+  const [lowStockMode, setLowStockMode] = useState("MANUAL");
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   // Warehouses states
@@ -216,6 +219,9 @@ function SettingsContent() {
         setCompanyName(data.name || "");
         setCurrency(data.currency || "INR");
         setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
+        setTaxId(data.taxId || "");
+        setGstin(data.gstin || "");
+        setLowStockMode(data.lowStockMode || "MANUAL");
         if (data.shopifyStoreUrl) {
           setShopUrl(data.shopifyStoreUrl.replace("https://", ""));
           setIsConnected(true);
@@ -293,6 +299,9 @@ function SettingsContent() {
           name: companyName,
           currency,
           timezone: timezone.split(" ")[0], // Extract just the code e.g. "IST"
+          taxId,
+          gstin,
+          lowStockMode
         }),
       });
       const data = await res.json();
@@ -678,7 +687,7 @@ function SettingsContent() {
                     />
                   </div>
 
-                  <div className="space-y-1 col-span-2">
+                  <div className="space-y-1">
                     <label className="font-semibold text-gray-600">Default Low Stock Alert Threshold</label>
                     <input 
                       type="number"
@@ -686,6 +695,52 @@ function SettingsContent() {
                       value={defaultThreshold} 
                       onChange={e => setDefaultThreshold(parseInt(e.target.value) || 3)}
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono font-bold" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">Low Stock Control Mode</label>
+                    <select
+                      value={lowStockMode}
+                      onChange={e => setLowStockMode(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold"
+                    >
+                      <option value="MANUAL">Manual (Use Set Safety Limits)</option>
+                      <option value="AUTOMATIC">Automatic (Dynamic Sales Velocity-based)</option>
+                    </select>
+                    <div className="mt-2 p-2.5 bg-gray-50 border border-gray-150 rounded-lg text-[10px] text-gray-500 space-y-1 leading-relaxed">
+                      {lowStockMode === "MANUAL" ? (
+                        <p>
+                          <strong className="text-gray-700">Manual Mode Theory:</strong> Low stock status is triggered when the physical stock level drops to or below the static <code className="bg-gray-200 px-1 py-0.5 rounded font-mono text-[9px]">safetyStockLimit</code> configured directly on the product variant catalog profile.
+                        </p>
+                      ) : (
+                        <p>
+                          <strong className="text-gray-700">Automatic Mode Theory:</strong> Low stock status is dynamically calculated daily using sales data and lead time metrics. The system evaluates when stock levels drop below: <br />
+                          <span className="font-semibold text-indigo-900 font-mono text-[9px]">Average Daily Sales (ADS) × Lead Time Days</span> (ensuring enough coverage for restocking replenishment).
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">GSTIN / VAT Number (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={gstin} 
+                      onChange={e => setGstin(e.target.value)} 
+                      placeholder="e.g. 22AAAAA1111A1Z1"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all uppercase font-mono" 
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">Tax Registration ID (Optional)</label>
+                    <input 
+                      type="text" 
+                      value={taxId} 
+                      onChange={e => setTaxId(e.target.value)} 
+                      placeholder="e.g. TAX-99999"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                     />
                   </div>
                 </div>

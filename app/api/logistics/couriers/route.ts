@@ -1,22 +1,18 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data, error } = await supabase
       .from("CourierConfig")
-      .select("*")
-      .eq("companyId", company.id);
+      .select("id, companyId, courierPartner, apiEmail, apiPassword, apiKey, apiSecret, isActive, createdAt, updatedAt")
+      .eq("companyId", companyId);
 
     if (error) throw error;
 
@@ -36,21 +32,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Courier partner is required" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Check if configuration already exists
     const { data: existingConfig } = await supabase
       .from("CourierConfig")
       .select("id")
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .eq("courierPartner", courierPartner)
       .maybeSingle();
 
@@ -76,7 +67,7 @@ export async function POST(req: Request) {
       const { data, error } = await supabase
         .from("CourierConfig")
         .insert({
-          companyId: company.id,
+          companyId: companyId,
           courierPartner,
           apiEmail,
           apiPassword,

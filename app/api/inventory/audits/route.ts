@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET(request: Request) {
   try {
@@ -10,14 +11,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Warehouse ID is required" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data: audits, error: auditErr } = await supabase
@@ -32,7 +28,7 @@ export async function GET(request: Request) {
           variant:ProductVariant(id, sku, title, size, color, barcodeString)
         )
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .eq("warehouseId", warehouseId)
       .order("createdAt", { ascending: false });
 
@@ -54,21 +50,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // 1. Create the parent InventoryAudit record
     const { data: audit, error: auditErr } = await supabase
       .from("InventoryAudit")
       .insert({
-        companyId: company.id,
+        companyId: companyId,
         warehouseId,
         operatorEmail,
         status: "IN_PROGRESS"

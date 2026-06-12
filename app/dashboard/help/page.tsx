@@ -9,12 +9,9 @@ import {
   FileText, 
   Folder, 
   FolderOpen, 
-  HelpCircle,
   Package,
   QrCode,
-  Truck,
-  CreditCard,
-  UserCheck
+  Truck
 } from "lucide-react";
 
 // Structure representing topics in our help system
@@ -22,15 +19,7 @@ interface HelpTopic {
   id: string;
   title: string;
   category: string;
-  icon?: any;
   content: React.ReactNode;
-}
-
-interface TOCNode {
-  title: string;
-  isFolder: boolean;
-  children?: TOCNode[];
-  topicId?: string;
 }
 
 export default function HelpPage() {
@@ -38,8 +27,7 @@ export default function HelpPage() {
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     "Getting Started": true,
     "Inventory & Barcodes": true,
-    "Orders & Shipments": false,
-    "Platform Billing": false
+    "Orders & Logistics": true
   });
   const [activeTopicId, setActiveTopicId] = useState("intro");
 
@@ -47,64 +35,31 @@ export default function HelpPage() {
   const topics: HelpTopic[] = [
     {
       id: "intro",
-      title: "Introduction to SEYON CRM + ERP",
+      title: "Introduction to SEYON Operations",
       category: "Getting Started",
       content: (
         <div className="space-y-4">
           <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Introduction to SEYON</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Welcome to the <strong>SEYON Operations Portal</strong>, a centralized multi-tenant CRM + ERP system designed specifically for D2C clothing brands. SEYON integrates inventory, order processing, barcode scanning, logistics partners, and tenant management into a single, high-fidelity user interface.
+            Welcome to the <strong>SEYON Operations Portal</strong>, the centralized control center for managing your D2C clothing brand's logistics and fulfillment. This system connects your active Shopify store with real-time warehouse scanning, stock movements, and courier partner dispatch.
           </p>
           <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
-            <h4 className="text-sm font-bold text-indigo-950">Quick Tip</h4>
+            <h4 className="text-sm font-bold text-indigo-950">Quick Start</h4>
             <p className="text-xs text-indigo-750 mt-1">
-              You can toggle your simulated user role (Superadmin, Tenant Admin, Staff Operator) in the top-right header selector to explore various operational views and permissions.
+              Select your active **Warehouse Location** from the footer selector. All scanning and stock records will be automatically tied to the selected warehouse terminal.
             </p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mt-6">Core Modules</h3>
+          <h3 className="text-lg font-bold text-slate-900 mt-6">Primary Workflows</h3>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-            <div className="border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-all bg-white">
-              <span className="font-bold text-sm text-slate-950 block">📦 Inventory & Barcodes</span>
-              <span className="text-xs text-slate-500">Scan barcodes to inward new production stock, manage transfers, and run active floor audits.</span>
+            <div className="border border-slate-200 rounded-lg p-3 bg-white">
+              <span className="font-bold text-sm text-slate-950 block">📦 Barcode Scanning</span>
+              <span className="text-xs text-slate-500">Generate tags, inward new production batches, manage inter-warehouse transfers, and run shelf audits.</span>
             </div>
-            <div className="border border-slate-200 rounded-lg p-3 hover:shadow-sm transition-all bg-white">
-              <span className="font-bold text-sm text-slate-950 block">🚚 Orders & Logistics</span>
-              <span className="text-xs text-slate-500">Track incoming Shopify orders, assign courier partners, generate manifest numbers, and ship packages.</span>
+            <div className="border border-slate-200 rounded-lg p-3 bg-white">
+              <span className="font-bold text-sm text-slate-950 block">🚚 Shopify Dispatch</span>
+              <span className="text-xs text-slate-500">Review pending orders, print shipping labels with automatically assigned tracking numbers, and build courier manifests.</span>
             </div>
           </ul>
-        </div>
-      )
-    },
-    {
-      id: "roles",
-      title: "Platform Roles & Permissions",
-      category: "Getting Started",
-      content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Roles & Access Control</h1>
-          <p className="text-sm text-slate-700 leading-relaxed">
-            SEYON implements a role-based access control (RBAC) hierarchy to ensure secure data access and appropriate interfaces for different warehouse and business roles:
-          </p>
-          <div className="space-y-3 mt-4">
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-150">
-              <span className="text-xs font-extrabold uppercase bg-red-100 text-red-700 px-2 py-0.5 rounded mr-2">Platform Superadmin</span>
-              <p className="text-xs text-slate-600 mt-1.5">
-                Responsible for platform-wide operations: managing company onboarding, bootstrapping default warehouse locations, creating default company admins, and configuring billing tiers (Free Trial, Monthly, Yearly, One-time Setup + AMC).
-              </p>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-150">
-              <span className="text-xs font-extrabold uppercase bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded mr-2">Tenant Admin</span>
-              <p className="text-xs text-slate-600 mt-1.5">
-                The manager for a specific brand (tenant). Has access to all company-level settings, Shopify synchronization logs, staff management, warehouse configurations, and order reviews.
-              </p>
-            </div>
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-150">
-              <span className="text-xs font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded mr-2">Staff Operator</span>
-              <p className="text-xs text-slate-600 mt-1.5">
-                Floor staff operators responsible for day-to-day operations: printing barcode tags, matching inward shipments, outwarding packages, running audits, and handing manifests over to drivers.
-              </p>
-            </div>
-          </div>
         </div>
       )
     },
@@ -116,20 +71,20 @@ export default function HelpPage() {
         <div className="space-y-4">
           <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Barcode Generation & Printing</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Every product variant in your SEYON portal has a unique barcode identifier. Barcodes must be printed and attached to garments before scanning them into stock.
+            Every product variant has a unique barcode identifier. Barcodes must be printed and attached to garments before scanning them into stock.
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Step-by-Step Instructions</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-4">Generating Labels</h3>
           <ol className="list-decimal list-inside text-sm text-slate-700 space-y-2 mt-2">
-            <li>Navigate to the <strong>Print & Generate</strong> tab under Barcode Operations.</li>
-            <li>Select your active product or variant from the list.</li>
-            <li>Enter the quantity of tags you wish to generate.</li>
-            <li>Click <strong>Generate Barcode Image</strong>. The system will encode the barcode string and render a downloadable PNG barcode label.</li>
-            <li>Click <strong>Print Labels</strong> to send the generated PDF to your local thermal barcode printer.</li>
+            <li>Go to the <strong>Barcode Operations</strong> page from the sidebar menu.</li>
+            <li>Select the target garment SKU or variant from the active catalog directory.</li>
+            <li>Input the number of labels you want to create in the quantity input field.</li>
+            <li>Click <strong>Generate Barcode Image</strong>. The portal will generate standard barcode labels containing the SKU and variant details.</li>
+            <li>Use the **Print** dialog to output labels to your local thermal label printer.</li>
           </ol>
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-amber-950">Important Requirement</h4>
+            <h4 className="text-sm font-bold text-amber-950">Printer Calibration Tip</h4>
             <p className="text-xs text-amber-750 mt-1">
-              Ensure that your barcode printer is calibrated to the correct size (e.g. 50mm x 25mm labels) to avoid cropped barcodes that cannot be scanned by laser barcode scanners.
+              For best scanning results, calibrate your thermal printer to standard `50mm x 25mm` barcode label sizes to ensure barcodes don't bleed off the edges.
             </p>
           </div>
         </div>
@@ -143,23 +98,23 @@ export default function HelpPage() {
         <div className="space-y-4">
           <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Stock Inward & Outward</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            The <strong>Inward & Outward</strong> portal is where you log inventory modifications on the warehouse floor.
+            Use the **Inward/Outward** scanning page to register stock changes as physical items arrive or leave the warehouse shelves.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
               <h3 className="font-bold text-sm text-slate-950 flex items-center gap-1.5 mb-2">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Stock Inward (Production/Restock)
+                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Inward Scan (Receiving)
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Scan barcode tags of incoming crates from factories. Inwarding increases the inventory count of that SKU inside your selected warehouse location and creates an `INWARD` stock movement.
+                Scan production batches arriving from suppliers to add them to your active warehouse stock. This logs an `INWARD` stock movement and updates total catalog levels.
               </p>
             </div>
             <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
               <h3 className="font-bold text-sm text-slate-950 flex items-center gap-1.5 mb-2">
-                <span className="w-2 h-2 bg-red-500 rounded-full"></span> Stock Outward (Dispatches/Damage)
+                <span className="w-2 h-2 bg-red-500 rounded-full"></span> Outward Scan (Adjustments)
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Scan barcodes to manually deduct stock (for offline sales, corporate samples, or writing off damaged units). Outwarding decreases the inventory count of that SKU and logs an `OUTWARD` movement.
+                Scan items to manually deduct inventory for sample dispatch, store displays, or writing off damaged garments. Logs an `OUTWARD` stock movement.
               </p>
             </div>
           </div>
@@ -172,55 +127,38 @@ export default function HelpPage() {
       category: "Inventory & Barcodes",
       content: (
         <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Inventory Auditing & Reconciliation</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Inventory Auditing & Cycle Counts</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            The **Inventory Auditing** module enables periodic verification of physical warehouse stock. It highlights discrepancies and generates adjusting movements to maintain absolute catalog integrity.
+            Run periodic audits to reconcile physical stock with digital numbers. The audit dashboard tracks discrepancies automatically:
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Audit Columns Explained</h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-xs text-slate-600 border border-slate-250 divide-y divide-slate-200">
+            <table className="min-w-full text-xs text-slate-600 border border-slate-200 divide-y divide-slate-200">
               <thead className="bg-slate-100 text-slate-800 font-bold">
                 <tr>
-                  <th className="px-3 py-2 text-left">Column Name</th>
+                  <th className="px-3 py-2 text-left">Audit Field</th>
                   <th className="px-3 py-2 text-left">Description</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 <tr>
                   <td className="px-3 py-2 font-bold text-slate-900">Expected Stock</td>
-                  <td className="px-3 py-2">The digital quantity of units the database currently records on shelves.</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2 font-bold text-slate-900">Ready to Dispatch</td>
-                  <td className="px-3 py-2">Units currently allocated/staging for active pending customer orders (in `PROCESSING` state).</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2 font-bold text-slate-900">Returned (RTO)</td>
-                  <td className="px-3 py-2">Units returned by customers that have arrived back but are not yet added back to shelf inventory.</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2 font-bold text-slate-900">In-Transit</td>
-                  <td className="px-3 py-2">Units currently traveling between warehouse locations on active Stock Transfers.</td>
-                </tr>
-                <tr>
-                  <td className="px-3 py-2 font-bold text-slate-900">Incoming PO</td>
-                  <td className="px-3 py-2">Ordered units purchased from factory suppliers that are still waiting to arrive.</td>
+                  <td className="px-3 py-2">The current database count recorded for the variant.</td>
                 </tr>
                 <tr>
                   <td className="px-3 py-2 font-bold text-slate-900">Actual Scanned</td>
-                  <td className="px-3 py-2 font-bold text-indigo-700">The physical number of units verified on the shelf by the auditor's barcode scan.</td>
+                  <td className="px-3 py-2 text-indigo-700 font-semibold">The number of tags physically scanned on shelves during this audit session.</td>
                 </tr>
                 <tr>
                   <td className="px-3 py-2 font-bold text-slate-900">Discrepancy</td>
-                  <td className="px-3 py-2">Calculated mismatch difference (Scanned Quantity - Expected Quantity). Highlights in orange/red if non-zero.</td>
+                  <td className="px-3 py-2">The delta (Scanned - Expected). Highlights mismatch errors requiring reconciliation.</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-emerald-950">Audio Feedback & Recovery</h4>
-            <p className="text-xs text-emerald-750 mt-1">
-              Enable the <strong>Audio Beep Feedback</strong> toggle on the scanning dashboard to get audio status warnings (beep sound on valid match, warning buzz on unknown SKU). Active counts are continuously saved to local storage so you never lose progress if the device refreshes.
+          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg mt-2">
+            <h4 className="text-sm font-bold text-indigo-950">Audio Scans</h4>
+            <p className="text-xs text-indigo-750 mt-1">
+              Keep the audio feedback toggle active to get auditory verification as you scan (success beep vs. invalid warning tone) to speed up floor operations.
             </p>
           </div>
         </div>
@@ -229,105 +167,39 @@ export default function HelpPage() {
     {
       id: "orders",
       title: "Processing Shopify Orders",
-      category: "Orders & Shipments",
+      category: "Orders & Logistics",
       content: (
         <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Shopify Orders Directory</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Fulfilling Shopify Orders</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Orders are automatically synchronized from your Shopify store into SEYON via Webhooks.
+            Incoming orders synchronize automatically from Shopify via webhooks. Floor staff can pack and fulfill orders directly:
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Fulfillment Workflow</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-4">Order Status Path</h3>
           <ul className="list-disc list-inside text-sm text-slate-700 space-y-1.5 mt-2">
-            <li><strong>Step 1</strong>: View orders in the <strong>Orders Directory</strong>. Orders show a `PROCESSING` status upon import.</li>
-            <li><strong>Step 2</strong>: Pack items and enter dimensions. Click <strong>Fulfill Order</strong>.</li>
-            <li><strong>Step 3</strong>: The system communicates with the configured courier partner (e.g. Delhivery, Shiprocket) to retrieve an AWB tracking number.</li>
-            <li><strong>Step 4</strong>: Print the shipping label with the barcode and attach it to the package. The order status advances to `SHIPPED`.</li>
+            <li><strong>Processing</strong>: Order imported and waiting to be packed.</li>
+            <li><strong>Fulfill Action</strong>: Enter parcel dimensions and weight to automatically fetch courier routing from Delhivery or Shiprocket.</li>
+            <li><strong>Shipped</strong>: Once the AWB label is generated and printed, attach it to the box. The status moves to `SHIPPED` and updates the customer on Shopify.</li>
           </ul>
         </div>
       )
     },
     {
       id: "manifests",
-      title: "Logistics & Manifests",
-      category: "Orders & Shipments",
+      title: "Courier Handovers & Manifests",
+      category: "Orders & Logistics",
       content: (
         <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Manifests & Handover</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Shipping Manifests</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Before courier drivers leave the warehouse, you must generate a <strong>Shipping Manifest</strong>. This document details all packages loaded onto a single vehicle.
+            A shipping manifest must be printed and signed by the courier driver before any package leaves the warehouse premises.
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Manifest Process</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-4">How to create a manifest:</h3>
           <ol className="list-decimal list-inside text-sm text-slate-700 space-y-2 mt-2">
-            <li>Go to the <strong>Logistics & Returns</strong> section.</li>
-            <li>Click <strong>Generate New Manifest</strong>. Select the courier partner (e.g., Delhivery) and enter driver details (Name and Phone).</li>
-            <li>Scan/add unmanifested shipped packages to this manifest.</li>
-            <li>Print the manifest sheet. The driver signs the printed manifest as proof of receipt.</li>
-            <li>Click <strong>Hand Over Manifest</strong> in the portal to update delivery statuses for all packed items to `SHIPPED` inside Shopify.</li>
+            <li>Go to the **Logistics** panel in the sidebar.</li>
+            <li>Click **Create Manifest**. Select the courier partner (e.g. Bluedart, Delhivery) and enter driver details.</li>
+            <li>Assign packed packages to the manifest.</li>
+            <li>Print the manifest handover sheet. The driver signs this paper document as proof of custody.</li>
           </ol>
-        </div>
-      )
-    },
-    {
-      id: "subscriptions",
-      title: "Subscription Tiers & AMC",
-      category: "Platform Billing",
-      content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Subscription & Pricing Mechanics</h1>
-          <p className="text-sm text-slate-700 leading-relaxed">
-            Platform billing configurations support multiple business tiers. The billing scheme is managed globally by the Superadmin:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="p-3 border border-slate-200 rounded-lg">
-              <span className="font-bold text-xs text-indigo-700 uppercase block">Free Trial</span>
-              <p className="text-xs text-slate-500 mt-1">Allows unlimited scans and orders for 14 days, expiring automatically unless upgraded.</p>
-            </div>
-            <div className="p-3 border border-slate-200 rounded-lg">
-              <span className="font-bold text-xs text-indigo-700 uppercase block">Monthly / Yearly Plan</span>
-              <p className="text-xs text-slate-500 mt-1">Flat rate billing with cycles completing exactly 30 days or 365 days from the active start date.</p>
-            </div>
-            <div className="p-3 border border-slate-200 rounded-lg">
-              <span className="font-bold text-xs text-indigo-700 uppercase block">One-time Setup + AMC</span>
-              <p className="text-xs text-slate-500 mt-1">Combines an initial license setup fee with an annual maintenance charge (AMC) billed annually.</p>
-            </div>
-            <div className="p-3 border border-slate-200 rounded-lg">
-              <span className="font-bold text-xs text-indigo-700 uppercase block">Pay-per-order / Enterprise</span>
-              <p className="text-xs text-slate-500 mt-1">Flexible pay-as-you-go fees based on transaction volume, or custom high-capacity enterprise service level agreements (SLAs).</p>
-            </div>
-          </div>
-          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-indigo-950">Renewal Adjustments</h4>
-            <p className="text-xs text-indigo-750 mt-1">
-              Superadmins can click <strong>Reset Renewal from Today</strong> on any company profile, which shifts the upcoming billing date from the current moment based on their active billing tier interval.
-            </p>
-          </div>
-        </div>
-      )
-    },
-    {
-      id: "onboarding",
-      title: "Onboarding & Password Resets",
-      category: "Platform Billing",
-      content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Manual Tenant Onboarding</h1>
-          <p className="text-sm text-slate-700 leading-relaxed">
-            New companies are manually provisioned by the Superadmin on the Platform Control Center.
-          </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Onboarding Flow</h3>
-          <ul className="list-disc list-inside text-sm text-slate-700 space-y-1.5 mt-2">
-            <li>The Superadmin enters the Company Name and unique code (e.g. `vtex`).</li>
-            <li>The system generates an initial Admin User account with username `admin` and default password `password123`.</li>
-            <li>A default warehouse is bootstrapped (e.g., `vtex MUMBAI WH`) to ensure the tenant is ready to scan products immediately.</li>
-          </ul>
-          <h3 className="text-base font-bold text-slate-900 mt-6">Password Reset Policies</h3>
-          <p className="text-sm text-slate-700 leading-relaxed">
-            Because SEYON operates on a local, secure sandbox model, no external mail servers are integrated. Password recovery is handled hierarchically:
-          </p>
-          <ul className="list-disc list-inside text-sm text-slate-700 space-y-1.5 mt-2">
-            <li>The **Superadmin** can reset the password of any Tenant Admin from the Superadmin dashboard directory.</li>
-            <li>A **Tenant Admin** can reset passwords for staff operators inside the company settings panel.</li>
-          </ul>
         </div>
       )
     }
@@ -357,8 +229,8 @@ export default function HelpPage() {
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-slate-600" />
           <div>
-            <h2 className="font-extrabold text-sm text-slate-900">SEYON Compiled HTML Help System</h2>
-            <p className="text-[10px] text-slate-500 font-mono">v1.2.0-winhelp</p>
+            <h2 className="font-extrabold text-sm text-slate-900">Operations Guide Help System</h2>
+            <p className="text-[10px] text-slate-500 font-mono">v1.2.0-userhelp</p>
           </div>
         </div>
         
@@ -367,7 +239,7 @@ export default function HelpPage() {
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search help index (e.g. audit, RTO)..."
+            placeholder="Search help topics (e.g. audit, labels)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-white border border-slate-300 rounded-md py-1.5 pl-9 pr-4 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all font-medium"
@@ -391,7 +263,7 @@ export default function HelpPage() {
 
               return (
                 <div key={cat} className="space-y-0.5">
-                  {/* Folder Header */}
+                  {/* Folder Folder */}
                   <button
                     onClick={() => toggleFolder(cat)}
                     className="w-full flex items-center justify-between p-2 rounded-md hover:bg-slate-200/60 transition-colors text-left"

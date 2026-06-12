@@ -284,6 +284,23 @@ function SuperadminContent() {
         </div>
         <div className="flex gap-3">
           <button
+            onClick={async () => {
+              const promise = fetch("/api/superadmin/seed", { method: "POST" });
+              toast.promise(promise, {
+                loading: "Seeding database...",
+                success: "Database seeded successfully!",
+                error: "Failed to seed database."
+              });
+              try {
+                await promise;
+                fetchSubscriptions();
+              } catch (e) {}
+            }}
+            className="flex items-center gap-2 bg-indigo-950 hover:bg-indigo-900 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all"
+          >
+            <RefreshCw className="w-4 h-4" /> Seed Database
+          </button>
+          <button
             onClick={() => setShowOnboardModal(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all"
           >

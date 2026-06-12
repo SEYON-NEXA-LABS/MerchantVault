@@ -1,22 +1,18 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data: users, error: userErr } = await supabase
       .from("User")
-      .select("*")
-      .eq("companyId", company.id)
+      .select("id, companyId, username, email, role, isActive, createdAt, updatedAt")
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (userErr) throw userErr;
@@ -33,14 +29,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { id, username, password, role, isActive } = body;
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     if (id) {
@@ -70,7 +61,7 @@ export async function POST(request: Request) {
       const { data: existingUser } = await supabase
         .from("User")
         .select("id")
-        .eq("companyId", company.id)
+        .eq("companyId", companyId)
         .eq("username", username)
         .maybeSingle();
 
@@ -78,12 +69,12 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Username already exists under this tenant" }, { status: 400 });
       }
 
-      const email = `${username.toLowerCase()}@vtex.local`;
+      const email = `${username.toLowerCase()}@seyon.local`;
 
       const { data: newUser, error: createErr } = await supabase
         .from("User")
         .insert({
-          companyId: company.id,
+          companyId: companyId,
           username,
           password,
           email,

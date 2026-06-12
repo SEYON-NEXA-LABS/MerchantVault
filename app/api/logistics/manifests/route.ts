@@ -1,16 +1,12 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data, error } = await supabase
@@ -27,7 +23,7 @@ export async function GET(req: Request) {
         warehouse:Warehouse(id, name, code),
         fulfillments:OrderFulfillment(id, orderNumber, customerName, customerPhone, deliveryStatus, awbNumber)
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (error) throw error;
@@ -48,21 +44,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields or order list" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // 1. Create manifest
     const { data: manifest, error: manifestErr } = await supabase
       .from("ShippingManifest")
       .insert({
-        companyId: company.id,
+        companyId: companyId,
         manifestNumber,
         courierPartner,
         warehouseId,

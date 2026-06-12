@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
     const { data: company, error: compErr } = await supabase
       .from("Company")
-      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, whatsappNumber, whatsappApiKey, onboardingStep, onboardingCompleted, timezone, currency, contactEmail, logoUrl, isActive")
-      .eq("code", "vtex")
+      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, whatsappNumber, whatsappApiKey, onboardingStep, onboardingCompleted, timezone, currency, contactEmail, logoUrl, isActive, taxId, gstin, lowStockMode")
+      .eq("id", companyId)
       .maybeSingle();
 
     if (compErr || !company) {
@@ -24,21 +30,16 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Build update payload from allowed fields
     const allowedFields = [
       "name", "shopifyStoreUrl", "shopifyAccessToken",
       "whatsappNumber", "whatsappApiKey", "timezone",
-      "currency", "contactEmail", "logoUrl"
+      "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode"
     ];
 
     const updateData: { [key: string]: any } = {};
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("Company")
       .update(updateData)
-      .eq("id", company.id)
+      .eq("id", companyId)
       .select()
       .single();
 

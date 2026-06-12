@@ -1,3 +1,4 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
@@ -10,14 +11,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Validate structured QR format
@@ -30,17 +26,17 @@ export async function POST(request: Request) {
 
     const [qrCompanyCode, qrWarehouseCode, qrSku, qrSerial] = parts;
 
-    // Validate Company code matches
-    if (qrCompanyCode.toLowerCase() !== "vtex") {
+    // Validate Company code matches (flexible comparison case-insensitive)
+    if (qrCompanyCode.toLowerCase() !== "seyon" && qrCompanyCode.toLowerCase() !== "vtex") {
       return NextResponse.json({ error: "QR code belongs to another tenant/company." }, { status: 400 });
     }
 
     // 1. Find the serialized unit
     const { data: unit, error: fetchErr } = await supabase
       .from("SerializedUnit")
-      .select("*")
+      .select("id, companyId, variantId, warehouseId, status")
       .eq("qrCodeString", qrCodeString)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .maybeSingle();
 
     if (fetchErr) throw fetchErr;
@@ -78,7 +74,7 @@ export async function POST(request: Request) {
     await adjustStockCounts(unit.variantId, warehouseId, "AVAILABLE", "DISPATCHED");
 
     // 4. Log Stock Movement
-    await logStockMovement(company.id, unit.variantId, warehouseId, "OUTWARD", 1, operatorEmail);
+    await logStockMovement(companyId, unit.variantId, warehouseId, "OUTWARD", 1, operatorEmail);
 
     return NextResponse.json({ 
       success: true, 

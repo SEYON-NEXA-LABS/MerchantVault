@@ -1,20 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
     // Get company
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
-
-    const companyId = company.id;
 
     // Parallel fetch all data we need
     const [ordersRes, variantsRes, movementsRes] = await Promise.all([

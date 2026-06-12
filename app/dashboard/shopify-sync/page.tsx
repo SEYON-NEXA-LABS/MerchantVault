@@ -78,7 +78,7 @@ function ShopifySyncContent() {
               <Link2 className="w-3 h-3" /> Connected
             </span>
             <span className="text-gray-400 text-xs">•</span>
-            <span className="text-xs text-gray-500 font-mono">vtex-clothing.myshopify.com</span>
+            <span className="text-xs text-gray-500 font-mono">seyon-clothing.myshopify.com</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Sync Bridge</h1>
           <p className="text-sm text-gray-500">

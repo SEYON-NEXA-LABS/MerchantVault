@@ -25,6 +25,9 @@ interface ProductVariant {
   size: string;
   price: number;
   shopifyVariantId: string;
+  category?: string;
+  targetGroup?: string;
+  ageRange?: string;
 }
 
 interface QueueItem {
@@ -57,8 +60,11 @@ export default function BarcodePage() {
             sku: v.sku,
             color: v.color || "",
             size: v.size || "",
-            price: 1299, // Default display price — real prices come from Shopify
+            price: v.price || 1299,
             shopifyVariantId: v.shopifyVariantId || "",
+            category: v.category || "",
+            targetGroup: v.targetGroup || "",
+            ageRange: v.ageRange || "",
           }));
           setProducts(mapped);
           if (mapped.length > 0) {
@@ -145,7 +151,7 @@ export default function BarcodePage() {
   // Get dynamic URL for Shopify lookup
   const getShopifyUrl = (variant: ProductVariant) => {
     const handle = variant.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    return `https://vtex-clothing.myshopify.com/products/${handle}?sku=${variant.sku}`;
+    return `https://seyon-clothing.myshopify.com/products/${handle}?sku=${variant.sku}`;
   };
 
   const getQrValue = (variant: ProductVariant) => {
@@ -535,7 +541,7 @@ export default function BarcodePage() {
                     {selectedProduct.name}
                   </p>
                   <p className="text-[8px] text-gray-500 leading-none truncate w-full">
-                    Color: {selectedProduct.color}
+                    Color: {selectedProduct.color} {selectedProduct.targetGroup ? `| Age: ${selectedProduct.targetGroup}${selectedProduct.ageRange ? ` (${selectedProduct.ageRange})` : ""}` : ""}
                   </p>
                 </div>
 
@@ -855,7 +861,7 @@ function PrintTag({
         </p>
         {tagPreset !== "MICRO" && (
           <p className="text-[8px] text-slate-500 leading-none truncate w-full">
-            Color: {variant.color}
+            Color: {variant.color} {variant.targetGroup ? `| Age: ${variant.targetGroup}${variant.ageRange ? ` (${variant.ageRange})` : ""}` : ""}
           </p>
         )}
       </div>

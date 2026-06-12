@@ -1,22 +1,18 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
       return NextResponse.json([]);
     }
 
     const { data: orders, error: ordersErr } = await supabase
       .from("OrderFulfillment")
-      .select("*")
-      .eq("companyId", company.id)
+      .select("id, orderNumber, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg")
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (ordersErr) throw ordersErr;

@@ -1,16 +1,12 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Fetch last 30 stock movements as staff audit logs
@@ -25,7 +21,7 @@ export async function GET() {
         warehouse:Warehouse(name, code),
         variant:ProductVariant(sku, title, size, color)
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false })
       .limit(30);
 

@@ -1,3 +1,4 @@
+import { getContextCompanyId } from "@/lib/session";
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
@@ -7,14 +8,9 @@ export async function GET(req: Request) {
     const status = searchParams.get("status");
     const warehouseId = searchParams.get("warehouseId");
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     let query = supabase
@@ -22,6 +18,7 @@ export async function GET(req: Request) {
       .select(`
         id,
         poNumber,
+        vendorId,
         vendorName,
         vendorEmail,
         status,
@@ -29,6 +26,7 @@ export async function GET(req: Request) {
         createdAt,
         updatedAt,
         warehouse:Warehouse(id, name, code),
+        vendor:Vendor(id, name, email, phone),
         items:PurchaseOrderItem(
           id,
           variantId,
@@ -38,7 +36,7 @@ export async function GET(req: Request) {
           variant:ProductVariant(id, sku, title, size, color)
         )
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (status && status !== "ALL") {
@@ -61,24 +59,20 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { poNumber, vendorName, vendorEmail, status, warehouseId, items } = body;
+    const { poNumber, vendorId, vendorName, vendorEmail, status, warehouseId, items } = body;
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Insert purchase order
     const { data: po, error: poErr } = await supabase
       .from("PurchaseOrder")
       .insert({
-        companyId: company.id,
+        companyId: companyId,
         poNumber,
+        vendorId: vendorId || null,
         vendorName,
         vendorEmail,
         status: status || "DRAFT",

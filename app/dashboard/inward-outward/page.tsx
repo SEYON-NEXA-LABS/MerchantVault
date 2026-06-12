@@ -172,7 +172,7 @@ export default function InwardOutwardPage() {
           warehouseId: selectedWarehouseId,
           variantId: selectedVariant.id,
           newStockLevel,
-          operatorEmail: "operator@vtex-clothing.co"
+          operatorEmail: "operator@seyon-clothing.co"
         })
       });
 

@@ -6,7 +6,7 @@ export async function GET() {
     // 1. Fetch all companies
     const { data: companies, error: compErr } = await supabase
       .from("Company")
-      .select("*")
+      .select("id, name, code, contactEmail, logoUrl, timezone, currency, onboardingCompleted, onboardingStep, isActive, createdAt")
       .order("name", { ascending: true });
 
     if (compErr) throw compErr;
@@ -14,7 +14,7 @@ export async function GET() {
     // 2. Fetch all subscriptions
     const { data: subscriptions, error: subErr } = await supabase
       .from("Subscription")
-      .select("*");
+      .select("id, companyId, planType, amount, amcAmount, currency, status, nextRenewalDate, createdAt, updatedAt");
 
     if (subErr) throw subErr;
 

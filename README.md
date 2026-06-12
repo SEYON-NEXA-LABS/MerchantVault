@@ -1,4 +1,4 @@
-# Shopify Sync Bridge — V Textile Company ERP Core
+# FabricVault - Inventory & Order Management
 
 A high-performance, single-instance Next.js monorepo architecture built to automate real-time multi-variant inventory matching, physical barcode ledger streaming, automated courier fulfillment handshakes, and event-driven CRM abandoned cart recoveries. This application is optimized for direct execution on **Vercel** cloud environments.
 

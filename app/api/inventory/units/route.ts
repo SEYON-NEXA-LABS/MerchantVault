@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET(request: Request) {
   try {
@@ -10,23 +11,27 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Warehouse ID is required" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data: units, error: unitErr } = await supabase
       .from("SerializedUnit")
       .select(`
-        *,
+        id,
+        companyId,
+        variantId,
+        warehouseId,
+        qrCodeString,
+        status,
+        checkInDate,
+        lastOperator,
+        createdAt,
+        updatedAt,
         variant:ProductVariant(id, sku, title, size, color, barcodeString, price)
       `)
-      .eq("companyId", company.id)
+      .eq("companyId", companyId)
       .eq("warehouseId", warehouseId)
       .order("updatedAt", { ascending: false });
 
@@ -48,14 +53,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // 1. Validate structured QR format
@@ -68,8 +68,8 @@ export async function POST(request: Request) {
 
     const [qrCompanyCode, qrWarehouseCode, qrSku, qrSerial] = parts;
 
-    // Validate Company code matches
-    if (qrCompanyCode.toLowerCase() !== "vtex") {
+    // Validate Company code matches (flexible comparison case-insensitive)
+    if (qrCompanyCode.toLowerCase() !== "seyon" && qrCompanyCode.toLowerCase() !== "vtex") {
       return NextResponse.json({ error: "QR code belongs to another tenant/company." }, { status: 400 });
     }
 
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       const { data: dbVariant, error: varErr } = await supabase
         .from("ProductVariant")
         .select("id")
-        .eq("companyId", company.id)
+        .eq("companyId", companyId)
         .eq("sku", qrSku)
         .maybeSingle();
 
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     // 2. Check if this QR code already exists in the system
     const { data: existingUnit, error: fetchErr } = await supabase
       .from("SerializedUnit")
-      .select("*")
+      .select("id, companyId, variantId, warehouseId, qrCodeString, status, checkInDate, lastOperator, createdAt, updatedAt")
       .eq("qrCodeString", qrCodeString)
       .maybeSingle();
 
@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       await adjustStockCounts(targetVariantId, warehouseId, oldWarehouseId, oldStatus, "AVAILABLE");
 
       // Log Stock Movement
-      await logStockMovement(company.id, targetVariantId, warehouseId, "INWARD", 1, operatorEmail);
+      await logStockMovement(companyId, targetVariantId, warehouseId, "INWARD", 1, operatorEmail);
 
       return NextResponse.json({ 
         success: true, 
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
       const { data: newUnit, error: createErr } = await supabase
         .from("SerializedUnit")
         .insert({
-          companyId: company.id,
+          companyId,
           variantId: targetVariantId,
           warehouseId,
           qrCodeString,
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
       await adjustStockCounts(targetVariantId, warehouseId, null, null, "AVAILABLE");
 
       // Log Stock Movement
-      await logStockMovement(company.id, targetVariantId, warehouseId, "INWARD", 1, operatorEmail);
+      await logStockMovement(companyId, targetVariantId, warehouseId, "INWARD", 1, operatorEmail);
 
       return NextResponse.json({ 
         success: true, 

@@ -49,7 +49,9 @@ import {
   LogOut,
   User,
   Activity,
-  Check
+  Check,
+  X,
+  Building2
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { RoleProvider } from "../../components/RoleGuard";
@@ -57,12 +59,12 @@ import { RoleProvider } from "../../components/RoleGuard";
 // Simulated Activities per User Role
 const simulatedActivities = {
   SUPERADMIN: [
-    { id: 1, action: "Approved monthly subscription plan for VTEX Tenant", time: "2 hours ago", type: "system" },
+    { id: 1, action: "Approved monthly subscription plan for Seyon Tenant", time: "2 hours ago", type: "system" },
     { id: 2, action: "Created database schema index for SerializedUnit table", time: "5 hours ago", type: "db" },
     { id: 3, action: "Adjusted global webhook rate limiting threshold", time: "1 day ago", type: "settings" }
   ],
   TENANTADMIN: [
-    { id: 1, action: "Added staff profile user operator@vtex.local", time: "12 mins ago", type: "staff" },
+    { id: 1, action: "Added staff profile user operator@seyon.local", time: "12 mins ago", type: "staff" },
     { id: 2, action: "Re-connected Shopify sync channel credentials", time: "1 hour ago", type: "sync" },
     { id: 3, action: "Updated Delhivery Courier API keys in configurations", time: "3 hours ago", type: "logistics" }
   ],
@@ -81,6 +83,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const [userRole, setUserRole] = useState<"SUPERADMIN" | "TENANTADMIN" | "STAFF">("SUPERADMIN");
+  const [sessionUser, setSessionUser] = useState<any>(null);
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [activeWhId, setActiveWhId] = useState("");
   const [showWhModal, setShowWhModal] = useState(false);
@@ -90,6 +93,28 @@ export default function DashboardLayout({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated && data.user) {
+            setUserRole(data.user.role);
+            setSessionUser({
+              name: data.user.username,
+              email: data.user.email || `${data.user.username}@seyon.local`,
+              roleLabel: data.user.role === "SUPERADMIN" ? "Platform Administrator" : data.user.role === "TENANTADMIN" ? "Tenant Administrator" : "Warehouse Operator"
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load user session", err);
+      }
+    };
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     // Close dropdowns on outside clicks
@@ -136,6 +161,17 @@ export default function DashboardLayout({
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
+
+  // Handle Escape key to close warehouse selection modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showWhModal && activeWhId) {
+        setShowWhModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showWhModal, activeWhId]);
 
   useEffect(() => {
     const fetchLowStock = async () => {
@@ -198,25 +234,25 @@ export default function DashboardLayout({
   const userProfileInfo = {
     SUPERADMIN: {
       name: "David Miller",
-      email: "david@seyon.platform",
-      roleLabel: "Platform Administrator",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      email: "seyonnexalabs@gmail.com",
+      roleLabel: "Platform Administrator"
     },
     TENANTADMIN: {
       name: "Sarah Jenkins",
-      email: "sarah.jenkins@vtex.com",
-      roleLabel: "Tenant Administrator",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      email: "sarah.jenkins@seyon.com",
+      roleLabel: "Tenant Administrator"
     },
     STAFF: {
       name: "Alex Rivera",
-      email: "alex.rivera@vtex.local",
-      roleLabel: "Warehouse Operator",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+      email: "alex.rivera@seyon.local",
+      roleLabel: "Warehouse Operator"
     }
   };
 
-  const currentUser = userProfileInfo[userRole];
+  // Generate initials from user name for avatar
+  const getInitials = (name: string) => name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+
+  const currentUser = sessionUser || userProfileInfo[userRole];
 
   return (
     <RoleProvider value={{ role: userRole, setRole: setUserRole }}>
@@ -224,9 +260,9 @@ export default function DashboardLayout({
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto hidden md:flex flex-shrink-0">
           <div className="p-4 flex items-center gap-3 border-b border-gray-100">
-            <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm">S</div>
+            <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm">F</div>
             <div>
-              <h1 className="font-bold text-sm uppercase tracking-wide">SEYON</h1>
+              <h1 className="font-bold text-sm uppercase tracking-wide">FabricVault</h1>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">CRM + ERP</p>
             </div>
           </div>
@@ -267,6 +303,7 @@ export default function DashboardLayout({
                       badge: lowStockAlerts.length > 0 ? `${lowStockAlerts.length} Low` : null
                     },
                     { name: "Purchase Orders", icon: FileText, href: "/dashboard/inventory/purchase" },
+                    { name: "Vendors", icon: Building2, href: "/dashboard/vendors" },
                   ].map((item) => {
                     const active = isActive(item.href);
                     return (
@@ -553,12 +590,8 @@ export default function DashboardLayout({
                       {userRole}
                     </span>
                   </div>
-                  <div className="relative w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold overflow-hidden border border-indigo-200 group-hover:border-indigo-500 transition-all shadow-sm">
-                    <img 
-                      src={currentUser.avatar} 
-                      alt={currentUser.name} 
-                      className="w-full h-full object-cover" 
-                    />
+                  <div className="relative w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold overflow-hidden border border-indigo-200 group-hover:border-indigo-500 transition-all shadow-sm text-xs">
+                    {getInitials(currentUser.name)}
                     <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></div>
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
@@ -569,8 +602,8 @@ export default function DashboardLayout({
                   <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl z-55 p-4 space-y-4 animate-in fade-in slide-in-from-top-3 duration-250">
                     {/* User Profile Header Segment */}
                     <div className="flex items-center gap-3 pb-3 border-b border-gray-150/80">
-                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500/20 shadow-inner">
-                        <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500/20 shadow-inner bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
+                        {getInitials(currentUser.name)}
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-gray-950 leading-snug">{currentUser.name}</h4>
@@ -581,33 +614,7 @@ export default function DashboardLayout({
                       </div>
                     </div>
 
-                    {/* Developer Simulated Role Switcher (Nested Premium Controls) */}
-                    <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-2.5">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-indigo-500" /> Active Role Selector
-                        </span>
-                        <span className="text-[8px] bg-indigo-100 text-indigo-700 font-extrabold px-1 py-0.2 rounded uppercase tracking-wider">DEV MODE</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-1">
-                        {(["SUPERADMIN", "TENANTADMIN", "STAFF"] as const).map((r) => (
-                          <button
-                            key={r}
-                            onClick={() => {
-                              setUserRole(r);
-                              setShowProfileMenu(false);
-                            }}
-                            className={`px-1.5 py-1 text-[9px] font-bold border rounded-md uppercase tracking-tight transition-all text-center ${
-                              userRole === r
-                                ? "bg-indigo-600 border-indigo-600 text-white shadow-sm"
-                                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
-                            }`}
-                          >
-                            {r.replace("ADMIN", "")}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+
 
                     {/* Role Specific Activity Logs Section */}
                     <div>
@@ -669,7 +676,7 @@ export default function DashboardLayout({
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: SEYON (vtex)
               </span>
               <span className="text-stone-300">|</span>
-              <span>Shopify: vtex-clothing.myshopify.com</span>
+              <span>Shopify: seyon-clothing.myshopify.com</span>
               <span className="text-stone-300">|</span>
               <span className="flex items-center gap-1">
                 <span>📍 WH:</span>
@@ -688,9 +695,23 @@ export default function DashboardLayout({
 
         {/* Warehouse Selection Modal (Glassmorphism backdrop) */}
         {showWhModal && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh]">
-              <div className="p-5 border-b border-gray-100 bg-slate-50/80">
+          <div 
+            onClick={() => activeWhId && setShowWhModal(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh] relative"
+            >
+              <div className="p-5 border-b border-gray-100 bg-slate-50/80 relative">
+                {activeWhId && (
+                  <button
+                    onClick={() => setShowWhModal(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
                 <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
                   <span>📍</span> Select Active Warehouse Location
                 </h3>

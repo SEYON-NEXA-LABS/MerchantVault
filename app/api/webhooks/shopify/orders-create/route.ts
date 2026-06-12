@@ -26,13 +26,13 @@ export async function GET() {
     let { data: company, error: compErr } = await supabase
       .from("Company")
       .select("id")
-      .eq("code", "vtex")
+      .eq("code", "seyon")
       .maybeSingle();
 
     if (compErr || !company) {
       const { data: newComp, error: createErr } = await supabase
         .from("Company")
-        .insert({ name: "SEYON vtex", code: "vtex" })
+        .insert({ name: "SEYON vtex", code: "seyon" })
         .select("id")
         .single();
       
@@ -98,13 +98,13 @@ export async function POST(request: Request) {
     let { data: company, error: compErr } = await supabase
       .from("Company")
       .select("id")
-      .eq("code", "vtex")
+      .eq("code", "seyon")
       .maybeSingle();
 
     if (compErr || !company) {
       const { data: newComp, error: createErr } = await supabase
         .from("Company")
-        .insert({ name: "SEYON vtex", code: "vtex" })
+        .insert({ name: "SEYON vtex", code: "seyon" })
         .select("id")
         .single();
       

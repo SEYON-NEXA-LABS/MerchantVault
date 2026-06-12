@@ -1,23 +1,19 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Fetch all fulfillments to aggregate customer records
     const { data: fulfillments, error: fillErr } = await supabase
       .from("OrderFulfillment")
-      .select("*")
-      .eq("companyId", company.id)
+      .select("id, orderNumber, customerName, customerPhone, shippingCity, shippingState, shippingZip, shippingCountry, deliveryStatus, awbNumber, courierPartner, createdAt")
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (fillErr) throw fillErr;
@@ -25,8 +21,8 @@ export async function GET() {
     // Fetch all abandoned checkouts
     const { data: abandoneds, error: abanErr } = await supabase
       .from("AbandonedCheckout")
-      .select("*")
-      .eq("companyId", company.id)
+      .select("id, customerName, customerPhone, cartDetails, checkoutUrl, recoveryEmailSent, recoverySmsSent, createdAt, updatedAt")
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (abanErr) throw abanErr;

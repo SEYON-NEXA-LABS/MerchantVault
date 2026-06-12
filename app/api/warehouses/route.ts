@@ -1,22 +1,19 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
+
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     const { data: warehouses, error: whErr } = await supabase
       .from("Warehouse")
-      .select("*")
-      .eq("companyId", company.id)
+      .select("id, companyId, name, code, addressLine1, addressLine2, city, state, zip, country, isDefaultPickup, createdAt, updatedAt")
+      .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
     if (whErr) throw whErr;
@@ -33,14 +30,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { id, name, code, addressLine1, addressLine2, city, state, zip, country, isDefaultPickup } = body;
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     if (!name || !code || !addressLine1 || !city || !state || !zip || !country) {
@@ -52,7 +44,7 @@ export async function POST(request: Request) {
       const { error: resetErr } = await supabase
         .from("Warehouse")
         .update({ isDefaultPickup: false })
-        .eq("companyId", company.id);
+        .eq("companyId", companyId);
 
       if (resetErr) throw resetErr;
     }
@@ -85,7 +77,7 @@ export async function POST(request: Request) {
       const { data, error } = await supabase
         .from("Warehouse")
         .insert({
-          companyId: company.id,
+          companyId,
           name,
           code,
           addressLine1,

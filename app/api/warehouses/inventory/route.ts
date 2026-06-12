@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET() {
   try {
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // Fetch all stock levels for the company's variants across warehouses
@@ -26,7 +22,7 @@ export async function GET() {
         warehouse:Warehouse!inner(name, code, companyId),
         variant:ProductVariant!inner(sku, title, size, color)
       `)
-      .eq("warehouse.companyId", company.id);
+      .eq("warehouse.companyId", companyId);
 
     if (stockErr) throw stockErr;
 
@@ -46,14 +42,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("id")
-      .eq("code", "vtex")
-      .maybeSingle();
-
-    if (compErr || !company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
     // 1. Fetch current stock for this variant at this warehouse
@@ -91,12 +82,12 @@ export async function POST(request: Request) {
       const { error: moveErr } = await supabase
         .from("StockMovement")
         .insert({
-          companyId: company.id,
+          companyId,
           variantId,
           warehouseId,
           type: movementType,
           quantity: Math.abs(delta),
-          operatorEmail: operatorEmail || "system@vtex.local",
+          operatorEmail: operatorEmail || "system@seyon.local",
           syncStatus: "SUCCESS"
         });
 

@@ -107,7 +107,7 @@ export async function POST(
           warehouseId,
           type: "INWARD",
           quantity: quantityToReceive,
-          operatorEmail: operatorEmail || "system@vtex.local",
+          operatorEmail: operatorEmail || "system@seyon.local",
           syncStatus: "SUCCESS",
         });
 

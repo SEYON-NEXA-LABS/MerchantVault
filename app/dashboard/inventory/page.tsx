@@ -34,6 +34,8 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import ProductThumbnail from "@/components/ProductThumbnail";
+
 
 interface VariantStock {
   id: string;
@@ -41,6 +43,9 @@ interface VariantStock {
   color: string;
   sku: string;
   qty: number;
+  thumbnailConfig?: string | null;
+  price: number;
+
   stocks: Array<{
     id: string;
     warehouseId: string;
@@ -53,9 +58,12 @@ interface ProductInventory {
   name: string;
   baseSku: string;
   category: string;
+  targetGroup: string;
+  ageRange?: string | null;
   totalQty: number;
   threshold: number;
-  imageUrl: string;
+  skuColor?: string;
+  thumbnailConfig?: string | null;
   variants: VariantStock[];
 }
 
@@ -70,6 +78,8 @@ export default function StockInventoryPage() {
   const [selectedSize, setSelectedSize] = useState<string>("All");
   const [selectedColor, setSelectedColor] = useState<string>("All");
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedTargetGroup, setSelectedTargetGroup] = useState<string>("All");
   const [selectedProduct, setSelectedProduct] = useState<ProductInventory | null>(null);
   
   // Dynamic API states
@@ -87,6 +97,11 @@ export default function StockInventoryPage() {
   const [editVariantSku, setEditVariantSku] = useState<string | null>(null);
   const [editQty, setEditQty] = useState<number>(0);
   const [savingStock, setSavingStock] = useState(false);
+
+  // Price Edit states
+  const [editPriceSku, setEditPriceSku] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState<number>(0);
+  const [savingPrice, setSavingPrice] = useState(false);
 
   // Fetch all necessary data
   const loadData = async () => {
@@ -151,10 +166,13 @@ export default function StockInventoryPage() {
           id: v.id,
           name: productName,
           baseSku: baseSku || v.sku,
-          category: "Apparel Collection",
+          category: v.category || "Top",
+          targetGroup: v.targetGroup || "Adults",
+          ageRange: v.ageRange,
           totalQty: 0,
           threshold: v.safetyStockLimit || 10,
-          imageUrl: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&q=80&w=120",
+          skuColor: v.color,
+          thumbnailConfig: v.thumbnailConfig,
           variants: []
         };
       }
@@ -165,6 +183,8 @@ export default function StockInventoryPage() {
         color: v.color,
         sku: v.sku,
         qty: qty,
+        thumbnailConfig: v.thumbnailConfig,
+        price: v.price || 0,
         stocks: v.stocks || []
       });
     });
@@ -189,7 +209,7 @@ export default function StockInventoryPage() {
   // Reset page on filter/search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedSize, selectedColor, selectedStatus, selectedWarehouseId]);
+  }, [searchTerm, selectedSize, selectedColor, selectedStatus, selectedCategory, selectedTargetGroup, selectedWarehouseId]);
 
   // Save modified variant stock to DB
   const saveVariantStock = async (variantId: string, sku: string) => {
@@ -207,7 +227,7 @@ export default function StockInventoryPage() {
           warehouseId: selectedWarehouseId,
           variantId,
           newStockLevel: editQty,
-          operatorEmail: "admin@vtex.co"
+          operatorEmail: "admin@seyon.co"
         })
       });
 
@@ -224,6 +244,35 @@ export default function StockInventoryPage() {
       toast.error("Failed to connect to stock update endpoint.");
     } finally {
       setSavingStock(false);
+    }
+  };
+
+  // Save modified variant price to DB
+  const saveVariantPrice = async (variantId: string, sku: string) => {
+    setSavingPrice(true);
+    try {
+      const res = await fetch("/api/inventory", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId,
+          price: editPrice
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Updated price for ${sku} to $${editPrice.toFixed(2)}.`);
+        setEditPriceSku(null);
+        // Refresh catalog list
+        await loadData();
+      } else {
+        toast.error(data.error || "Failed to update price.");
+      }
+    } catch (err) {
+      toast.error("Failed to connect to price update endpoint.");
+    } finally {
+      setSavingPrice(false);
     }
   };
 
@@ -245,7 +294,15 @@ export default function StockInventoryPage() {
       (selectedStatus === "Out of Stock" && isOutOfStock) ||
       (selectedStatus === "Healthy" && !isLowStock);
 
-    return matchesSearch && matchesSize && matchesColor && matchesStatus;
+    const matchesCategory = 
+      selectedCategory === "All" ||
+      prod.category.toLowerCase() === selectedCategory.toLowerCase();
+
+    const matchesTargetGroup = 
+      selectedTargetGroup === "All" ||
+      prod.targetGroup.toLowerCase() === selectedTargetGroup.toLowerCase();
+
+    return matchesSearch && matchesSize && matchesColor && matchesStatus && matchesCategory && matchesTargetGroup;
   });
 
   const lowStockCount = products.filter(p => p.totalQty <= p.threshold).length;
@@ -355,14 +412,46 @@ export default function StockInventoryPage() {
               />
             </div>
             
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div>
+                <label htmlFor="category-filter" className="sr-only">Filter Category</label>
+                <select
+                  id="category-filter"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                >
+                  <option value="All">All Categories</option>
+                  <option value="Top">Tops</option>
+                  <option value="Bottom">Bottoms</option>
+                  <option value="Set">Sets</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="demographic-filter" className="sr-only">Filter Age Group</label>
+                <select
+                  id="demographic-filter"
+                  value={selectedTargetGroup}
+                  onChange={(e) => setSelectedTargetGroup(e.target.value)}
+                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                >
+                  <option value="All">All Age Groups</option>
+                  <option value="Newborn">Newborn (0-12M)</option>
+                  <option value="Infants">Infants (1-3Y)</option>
+                  <option value="Kids">Kids (4-12Y)</option>
+                  <option value="Teens">Teens (13-19Y)</option>
+                  <option value="Adults">Adults (20Y+)</option>
+                </select>
+              </div>
+
               <div>
                 <label htmlFor="size-filter" className="sr-only">Filter Size</label>
                 <select
                   id="size-filter"
                   value={selectedSize}
                   onChange={(e) => setSelectedSize(e.target.value)}
-                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="All">All Sizes</option>
                   <option value="S">Size S</option>
@@ -379,7 +468,7 @@ export default function StockInventoryPage() {
                   id="color-filter"
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.target.value)}
-                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="All">All Colors</option>
                   <option value="White">White</option>
@@ -397,7 +486,7 @@ export default function StockInventoryPage() {
                   id="status-filter"
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-white border border-gray-200 rounded-lg py-1.5 px-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                 >
                   <option value="All">All Statuses</option>
                   <option value="Healthy">Healthy Stock</option>
@@ -441,7 +530,13 @@ export default function StockInventoryPage() {
                         }`}
                       >
                         <TableCell className="py-3.5 px-5 flex items-center gap-3">
-                          <img src={prod.imageUrl} alt={prod.name} className="w-10 h-10 object-cover rounded-lg border border-gray-100" />
+                          <ProductThumbnail
+                            skuTitle={prod.name}
+                            skuColor={prod.skuColor || "indigo"}
+                            thumbnailConfig={prod.thumbnailConfig}
+                            size="sm"
+                            className="border border-gray-100"
+                          />
                           <div>
                             <p className="font-semibold text-gray-900 leading-snug">{prod.name}</p>
                             <p className="text-[11px] text-gray-400">{prod.category}</p>
@@ -549,7 +644,7 @@ export default function StockInventoryPage() {
               <div className="flex items-start justify-between border-b border-gray-100 pb-4">
                 <div className="space-y-1">
                   <h3 className="font-bold text-gray-950 text-sm">{selectedProduct.name}</h3>
-                  <p className="text-xs text-gray-400">Category: {selectedProduct.category} | SKU: {selectedProduct.baseSku} | Limit: {selectedProduct.threshold}</p>
+                  <p className="text-xs text-gray-400">Category: {selectedProduct.category} | Age Group: {selectedProduct.targetGroup}{selectedProduct.ageRange ? ` (${selectedProduct.ageRange})` : ""} | SKU: {selectedProduct.baseSku} | Limit: {selectedProduct.threshold}</p>
                 </div>
                 <button 
                   onClick={() => setSelectedProduct(null)}
@@ -590,11 +685,59 @@ export default function StockInventoryPage() {
                         className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                       >
                         <div className="space-y-0.5">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-gray-900 bg-white border border-gray-200 px-1.5 py-0.5 rounded text-[10px]">
                               Size {variant.size}
                             </span>
                             <span className="font-medium text-gray-700">{variant.color}</span>
+                            {editPriceSku === variant.sku ? (
+                              <div className="flex items-center gap-1 bg-white border border-gray-200 rounded px-1 py-0.5">
+                                <span className="text-gray-400 font-semibold text-[10px]">$</span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={editPrice}
+                                  onChange={(e) => setEditPrice(Math.max(0, parseFloat(e.target.value) || 0))}
+                                  className="w-14 py-0 border-0 focus:outline-none focus:ring-0 text-[10px] font-mono font-bold text-indigo-950 p-0"
+                                />
+                                <button
+                                  onClick={() => saveVariantPrice(variant.id, variant.sku)}
+                                  disabled={savingPrice}
+                                  className="text-emerald-600 hover:text-emerald-700 disabled:opacity-50 p-0.5"
+                                  title="Save Price"
+                                >
+                                  {savingPrice ? (
+                                    <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                                  ) : (
+                                    <Check className="w-2.5 h-2.5" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => setEditPriceSku(null)}
+                                  className="text-gray-400 hover:text-gray-600 p-0.5"
+                                  title="Cancel"
+                                >
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <span className="text-indigo-950 font-bold bg-indigo-50/50 px-1.5 py-0.5 rounded text-[10px] border border-indigo-100/80">
+                                  ${variant.price.toFixed(2)}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setEditPriceSku(variant.sku);
+                                    setEditPrice(variant.price);
+                                  }}
+                                  className="text-gray-400 hover:text-indigo-950 p-0.5 rounded hover:bg-gray-150 transition-colors"
+                                  title="Edit Price"
+                                >
+                                  <Edit2 className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <p className="font-mono text-[10px] text-gray-400 flex items-center gap-1 mt-0.5">
                             <Barcode className="w-3.5 h-3.5" /> {variant.sku}
