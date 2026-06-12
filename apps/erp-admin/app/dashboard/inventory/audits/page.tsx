@@ -58,6 +58,18 @@ export default function InventoryAuditsPage() {
   const [operatorEmail, setOperatorEmail] = useState("operator@seyon.local");
   const [audits, setAudits] = useState<AuditSession[]>([]);
   const [activeAudit, setActiveAudit] = useState<AuditSession | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__seyonIsDirty = !!activeAudit;
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
+    };
+  }, [activeAudit]);
+
   const [loading, setLoading] = useState(true);
 
   // Selector for Starting Audits
@@ -410,6 +422,7 @@ export default function InventoryAuditsPage() {
         </div>
         <Link 
           href="/dashboard/help" 
+          target="_blank"
           className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg font-semibold transition-colors"
         >
           <HelpCircle className="w-4 h-4" /> Help Guides

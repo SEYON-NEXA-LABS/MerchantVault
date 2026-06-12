@@ -10,6 +10,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:erp": "npm run dev --workspace=erp-admin",
+    "dev:storefront": "npm run dev --workspace=storefront",
+    "build:erp": "npm run build --workspace=erp-admin",
+    "build:storefront": "npm run build --workspace=storefront",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

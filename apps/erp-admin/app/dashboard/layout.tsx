@@ -51,7 +51,9 @@ import {
   Activity,
   Check,
   X,
-  Building2
+  Building2,
+  ExternalLink,
+  WifiOff
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { RoleProvider } from "../../components/RoleGuard";
@@ -84,6 +86,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [userRole, setUserRole] = useState<"SUPERADMIN" | "TENANTADMIN" | "STAFF">("SUPERADMIN");
   const [sessionUser, setSessionUser] = useState<any>(null);
+  const [company, setCompany] = useState<any>(null);
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [activeWhId, setActiveWhId] = useState("");
   const [showWhModal, setShowWhModal] = useState(false);
@@ -91,8 +94,33 @@ export default function DashboardLayout({
   const [lowStockAlerts, setLowStockAlerts] = useState<any[]>([]);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsOffline(!navigator.onLine);
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (typeof window !== "undefined" && (window as any).__seyonIsDirty) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(() => {
     const bootstrapContext = async () => {
@@ -110,6 +138,7 @@ export default function DashboardLayout({
             localStorage.setItem("seyon:user", JSON.stringify(data.user));
 
             if (data.company) {
+              setCompany(data.company);
               localStorage.setItem("seyon:company", JSON.stringify(data.company));
             }
 
@@ -134,6 +163,8 @@ export default function DashboardLayout({
         }
       } catch (err) {
         console.error("Failed to bootstrap user context", err);
+      } finally {
+        setIsBootstrapping(false);
       }
     };
     bootstrapContext();
@@ -221,13 +252,37 @@ export default function DashboardLayout({
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const handleGlobalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest("a") as HTMLAnchorElement | null;
+    if (anchor) {
+      const href = anchor.getAttribute("href");
+      if (href && !href.startsWith("#") && href !== pathname) {
+        if (typeof window !== "undefined" && (window as any).__seyonIsDirty) {
+          if (!window.confirm("You have unsaved changes. Are you sure you want to leave this page?")) {
+            e.preventDefault();
+            e.stopPropagation();
+          } else {
+            (window as any).__seyonIsDirty = false;
+          }
+        }
+      }
+    }
+  };
+
   const sidebarTopMenu = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPERADMIN", "TENANTADMIN", "STAFF"] },
-    { name: "Seyon Bridge", icon: RefreshCw, href: "/dashboard/shopify-sync", roles: ["SUPERADMIN", "TENANTADMIN"] },
+    { 
+      name: "Seyon Bridge", 
+      icon: RefreshCw, 
+      href: "/dashboard/shopify-sync", 
+      roles: ["SUPERADMIN", "TENANTADMIN"],
+      badge: company && (!company.shopifyStoreUrl || company.shopifyAccessToken === "shpat_mockaccesstoken12345" || company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) ? "Alert" : null
+    },
   ];
 
   // Helper function to check role access
-  const hasAccess = (allowedRoles: string[]) => allowedRoles.includes(userRole);
+  const hasAccess = (allowedRoles: string[]) => !isBootstrapping && allowedRoles.includes(userRole);
 
   const userProfileInfo = {
     SUPERADMIN: {
@@ -254,7 +309,10 @@ export default function DashboardLayout({
 
   return (
     <RoleProvider value={{ role: userRole, setRole: setUserRole }}>
-      <div className="flex h-screen bg-gray-50 overflow-hidden text-gray-900 font-sans">
+      <div 
+        className="flex h-screen bg-gray-50 overflow-hidden text-gray-900 font-sans"
+        onClickCapture={handleGlobalClick}
+      >
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto hidden md:flex flex-shrink-0">
           <div className="p-4 flex items-center gap-3 border-b border-gray-100">
@@ -274,14 +332,22 @@ export default function DashboardLayout({
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
                       active
                         ? "bg-indigo-50 text-indigo-600"
                         : "text-slate-800 hover:text-indigo-900 hover:bg-indigo-50"
                     }`}
                   >
-                    <item.icon className={`w-4 h-4 ${active ? "text-indigo-600" : "text-slate-500"}`} />
-                    {item.name}
+                    <div className="flex items-center gap-3">
+                      <item.icon className={`w-4 h-4 ${active ? "text-indigo-600" : "text-slate-500"}`} />
+                      {item.name}
+                    </div>
+                    {item.badge && (
+                      <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 text-rose-500" />
+                        {item.badge}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -496,6 +562,35 @@ export default function DashboardLayout({
                 </ul>
               </div>
             )}
+
+            {/* Storefront Link Section - Visible to All Users */}
+            <div>
+              <h2 className="text-xs font-bold text-slate-400 mb-2 px-3 uppercase tracking-wider">Public Channel</h2>
+              <ul className="space-y-0.5">
+                <li>
+                  <a
+                    href="http://localhost:3001"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                    Visit Storefront
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={company?.shopifyStoreUrl ? `${company.shopifyStoreUrl}/admin` : "https://seyon-clothing.myshopify.com/admin"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                    Shopify Admin
+                  </a>
+                </li>
+              </ul>
+            </div>
           </nav>
 
           <div className="p-4 border-t border-gray-100 flex items-center text-xs text-gray-500 hover:text-gray-900 cursor-pointer">
@@ -549,7 +644,7 @@ export default function DashboardLayout({
                 WhatsApp
               </button>
 
-              <Link href="/dashboard/help" className="flex items-center gap-2 text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">
+              <Link href="/dashboard/help" target="_blank" className="flex items-center gap-2 text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">
                 <BookOpen className="w-4 h-4" />
                 Help Center
               </Link>
@@ -710,10 +805,10 @@ export default function DashboardLayout({
           <footer className="h-8 bg-stone-100 text-stone-600 border-t border-stone-200 flex items-center justify-between px-6 text-[10px] font-mono select-none flex-shrink-0">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5 text-stone-900 font-semibold">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: SEYON (syn)
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: {company?.name ? company.name.toUpperCase() : "SEYON"} ({company?.code || "syn"})
               </span>
               <span className="text-stone-300">|</span>
-              <span>Shopify: seyon-clothing.myshopify.com</span>
+              <span>Shopify: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? company.shopifyStoreUrl.replace("https://", "") : "Unconfigured"}</span>
               <span className="text-stone-300">|</span>
               <span className="flex items-center gap-1">
                 <span>📍 WH:</span>
@@ -721,9 +816,9 @@ export default function DashboardLayout({
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <span>Webhook: Listening (Active)</span>
+              <span>Webhook: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
               <span className="text-stone-300">|</span>
-              <span>Sync Health: 99.8%</span>
+              <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? "99.8%" : "0.0%"}</span>
               <span className="text-stone-300">|</span>
               <span className="text-stone-900 font-semibold">API v2026-04</span>
             </div>
@@ -825,6 +920,30 @@ export default function DashboardLayout({
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Offline Overlay Modal */}
+        {isOffline && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white border border-gray-150 rounded-2xl shadow-2xl max-w-md w-full p-6 text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+              <div className="mx-auto w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center border border-rose-100 animate-pulse">
+                <WifiOff className="w-8 h-8 text-rose-500" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-bold text-gray-950 text-lg">No Internet Connection</h3>
+                <p className="text-sm text-gray-500 leading-relaxed font-sans">
+                  Your connection to Seyon ERP was lost. Please check your network cables or Wi-Fi router. We will reconnect automatically once your connection is restored.
+                </p>
+              </div>
+              <div className="pt-2 flex items-center justify-center gap-2 text-xs font-semibold text-rose-700 bg-rose-50/50 border border-rose-100/50 py-2 rounded-lg font-sans">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                </span>
+                <span>Attempting to reconnect...</span>
+              </div>
             </div>
           </div>
         )}

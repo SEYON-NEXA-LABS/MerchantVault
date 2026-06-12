@@ -68,6 +68,17 @@ export default function InwardOutwardPage() {
   // Batch queue states
   const [scannedQueue, setScannedQueue] = useState<ScannedQueueItem[]>([]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__seyonIsDirty = scannedQueue.length > 0;
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
+    };
+  }, [scannedQueue]);
+
   // Damaged code visual browser modal
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState("");

@@ -103,6 +103,21 @@ export default function StockInventoryPage() {
   const [editPrice, setEditPrice] = useState<number>(0);
   const [savingPrice, setSavingPrice] = useState(false);
 
+  // Bulk Matrix Edit states
+  const [showMatrixModal, setShowMatrixModal] = useState(false);
+  const [matrixAdjustments, setMatrixAdjustments] = useState<{ [variantId: string]: number }>({});
+  const [savingMatrix, setSavingMatrix] = useState(false);
+
+  const handleOpenMatrixModal = () => {
+    if (!selectedProduct) return;
+    const initialAdjs: { [variantId: string]: number } = {};
+    selectedProduct.variants.forEach(v => {
+      initialAdjs[v.id] = v.qty;
+    });
+    setMatrixAdjustments(initialAdjs);
+    setShowMatrixModal(true);
+  };
+
   // Fetch all necessary data
   const loadData = async () => {
     setLoading(true);
@@ -277,10 +292,47 @@ export default function StockInventoryPage() {
       } else {
         toast.error(data.error || "Failed to update price.");
       }
-    } catch (err) {
-      toast.error("Failed to connect to price update endpoint.");
     } finally {
       setSavingPrice(false);
+    }
+  };
+
+  // Save bulk matrix stock adjustments to DB
+  const handleSaveMatrix = async () => {
+    if (selectedWarehouseId === "All") {
+      toast.error("Please select a specific warehouse facility to adjust stock levels.");
+      return;
+    }
+
+    setSavingMatrix(true);
+    try {
+      const payloadItems = Object.entries(matrixAdjustments).map(([variantId, newStockLevel]) => ({
+        variantId,
+        newStockLevel
+      }));
+
+      const res = await fetch("/api/warehouses/inventory", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          warehouseId: selectedWarehouseId,
+          operatorEmail: "admin@seyon.co",
+          items: payloadItems
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Bulk matrix stock adjustments saved successfully.");
+        setShowMatrixModal(false);
+        await loadData();
+      } else {
+        toast.error(data.error || "Failed to save adjustments.");
+      }
+    } catch (err) {
+      toast.error("Failed to connect to adjustments API.");
+    } finally {
+      setSavingMatrix(false);
     }
   };
 
@@ -676,10 +728,17 @@ export default function StockInventoryPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">SKU Code & Size Breakdown</h4>
-                  {selectedWarehouseId === "All" && (
+                  {selectedWarehouseId === "All" ? (
                     <span className="text-[10px] text-amber-700 bg-amber-50 font-semibold px-2 py-0.5 rounded">
                       Read Only (Select WH to Edit)
                     </span>
+                  ) : (
+                    <button
+                      onClick={handleOpenMatrixModal}
+                      className="text-[10px] text-indigo-750 bg-indigo-50 hover:bg-indigo-100 font-bold px-2 py-1 rounded transition-all cursor-pointer"
+                    >
+                      Bulk Matrix Adjust
+                    </button>
                   )}
                 </div>
                 
@@ -826,6 +885,99 @@ export default function StockInventoryPage() {
         </div>
         
       </div>
+
+      {/* BULK STOCK MATRIX ADJUSTMENT MODAL */}
+      {showMatrixModal && selectedProduct && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 border-b border-gray-100 bg-slate-50/80 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
+                  <span>📊</span> Style Matrix Adjustment: {selectedProduct.name}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Adjust quantities for all sizes and colors in warehouse: <strong className="text-indigo-650">{warehouses.find(w => w.id === selectedWarehouseId)?.name}</strong>
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowMatrixModal(false)}
+                className="p-1 h-7 w-7 text-gray-400 hover:text-gray-900 border border-gray-200 hover:bg-gray-100 rounded-full flex items-center justify-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-gray-200 text-gray-655 font-bold">
+                      <th className="p-3">Color / Size</th>
+                      <th className="p-3 text-center">S</th>
+                      <th className="p-3 text-center">M</th>
+                      <th className="p-3 text-center">L</th>
+                      <th className="p-3 text-center">XL</th>
+                      <th className="p-3 text-center">XXL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {Array.from(new Set(selectedProduct.variants.map(v => v.color))).map(color => (
+                      <tr key={color} className="hover:bg-slate-50/50">
+                        <td className="p-3 font-semibold text-gray-700">{color}</td>
+                        {["S", "M", "L", "XL", "XXL"].map(size => {
+                          const matchingVar = selectedProduct.variants.find(v => v.color === color && v.size === size);
+                          if (!matchingVar) {
+                            return (
+                              <td key={size} className="p-3 text-center text-gray-300 font-mono">
+                                --
+                              </td>
+                            );
+                          }
+                          return (
+                            <td key={size} className="p-2 text-center">
+                              <input
+                                type="number"
+                                min="0"
+                                value={matrixAdjustments[matchingVar.id] ?? 0}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value) || 0);
+                                  setMatrixAdjustments(prev => ({
+                                    ...prev,
+                                    [matchingVar.id]: val
+                                  }));
+                                }}
+                                className="w-20 bg-gray-50 border border-gray-200 rounded-lg p-1.5 text-xs text-center font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-gray-100 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMatrixModal(false)}
+                className="px-4 py-2 bg-white border border-gray-250 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 text-xs transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveMatrix}
+                disabled={savingMatrix}
+                className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                {savingMatrix && <RefreshCw className="w-3 h-3 animate-spin" />}
+                Save Grid Matrix Adjustments
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

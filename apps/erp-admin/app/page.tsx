@@ -6,11 +6,11 @@ import { ShieldAlert, User, Key, ArrowRight, Terminal, Eye, EyeOff, Scissors, He
 
 export default function Home() {
   const [company, setCompany] = useState("syn");
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showDevMode, setShowDevMode] = useState(process.env.NODE_ENV === "development");
   const [showDevModeToggle, setShowDevModeToggle] = useState(false);

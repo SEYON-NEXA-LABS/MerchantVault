@@ -84,6 +84,32 @@ function SettingsContent() {
   const [gstin, setGstin] = useState("");
   const [lowStockMode, setLowStockMode] = useState("MANUAL");
   const [loadingSettings, setLoadingSettings] = useState(true);
+  const [initialCompanySettings, setInitialCompanySettings] = useState<any>(null);
+
+  useEffect(() => {
+    if (!initialCompanySettings) return;
+    const isDirty = 
+      companyName !== initialCompanySettings.name ||
+      currency !== initialCompanySettings.currency ||
+      timezone !== initialCompanySettings.timezone ||
+      taxId !== initialCompanySettings.taxId ||
+      gstin !== initialCompanySettings.gstin ||
+      lowStockMode !== initialCompanySettings.lowStockMode ||
+      shopUrl !== initialCompanySettings.shopUrl ||
+      accessToken !== initialCompanySettings.accessToken;
+
+    if (typeof window !== "undefined") {
+      (window as any).__seyonIsDirty = isDirty;
+    }
+  }, [companyName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, initialCompanySettings]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
+    };
+  }, []);
 
   // Warehouses states
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -229,13 +255,26 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        if (data.shopifyStoreUrl) {
-          setShopUrl(data.shopifyStoreUrl.replace("https://", ""));
+        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !data.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) 
+          ? data.shopifyStoreUrl.replace("https://", "") 
+          : "";
+        setShopUrl(shopUrlVal);
+        if (shopUrlVal) {
           setIsConnected(true);
         }
-        if (data.shopifyAccessToken) {
-          setAccessToken(data.shopifyAccessToken);
-        }
+        const tokenVal = data.shopifyAccessToken || "";
+        setAccessToken(tokenVal);
+
+        setInitialCompanySettings({
+          name: data.name || "",
+          currency: data.currency || "INR",
+          timezone: data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
+          taxId: data.taxId || "",
+          gstin: data.gstin || "",
+          lowStockMode: data.lowStockMode || "MANUAL",
+          shopUrl: shopUrlVal,
+          accessToken: tokenVal
+        });
       } catch (e) {
         console.error("Failed to parse cached company settings", e);
       }
@@ -251,13 +290,26 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        if (data.shopifyStoreUrl) {
-          setShopUrl(data.shopifyStoreUrl.replace("https://", ""));
+        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !data.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) 
+          ? data.shopifyStoreUrl.replace("https://", "") 
+          : "";
+        setShopUrl(shopUrlVal);
+        if (shopUrlVal) {
           setIsConnected(true);
         }
-        if (data.shopifyAccessToken) {
-          setAccessToken(data.shopifyAccessToken);
-        }
+        const tokenVal = data.shopifyAccessToken || "";
+        setAccessToken(tokenVal);
+
+        setInitialCompanySettings({
+          name: data.name || "",
+          currency: data.currency || "INR",
+          timezone: data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
+          taxId: data.taxId || "",
+          gstin: data.gstin || "",
+          lowStockMode: data.lowStockMode || "MANUAL",
+          shopUrl: shopUrlVal,
+          accessToken: tokenVal
+        });
       }
     } catch (err) {
       toast.error("Failed to load company settings.");
@@ -338,6 +390,16 @@ function SettingsContent() {
         toast.success(`Company details saved! Default low stock threshold set to ${defaultThreshold} units.`);
         if (data.company) {
           localStorage.setItem("seyon:company", JSON.stringify(data.company));
+          setInitialCompanySettings({
+            name: data.company.name || "",
+            currency: data.company.currency || "INR",
+            timezone: data.company.timezone ? `${data.company.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
+            taxId: data.company.taxId || "",
+            gstin: data.company.gstin || "",
+            lowStockMode: data.company.lowStockMode || "MANUAL",
+            shopUrl: data.company.shopifyStoreUrl ? data.company.shopifyStoreUrl.replace("https://", "") : "",
+            accessToken: data.company.shopifyAccessToken || ""
+          });
         }
       } else {
         toast.error(data.error || "Failed to save company details.");

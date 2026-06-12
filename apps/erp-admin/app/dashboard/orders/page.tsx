@@ -40,6 +40,10 @@ interface Order {
   deliveryStatus: "PROCESSING" | "SHIPPED" | "DELIVERED" | "RTO_INITIATED" | "RTO_RECEIVED";
   warehouseId: string | null;
   createdAt: string;
+  codVerificationStatus?: string | null;
+  rtoRiskScore?: string | null;
+  shippingCost?: number | null;
+  customerShippingFee?: number | null;
 }
 
 interface Warehouse {
@@ -173,6 +177,28 @@ export default function OrdersPage() {
       toast.error("Error simulating order webhook");
     } finally {
       setSimulating(false);
+    }
+  };
+
+  const handleCodVerify = async (orderId: string, status: string) => {
+    try {
+      const res = await fetch("/api/orders/cod-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, status }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`COD status updated to ${status}`);
+        if (selectedOrder?.id === orderId) {
+          setSelectedOrder(prev => prev ? { ...prev, codVerificationStatus: status } : null);
+        }
+        fetchOrders();
+      } else {
+        toast.error(data.error || "Failed to update COD verification");
+      }
+    } catch (err) {
+      toast.error("Error updating COD verification");
     }
   };
 
@@ -478,6 +504,35 @@ export default function OrdersPage() {
                         <td className="py-3.5 px-5">
                           <p className="font-bold text-gray-900">{ord.orderNumber}</p>
                           <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
+                          <div className="mt-1 flex flex-wrap gap-1.5">
+                            {(() => {
+                              const address = ord.shippingAddressLine1 || "";
+                              const isShortAddress = address.length < 15;
+                              const isBadZip = ord.shippingZip && ord.shippingZip.trim().length !== 6;
+                              const codStatus = ord.codVerificationStatus || "PENDING";
+                              let risk = { label: "LOW RISK", class: "bg-emerald-50 text-emerald-700 border border-emerald-250/30" };
+                              if (codStatus === "CANCELLED") {
+                                risk = { label: "CRITICAL", class: "bg-red-100 text-red-800 border border-red-300 font-extrabold" };
+                              } else if (isShortAddress || isBadZip || codStatus === "UNREACHABLE") {
+                                risk = { label: "HIGH RISK", class: "bg-rose-50 text-rose-700 border border-rose-250/30" };
+                              } else if (codStatus === "PENDING") {
+                                risk = { label: "MEDIUM RISK", class: "bg-amber-50 text-amber-700 border border-amber-250/30" };
+                              }
+                              return (
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${risk.class}`}>
+                                  {risk.label}
+                                </span>
+                              );
+                            })()}
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                              ord.codVerificationStatus === "VERIFIED" ? "bg-emerald-50 text-emerald-700 border-emerald-250/30" :
+                              ord.codVerificationStatus === "UNREACHABLE" ? "bg-rose-50 text-rose-700 border-rose-250/30" :
+                              ord.codVerificationStatus === "CANCELLED" ? "bg-red-50 text-red-700 border-red-250/30" :
+                              "bg-slate-50 text-slate-600 border-slate-200"
+                            }`}>
+                              COD: {ord.codVerificationStatus || "PENDING"}
+                            </span>
+                          </div>
                         </td>
                         <td className="py-3.5 px-5">
                           <p className="font-semibold text-gray-800">{ord.customerName}</p>
@@ -647,12 +702,105 @@ export default function OrdersPage() {
                   )}
                 </div>
 
+                {/* RTO Risk & COD Verification Panel */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-900 font-bold text-xs uppercase tracking-wide flex items-center gap-1.5">
+                      <ShieldAlert className="w-4 h-4 text-indigo-650" />
+                      RTO Risk & Pre-Dispatch
+                    </span>
+                    {(() => {
+                      const address = selectedOrder.shippingAddressLine1 || "";
+                      const isShortAddress = address.length < 15;
+                      const isBadZip = selectedOrder.shippingZip && selectedOrder.shippingZip.trim().length !== 6;
+                      const codStatus = selectedOrder.codVerificationStatus || "PENDING";
+                      
+                      let risk = { label: "LOW RISK", class: "bg-emerald-50 text-emerald-700 border border-emerald-250/30" };
+                      if (codStatus === "CANCELLED") {
+                        risk = { label: "CRITICAL", class: "bg-red-100 text-red-800 border border-red-300 font-extrabold" };
+                      } else if (isShortAddress || isBadZip || codStatus === "UNREACHABLE") {
+                        risk = { label: "HIGH RISK", class: "bg-rose-50 text-rose-700 border border-rose-250/30" };
+                      } else if (codStatus === "PENDING") {
+                        risk = { label: "MEDIUM RISK", class: "bg-amber-50 text-amber-700 border border-amber-250/30" };
+                      }
+                      
+                      return (
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${risk.class}`}>
+                          {risk.label}
+                        </span>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Risk Markers */}
+                  <div className="text-[11px] text-gray-655 space-y-1 bg-white p-2.5 rounded-lg border border-gray-150">
+                    <p className="font-semibold text-gray-700">Risk Assessment Analysis:</p>
+                    <ul className="list-disc list-inside space-y-0.5 text-gray-600">
+                      <li>Payment Method: <span className="font-bold text-slate-800">Cash on Delivery (COD)</span></li>
+                      {(selectedOrder.shippingAddressLine1 || "").length < 15 && (
+                        <li className="text-rose-600 font-medium">⚠️ Short address details (High risk of delivery fail)</li>
+                      )}
+                      {(selectedOrder.shippingZip || "").trim().length !== 6 && (
+                        <li className="text-rose-600 font-medium">⚠️ Zip code format is invalid (Expected 6 digits)</li>
+                      )}
+                      {selectedOrder.codVerificationStatus === "UNREACHABLE" && (
+                        <li className="text-amber-600 font-medium">⚠️ Customer unreachable during verification attempts</li>
+                      )}
+                      {selectedOrder.codVerificationStatus === "VERIFIED" && (
+                        <li className="text-emerald-600 font-medium">✅ Call verified with customer successfully</li>
+                      )}
+                    </ul>
+                  </div>
+
+                  {/* Verification Actions */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">COD Call Log Verification</span>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => handleCodVerify(selectedOrder.id, "VERIFIED")}
+                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          selectedOrder.codVerificationStatus === "VERIFIED"
+                            ? "bg-emerald-600 text-white border-emerald-600"
+                            : "bg-white text-gray-700 border-gray-200 hover:bg-emerald-50/50"
+                        }`}
+                      >
+                        Verified
+                      </button>
+                      <button
+                        onClick={() => handleCodVerify(selectedOrder.id, "UNREACHABLE")}
+                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          selectedOrder.codVerificationStatus === "UNREACHABLE"
+                            ? "bg-amber-600 text-white border-amber-600"
+                            : "bg-white text-gray-700 border-gray-200 hover:bg-amber-50/50"
+                        }`}
+                      >
+                        Unreachable
+                      </button>
+                      <button
+                        onClick={() => handleCodVerify(selectedOrder.id, "CANCELLED")}
+                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          selectedOrder.codVerificationStatus === "CANCELLED"
+                            ? "bg-red-650 text-white border-red-650"
+                            : "bg-white text-gray-700 border-gray-200 hover:bg-red-50/50"
+                        }`}
+                      >
+                        Cancelled
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Fulfillment workflow */}
                 {selectedOrder.deliveryStatus === "PROCESSING" && (
                   <div className="pt-4 border-t border-gray-100">
                     {!isFulfilling ? (
                       <button
                         onClick={() => {
+                          if (selectedOrder.codVerificationStatus !== "VERIFIED") {
+                            if (!confirm("This order has NOT been COD call verified. Do you still want to proceed with packaging & logistics dispatch?")) {
+                              return;
+                            }
+                          }
                           setIsFulfilling(true);
                           setFulfillmentStep(1);
                           checkItemStocks();

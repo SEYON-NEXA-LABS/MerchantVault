@@ -21,7 +21,7 @@ export async function GET() {
     // Fetch all abandoned checkouts
     const { data: abandoneds, error: abanErr } = await supabase
       .from("AbandonedCheckout")
-      .select("id, customerName, customerPhone, cartDetails, checkoutUrl, recoveryEmailSent, recoverySmsSent, createdAt, updatedAt")
+      .select("id, customerName, customerPhone, cartValue, recoveryStatus, createdAt, updatedAt")
       .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 

@@ -5,47 +5,53 @@ export async function POST() {
   try {
     console.log("Programmatic seed: Starting database cleanup...");
 
-    // 1. Find existing company by code
-    const { data: oldCompany } = await supabase
+    // 1. Find existing companies by code (both "syn" and "seyon")
+    const { data: oldCompanies } = await supabase
       .from("Company")
       .select("id")
-      .eq("code", "syn")
-      .maybeSingle();
+      .in("code", ["syn", "seyon"]);
 
-    if (oldCompany) {
-      const companyId = oldCompany.id;
+    if (oldCompanies && oldCompanies.length > 0) {
+      for (const oldCompany of oldCompanies) {
+        const companyId = oldCompany.id;
 
-      // Select Warehouses & Variants first for deep cleanup
-      const { data: whs } = await supabase.from("Warehouse").select("id").eq("companyId", companyId);
-      const whIds = (whs || []).map((w: any) => w.id);
+        // Select Warehouses & Variants first for deep cleanup
+        const { data: whs } = await supabase.from("Warehouse").select("id").eq("companyId", companyId);
+        const whIds = (whs || []).map((w: any) => w.id);
 
-      const { data: vars } = await supabase.from("ProductVariant").select("id").eq("companyId", companyId);
-      const varIds = (vars || []).map((v: any) => v.id);
+        const { data: vars } = await supabase.from("ProductVariant").select("id").eq("companyId", companyId);
+        const varIds = (vars || []).map((v: any) => v.id);
 
-      // Delete child dependencies to avoid Foreign Key Violations
-      await supabase.from("Subscription").delete().eq("companyId", companyId);
-      await supabase.from("SerializedUnit").delete().eq("companyId", companyId);
-      
-      if (whIds.length > 0) {
-        await supabase.from("WarehouseStock").delete().in("warehouseId", whIds);
-        await supabase.from("OrderFulfillment").delete().in("warehouseId", whIds);
-        await supabase.from("ShippingManifest").delete().in("warehouseId", whIds);
-        await supabase.from("PurchaseOrder").delete().in("warehouseId", whIds);
+        // Delete child dependencies to avoid Foreign Key Violations
+        await supabase.from("Subscription").delete().eq("companyId", companyId);
+        await supabase.from("SerializedUnit").delete().eq("companyId", companyId);
+        
+        if (whIds.length > 0) {
+          await supabase.from("WarehouseStock").delete().in("warehouseId", whIds);
+          await supabase.from("OrderFulfillment").delete().in("warehouseId", whIds);
+          await supabase.from("ShippingManifest").delete().in("warehouseId", whIds);
+          await supabase.from("PurchaseOrder").delete().in("warehouseId", whIds);
+        }
+        
+        if (varIds.length > 0) {
+          await supabase.from("StockMovement").delete().in("variantId", varIds);
+        }
+
+        await supabase.from("User").delete().eq("companyId", companyId);
+        await supabase.from("CourierConfig").delete().eq("companyId", companyId);
+        await supabase.from("Vendor").delete().eq("companyId", companyId);
+        await supabase.from("ProductVariant").delete().eq("companyId", companyId);
+        await supabase.from("Warehouse").delete().eq("companyId", companyId);
+        await supabase.from("Company").delete().eq("id", companyId);
       }
-      
-      if (varIds.length > 0) {
-        await supabase.from("StockMovement").delete().in("variantId", varIds);
-      }
-
-      await supabase.from("User").delete().eq("companyId", companyId);
-      await supabase.from("CourierConfig").delete().eq("companyId", companyId);
-      await supabase.from("Vendor").delete().eq("companyId", companyId);
-      await supabase.from("ProductVariant").delete().eq("companyId", companyId);
-      await supabase.from("Warehouse").delete().eq("companyId", companyId);
-      await supabase.from("Company").delete().eq("id", companyId);
-      
       console.log("Programmatic seed: Cleaned up old company records.");
     }
+
+    // Delete any users with overlapping seed emails to prevent global User_email_key violations
+    await supabase
+      .from("User")
+      .delete()
+      .in("email", ["admin@seyon.local", "operator@seyon.local", "seyonnexalabs@gmail.com"]);
 
     // 2. Insert Company
     const { data: company, error: compErr } = await supabase

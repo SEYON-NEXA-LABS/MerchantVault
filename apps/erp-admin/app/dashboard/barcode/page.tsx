@@ -156,6 +156,17 @@ export default function BarcodePage() {
   const [queueQuantity, setQueueQuantity] = useState<number>(1);
   const [layoutColumns, setLayoutColumns] = useState<number>(3);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as any).__seyonIsDirty = printQueue.length > 0;
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
+    };
+  }, [printQueue]);
+
   const barcodeRef = useRef<SVGSVGElement | null>(null);
 
   // Get dynamic URL for Shopify lookup
@@ -670,17 +681,9 @@ export default function BarcodePage() {
         </div>
       </div>
 
-      {/* Print Queue (Disabled – Coming Soon) */}
+      {/* Print Queue */}
       <div className="relative no-print">
-        {/* Disabled overlay */}
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 rounded-xl flex items-center justify-center cursor-not-allowed">
-          <div className="bg-slate-900 text-white px-4 py-2 rounded-full text-xs font-bold tracking-wide shadow-lg flex items-center gap-2">
-            <Layers className="w-3.5 h-3.5" />
-            Batch Queue — Coming Soon
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4 opacity-50 pointer-events-none select-none">
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-gray-900 text-sm flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-600" />
@@ -691,42 +694,73 @@ export default function BarcodePage() {
 
           <div className="flex items-center gap-3">
             <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
-              <button className="px-2.5 py-1.5 text-xs text-gray-400 font-bold" disabled>-</button>
+              <button
+                type="button"
+                onClick={() => setQueueQuantity(Math.max(1, queueQuantity - 1))}
+                className="px-2.5 py-1.5 text-xs text-gray-600 font-bold hover:bg-gray-100 transition-colors"
+              >
+                -
+              </button>
               <input
                 type="number"
                 min="1"
                 value={queueQuantity}
-                readOnly
-                className="w-10 text-center text-xs font-bold text-gray-400 bg-transparent focus:outline-none"
+                onChange={(e) => setQueueQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-10 text-center text-xs font-bold text-slate-800 bg-transparent focus:outline-none"
               />
-              <button className="px-2.5 py-1.5 text-xs text-gray-400 font-bold" disabled>+</button>
+              <button
+                type="button"
+                onClick={() => setQueueQuantity(queueQuantity + 1)}
+                className="px-2.5 py-1.5 text-xs text-gray-600 font-bold hover:bg-gray-100 transition-colors"
+              >
+                +
+              </button>
             </div>
             <button
-              disabled
-              className="flex-1 bg-gray-200 text-gray-400 text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 cursor-not-allowed"
+              onClick={addToQueue}
+              className="flex-1 bg-indigo-650 hover:bg-indigo-750 text-white text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" /> Add to Queue
             </button>
           </div>
 
           {printQueue.length === 0 ? (
-            <div className="text-center py-6 text-gray-300 text-xs">
+            <div className="text-center py-6 text-gray-300 text-xs border border-dashed border-gray-200 rounded-lg bg-slate-50/50">
               <Layers className="w-8 h-8 mx-auto mb-2 text-gray-200" />
               Queue is empty. Select variants above and add them here for batch printing.
             </div>
           ) : (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {printQueue.map((item) => (
-                <div key={item.id} className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-xs">
-                  <div>
-                    <p className="font-semibold text-gray-600">{item.variant.name}</p>
-                    <p className="text-gray-400 font-mono text-[10px]">{item.variant.sku} · {item.preset} · ×{item.quantity}</p>
+            <div className="space-y-2">
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {printQueue.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between bg-gray-50 border border-gray-150 rounded-lg p-2.5 text-xs">
+                    <div>
+                      <p className="font-semibold text-gray-700 leading-snug">{item.variant.name}</p>
+                      <p className="text-gray-400 font-mono text-[10px] mt-0.5">{item.variant.sku} · {item.preset} · ×{item.quantity}</p>
+                    </div>
+                    <button 
+                      onClick={() => removeFromQueue(item.id)}
+                      className="text-gray-450 hover:text-red-650 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  <button disabled className="text-gray-300 cursor-not-allowed">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="pt-2 border-t border-gray-150 flex gap-2">
+                <button
+                  onClick={() => setPrintQueue([])}
+                  className="px-3 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-lg flex-1 transition-colors"
+                >
+                  Clear Queue
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg flex-1 transition-colors flex items-center justify-center gap-1"
+                >
+                  <Printer className="w-3.5 h-3.5" /> Print Batch
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -768,24 +802,47 @@ export default function BarcodePage() {
           }
         `}</style>
 
-        {Array.from({ length: printCopies }, (_, i) => (
-          <div key={i} className="print-tag-copy" style={{ maxWidth: layoutColumns === 1 ? '200px' : undefined }}>
-            <PrintTag 
-              variant={selectedProduct}
-              codeType={codeType}
-              barcodeFormat={barcodeFormat}
-              qrValue={getQrValue(selectedProduct)}
-              width={width}
-              height={height}
-              qrSize={qrSize}
-              displayValue={displayValue}
-              showPrice={showPrice}
-              showBrand={showBrand}
-              customBrand={customBrand}
-              tagPreset={tagPreset}
-            />
-          </div>
-        ))}
+        {printQueue.length > 0 ? (
+          printQueue.flatMap(item => 
+            Array.from({ length: item.quantity }, (_, i) => (
+              <div key={`${item.id}-${i}`} className="print-tag-copy" style={{ maxWidth: layoutColumns === 1 ? '200px' : undefined }}>
+                <PrintTag 
+                  variant={item.variant}
+                  codeType={codeType}
+                  barcodeFormat={barcodeFormat}
+                  qrValue={getQrValue(item.variant)}
+                  width={width}
+                  height={height}
+                  qrSize={qrSize}
+                  displayValue={displayValue}
+                  showPrice={showPrice}
+                  showBrand={showBrand}
+                  customBrand={customBrand}
+                  tagPreset={item.preset}
+                />
+              </div>
+            ))
+          )
+        ) : (
+          Array.from({ length: printCopies }, (_, i) => (
+            <div key={i} className="print-tag-copy" style={{ maxWidth: layoutColumns === 1 ? '200px' : undefined }}>
+              <PrintTag 
+                variant={selectedProduct}
+                codeType={codeType}
+                barcodeFormat={barcodeFormat}
+                qrValue={getQrValue(selectedProduct)}
+                width={width}
+                height={height}
+                qrSize={qrSize}
+                displayValue={displayValue}
+                showPrice={showPrice}
+                showBrand={showBrand}
+                customBrand={customBrand}
+                tagPreset={tagPreset}
+              />
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

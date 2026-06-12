@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   BookOpen, 
   Search, 
@@ -23,6 +24,17 @@ interface HelpTopic {
 }
 
 export default function HelpPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 font-medium">Loading Operations Guide...</div>}>
+      <HelpContent />
+    </Suspense>
+  );
+}
+
+function HelpContent() {
+  const searchParams = useSearchParams();
+  const topicParam = searchParams.get("topic");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     "Getting Started": true,
@@ -31,6 +43,12 @@ export default function HelpPage() {
   });
   const [activeTopicId, setActiveTopicId] = useState("intro");
 
+  useEffect(() => {
+    if (topicParam) {
+      setActiveTopicId(topicParam);
+    }
+  }, [topicParam]);
+
   // Help topic content dictionary
   const topics: HelpTopic[] = [
     {
@@ -38,28 +56,44 @@ export default function HelpPage() {
       title: "Introduction to SEYON Operations",
       category: "Getting Started",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Introduction to SEYON</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Introduction to SEYON</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
             Welcome to the <strong>SEYON Operations Portal</strong>, the centralized control center for managing your D2C clothing brand's logistics and fulfillment. This system connects your active Shopify store with real-time warehouse scanning, stock movements, and courier partner dispatch.
           </p>
-          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
-            <h4 className="text-sm font-bold text-indigo-950">Quick Start</h4>
-            <p className="text-xs text-indigo-750 mt-1">
-              Select your active **Warehouse Location** from the footer selector. All scanning and stock records will be automatically tied to the selected warehouse terminal.
-            </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Core System Architecture</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Seyon operates as a multi-tenant enterprise resource planning (ERP) platform. The server bridges inventory modifications directly into the database, synchronizes catalog updates, and processes real-time transaction webhooks.
+          </p>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-650 p-4 rounded-r-lg">
+            <h4 className="text-sm font-bold text-indigo-950">Quick Start Checklist</h4>
+            <ul className="list-disc list-inside text-xs text-indigo-850 mt-2 space-y-1">
+              <li>Select your active **Warehouse Location** from the global footer selector.</li>
+              <li>Verify that the **Shopify Sync Bridge** status bar reads "Connected".</li>
+              <li>Ensure USB Keyboard-Emulation scanners are plugged into terminal ports.</li>
+            </ul>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mt-6">Primary Workflows</h3>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-            <div className="border border-slate-200 rounded-lg p-3 bg-white">
-              <span className="font-bold text-sm text-slate-950 block">📦 Barcode Scanning</span>
-              <span className="text-xs text-slate-500">Generate tags, inward new production batches, manage inter-warehouse transfers, and run shelf audits.</span>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">User Access Control (RBAC)</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Permission scopes are enforced strictly depending on your operator account credentials:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-xs text-indigo-900 block">SUPERADMIN</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Platform billing, index adjustments, tenant company creations, and developer mocks database seeding.</span>
             </div>
-            <div className="border border-slate-200 rounded-lg p-3 bg-white">
-              <span className="font-bold text-sm text-slate-950 block">🚚 Shopify Dispatch</span>
-              <span className="text-xs text-slate-500">Review pending orders, print shipping labels with automatically assigned tracking numbers, and build courier manifests.</span>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-xs text-amber-800 block">TENANTADMIN</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Seyon Bridge webhook calibrations, API token changes, warehouse directory additions, and staff assignments.</span>
             </div>
-          </ul>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-xs text-slate-800 block">STAFF (OPERATOR)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Floor operations: barcode generation, inward/outward scanning, cycle audits, and courier handovers.</span>
+            </div>
+          </div>
         </div>
       )
     },
@@ -68,23 +102,36 @@ export default function HelpPage() {
       title: "Print & Generate Barcodes",
       category: "Inventory & Barcodes",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Barcode Generation & Printing</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Barcode Generation & Printing</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
             Every product variant has a unique barcode identifier. Barcodes must be printed and attached to garments before scanning them into stock.
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Generating Labels</h3>
-          <ol className="list-decimal list-inside text-sm text-slate-700 space-y-2 mt-2">
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Step-by-Step Generation Workflow</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2.5 mt-2">
             <li>Go to the <strong>Barcode Operations</strong> page from the sidebar menu.</li>
-            <li>Select the target garment SKU or variant from the active catalog directory.</li>
+            <li>Select the target garment SKU or variant from the active catalog directory. Use the search input to filter by name, size, or color.</li>
             <li>Input the number of labels you want to create in the quantity input field.</li>
+            <li>Select the **Code Type** (1D Barcode or 2D QR Code).</li>
             <li>Click <strong>Generate Barcode Image</strong>. The portal will generate standard barcode labels containing the SKU and variant details.</li>
-            <li>Use the **Print** dialog to output labels to your local thermal label printer.</li>
+            <li>Click <strong>Add to Queue</strong> to compile multiple items. Once ready, click **Print Queue** to output labels.</li>
           </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Label Presets & Dimensions</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            The platform supports three standard layouts for thermal printer output:
+          </p>
+          <ul className="space-y-2 text-xs text-slate-700 pl-4 list-disc">
+            <li><strong>Standard (2" x 2")</strong>: Ideal for hangtags. Displays variant description, price, SKU, and large code.</li>
+            <li><strong>Compact (1.5" x 1.5")</strong>: Used for packaging bags or small labels.</li>
+            <li><strong>Micro (1" x 1")</strong>: Restricted layout containing only SKU or Shopify numeric ID, suitable for jewelry or accessory tags.</li>
+          </ul>
+
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-amber-950">Printer Calibration Tip</h4>
+            <h4 className="text-sm font-bold text-amber-950">Thermal Printer Calibration</h4>
             <p className="text-xs text-amber-750 mt-1">
-              For best scanning results, calibrate your thermal printer to standard `50mm x 25mm` barcode label sizes to ensure barcodes don't bleed off the edges.
+              For best scanning results, calibrate your thermal printer to standard label sizes (e.g. Zebra or TSC) to ensure barcodes don't bleed off the edges. Always test-scan one barcode from the first printed batch before printing high-volume queues.
             </p>
           </div>
         </div>
@@ -95,29 +142,49 @@ export default function HelpPage() {
       title: "Stock Inwarding & Outwarding",
       category: "Inventory & Barcodes",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Stock Inward & Outward</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Stock Inward & Outward</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
             Use the **Inward/Outward** scanning page to register stock changes as physical items arrive or leave the warehouse shelves.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
-              <h3 className="font-bold text-sm text-slate-950 flex items-center gap-1.5 mb-2">
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Fulfillment Ledger Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+            <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-2">
+              <h3 className="font-bold text-xs text-slate-950 flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Inward Scan (Receiving)
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-[11px] text-slate-650 leading-relaxed">
                 Scan production batches arriving from suppliers to add them to your active warehouse stock. This logs an `INWARD` stock movement and updates total catalog levels.
               </p>
+              <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
+                <li>Increases catalog stock levels.</li>
+                <li>Triggers immediate sync update to Shopify (if bridge is active).</li>
+                <li>Associates stock directly with selected warehouse node.</li>
+              </ul>
             </div>
-            <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
-              <h3 className="font-bold text-sm text-slate-950 flex items-center gap-1.5 mb-2">
+            <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50 space-y-2">
+              <h3 className="font-bold text-xs text-slate-950 flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span> Outward Scan (Adjustments)
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-[11px] text-slate-650 leading-relaxed">
                 Scan items to manually deduct inventory for sample dispatch, store displays, or writing off damaged garments. Logs an `OUTWARD` stock movement.
               </p>
+              <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
+                <li>Decreases catalog stock levels.</li>
+                <li>Logs inventory adjustments reasons in the stock movements ledger.</li>
+                <li>Applies real-time decrements on the public storefront.</li>
+              </ul>
             </div>
           </div>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Performing Scans</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Select the correct **Active Scanning Node** (Warehouse).</li>
+            <li>Set the **Mode Toggle** to either Inward or Outward.</li>
+            <li>Place your cursor in the scan field. Begin scanning tags. The queue list will update automatically.</li>
+            <li>Review the quantities. Click **Commit Batch Queue** to write changes to the database.</li>
+          </ol>
         </div>
       )
     },
@@ -126,17 +193,19 @@ export default function HelpPage() {
       title: "Inventory Auditing (Cycle Count)",
       category: "Inventory & Barcodes",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Inventory Auditing & Cycle Counts</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Inventory Auditing & Cycle Counts</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Run periodic audits to reconcile physical stock with digital numbers. The audit dashboard tracks discrepancies automatically:
+            Run periodic audits to reconcile physical stock with digital numbers. The audit dashboard tracks discrepancies automatically.
           </p>
-          <div className="overflow-x-auto">
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Audit Reconciliation Table</h3>
+          <div className="overflow-x-auto mt-2">
             <table className="min-w-full text-xs text-slate-600 border border-slate-200 divide-y divide-slate-200">
               <thead className="bg-slate-100 text-slate-800 font-bold">
                 <tr>
                   <th className="px-3 py-2 text-left">Audit Field</th>
-                  <th className="px-3 py-2 text-left">Description</th>
+                  <th className="px-3 py-2 text-left">Formula / Definition</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -152,13 +221,27 @@ export default function HelpPage() {
                   <td className="px-3 py-2 font-bold text-slate-900">Discrepancy</td>
                   <td className="px-3 py-2">The delta (Scanned - Expected). Highlights mismatch errors requiring reconciliation.</td>
                 </tr>
+                <tr>
+                  <td className="px-3 py-2 font-bold text-slate-900">Shrinkage Value</td>
+                  <td className="px-3 py-2">Net value difference of the missing stock calculated against unit cost prices.</td>
+                </tr>
               </tbody>
             </table>
           </div>
-          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg mt-2">
-            <h4 className="text-sm font-bold text-indigo-950">Audio Scans</h4>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Reconciliation & Committing</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Once a cycle count is complete:
+          </p>
+          <ul className="space-y-1.5 text-xs text-slate-700 pl-4 list-disc">
+            <li>Click **Save Draft** to store current counts if you need to pause or switch shifts. Counts are recovered from local browser storage automatically.</li>
+            <li>Click **Reconcile & Close** to finalize the audit. This overrides database quantities with scanned counts and logs physical adjustments.</li>
+          </ul>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-indigo-950">Audio Feedback Integration</h4>
             <p className="text-xs text-indigo-750 mt-1">
-              Keep the audio feedback toggle active to get auditory verification as you scan (success beep vs. invalid warning tone) to speed up floor operations.
+              Keep the audio feedback toggle active to get auditory verification as you scan. A high-frequency beep indicates a valid tag match; a low warning buzz alerts you that the scanned SKU does not belong to this audit segment.
             </p>
           </div>
         </div>
@@ -169,17 +252,26 @@ export default function HelpPage() {
       title: "Processing Shopify Orders",
       category: "Orders & Logistics",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Fulfilling Shopify Orders</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Fulfilling Shopify Orders</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Incoming orders synchronize automatically from Shopify via webhooks. Floor staff can pack and fulfill orders directly:
+            Incoming orders synchronize automatically from Shopify via webhooks. Floor staff can pack and fulfill orders directly.
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">Order Status Path</h3>
-          <ul className="list-disc list-inside text-sm text-slate-700 space-y-1.5 mt-2">
-            <li><strong>Processing</strong>: Order imported and waiting to be packed.</li>
-            <li><strong>Fulfill Action</strong>: Enter parcel dimensions and weight to automatically fetch courier routing from Delhivery or Shiprocket.</li>
-            <li><strong>Shipped</strong>: Once the AWB label is generated and printed, attach it to the box. The status moves to `SHIPPED` and updates the customer on Shopify.</li>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Fulfillment Workflow States</h3>
+          <ul className="list-disc list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li><strong>Processing</strong>: Order imported and waiting to be packed. Items must be picked from warehouse shelving.</li>
+            <li><strong>Barcode Matching</strong>: Picked item tags are scanned against the order's line-items directory to prevent packing errors.</li>
+            <li><strong>Fulfill Action</strong>: Enter parcel dimensions (L x W x H) and weight. The logistics portal calls API providers to assign tracking AWBs.</li>
+            <li><strong>Shipped</strong>: Print shipping labels, stick them to packages, and transfer them to the dispatch bay. Shopify is automatically updated with tracking details.</li>
           </ul>
+
+          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-emerald-950">Real-Time Ingestion</h4>
+            <p className="text-xs text-emerald-750 mt-1">
+              Thanks to direct-database listeners, order creations require zero webhook processing delays. You can trigger simulated Shopify orders from the dashboard directory header to validate courier routing.
+            </p>
+          </div>
         </div>
       )
     },
@@ -188,18 +280,25 @@ export default function HelpPage() {
       title: "Courier Handovers & Manifests",
       category: "Orders & Logistics",
       content: (
-        <div className="space-y-4">
-          <h1 className="text-2xl font-extrabold text-slate-900 border-b pb-2">Shipping Manifests</h1>
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Shipping Manifests & Courier Handovers</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
             A shipping manifest must be printed and signed by the courier driver before any package leaves the warehouse premises.
           </p>
-          <h3 className="text-base font-bold text-slate-900 mt-4">How to create a manifest:</h3>
-          <ol className="list-decimal list-inside text-sm text-slate-700 space-y-2 mt-2">
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">How to Create & Dispatch Manifests</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2.5 mt-2">
             <li>Go to the **Logistics** panel in the sidebar.</li>
-            <li>Click **Create Manifest**. Select the courier partner (e.g. Bluedart, Delhivery) and enter driver details.</li>
-            <li>Assign packed packages to the manifest.</li>
+            <li>Click **Create Manifest**. Select the courier partner (e.g. Bluedart, Delhivery) and enter driver details (name, vehicle number, phone).</li>
+            <li>Assign packed packages (filter by courier partner) to the manifest list.</li>
             <li>Print the manifest handover sheet. The driver signs this paper document as proof of custody.</li>
+            <li>Commit the manifest to close the dispatch queue.</li>
           </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Return Merchandise Authorization (RMA)</h3>
+          <p className="text-xs text-slate-650 leading-relaxed">
+            When packages are returned as RTO (Return to Origin), scan the AWB in the Logistics Returns tab. This updates the package status, moves items back to inventory, and registers adjustments.
+          </p>
         </div>
       )
     }

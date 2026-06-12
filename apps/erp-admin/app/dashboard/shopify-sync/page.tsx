@@ -38,6 +38,7 @@ export default function ShopifySyncPage() {
 
 function ShopifySyncContent() {
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [company, setCompany] = useState<any>(null);
   const [logs, setLogs] = useState<SyncLog[]>([
     { id: "SYN-983", module: "Orders Sync", direction: "Shopify → ERP", records: 14, status: "Success", duration: "1.2s", time: "Just now" },
     { id: "SYN-982", module: "Inventory Sync", direction: "ERP → Shopify", records: 124, status: "Success", duration: "4.8s", time: "12 mins ago" },
@@ -46,6 +47,23 @@ function ShopifySyncContent() {
     { id: "SYN-979", module: "Orders Sync", direction: "Shopify → ERP", records: 41, status: "Success", duration: "3.2s", time: "4 hours ago" },
     { id: "SYN-978", module: "Inventory Sync", direction: "ERP → Shopify", records: 8, status: "Failed", duration: "0.8s", time: "6 hours ago" },
   ]);
+
+  React.useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.company) {
+            setCompany(data.company);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch session", err);
+      }
+    };
+    fetchSession();
+  }, []);
 
   const triggerSync = (moduleName: string) => {
     if (syncing) return;
@@ -74,11 +92,19 @@ function ShopifySyncContent() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-              <Link2 className="w-3 h-3" /> Connected
-            </span>
+            {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? (
+              <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-100">
+                <Link2 className="w-3 h-3" /> Connected
+              </span>
+            ) : (
+              <span className="bg-rose-50 text-rose-700 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-rose-100 animate-pulse">
+                <AlertCircle className="w-3 h-3 text-rose-500" /> Not Connected
+              </span>
+            )}
             <span className="text-gray-400 text-xs">•</span>
-            <span className="text-xs text-gray-500 font-mono">seyon-clothing.myshopify.com</span>
+            <span className="text-xs text-gray-500 font-mono">
+              {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? company.shopifyStoreUrl.replace("https://", "") : "Unconfigured Store Domain"}
+            </span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Sync Bridge</h1>
           <p className="text-sm text-gray-500">

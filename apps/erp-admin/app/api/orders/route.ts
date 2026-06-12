@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data: orders, error: ordersErr } = await supabase
       .from("OrderFulfillment")
-      .select("id, orderNumber, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg")
+      .select("id, orderNumber, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
       .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
