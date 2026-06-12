@@ -14,7 +14,9 @@ import {
   Edit2,
   Barcode,
   RefreshCw,
-  MapPin
+  MapPin,
+  Upload,
+  FileDown
 } from "lucide-react";
 import {
   Table,
@@ -108,6 +110,12 @@ export default function StockInventoryPage() {
   const [matrixAdjustments, setMatrixAdjustments] = useState<{ [variantId: string]: number }>({});
   const [savingMatrix, setSavingMatrix] = useState(false);
 
+  // CSV Import states
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [parsedRows, setParsedRows] = useState<any[]>([]);
+  const [importFileName, setImportFileName] = useState("");
+
   const handleOpenMatrixModal = () => {
     if (!selectedProduct) return;
     const initialAdjs: { [variantId: string]: number } = {};
@@ -117,6 +125,157 @@ export default function StockInventoryPage() {
     setMatrixAdjustments(initialAdjs);
     setShowMatrixModal(true);
   };
+
+  // CSV Import Logic
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImportFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const text = event.target?.result as string;
+      if (text) {
+        const parsed = parseCSV(text);
+        
+        toast.info("Analyzing CSV file content for discrepancies...");
+        try {
+          const targetWarehouseId = selectedWarehouseId === "All" ? warehouses[0]?.id : selectedWarehouseId;
+          const res = await fetch("/api/inventory/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: parsed,
+              warehouseId: targetWarehouseId,
+              dryRun: true
+            })
+          });
+          const data = await res.json();
+          if (data.success && Array.isArray(data.items)) {
+            setParsedRows(data.items);
+            const existsCount = data.items.filter((item: any) => item.status === "EXISTS").length;
+            if (existsCount > 0) {
+              toast.warning(`Found ${existsCount} existing variants. They will be skipped during import.`);
+            } else {
+              toast.success("CSV analyzed successfully. All products are new!");
+            }
+          } else {
+            toast.error(data.error || "Failed to analyze CSV data.");
+          }
+        } catch (err) {
+          toast.error("Failed to connect to the analysis endpoint.");
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const parseCSV = (text: string) => {
+    const lines = text.split(/\r?\n/);
+    if (lines.length === 0) return [];
+    
+    // Parse headers, strip extra whitespace and quotes
+    const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+    const result: any[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.trim()) continue;
+      
+      // Simple parser handling commas inside quotes
+      const values: string[] = [];
+      let currentVal = "";
+      let inQuotes = false;
+      
+      for (let charIndex = 0; charIndex < line.length; charIndex++) {
+        const char = line[charIndex];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(currentVal.trim().replace(/^"|"$/g, ""));
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+      values.push(currentVal.trim().replace(/^"|"$/g, ""));
+
+      if (values.length < headers.length) continue;
+      
+      const obj: any = {};
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[j]] = values[j];
+      }
+      result.push(obj);
+    }
+    return result;
+  };
+
+  const downloadCSVTemplate = () => {
+    const headers = ["Title", "SKU", "Size", "Color", "Price", "Category", "TargetGroup", "AgeRange", "SafetyStockLimit", "Barcode", "CurrentStock", "ImageUrl"];
+    const rows = [
+      ["SEYON Oversized T-Shirt", "TWCT001-BLK-M", "M", "Black", "1299", "Top", "Adults", "", "5", "TWCT001BLKM", "50", "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop"],
+      ["SEYON Oversized T-Shirt", "TWCT001-BLK-L", "L", "Black", "1299", "Top", "Adults", "", "5", "TWCT001BLKL", "25", "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop"],
+      ["SEYON Cargo Pants", "TWCP001-OLV-32", "32", "Olive", "1999", "Bottom", "Adults", "", "5", "TWCP001OLV32", "15", "https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop"]
+    ];
+    
+    const csvRows = [
+      headers.join(","),
+      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))
+    ];
+    const csvContent = "\uFEFF" + csvRows.join("\n");
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "seyon_product_import_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const executeImport = async () => {
+    if (parsedRows.length === 0) {
+      toast.error("No product variants found in file.");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const targetWarehouseId = selectedWarehouseId === "All" ? warehouses[0]?.id : selectedWarehouseId;
+      const res = await fetch("/api/inventory/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: parsedRows,
+          warehouseId: targetWarehouseId
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        if (data.errors && data.errors.length > 0) {
+          toast.warning(`Import completed with errors:\n${data.errors.slice(0, 3).join("\n")}${data.errors.length > 3 ? "\n..." : ""}`, {
+            duration: 6000
+          });
+        } else {
+          toast.success(`Successfully imported/updated ${data.importedCount.variants} product variants.`);
+        }
+        setShowImportModal(false);
+        setParsedRows([]);
+        setImportFileName("");
+        await loadData();
+      } else {
+        toast.error(data.error || "Failed to import products.");
+      }
+    } catch (err) {
+      toast.error("Failed to connect to the import API endpoint.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
 
   // Fetch all necessary data
   const loadData = async () => {
@@ -386,8 +545,19 @@ export default function StockInventoryPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
+            onClick={() => {
+              const confirmOpen = window.confirm("WARNING: Bulk CSV imports are critical catalog updates and must be done under supervisor supervision. Do you want to proceed?");
+              if (confirmOpen) {
+                setShowImportModal(true);
+              }
+            }}
+            className="flex items-center gap-2 bg-indigo-650 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all cursor-pointer"
+          >
+            <Upload className="w-4 h-4" /> Import CSV
+          </button>
+          <button 
             onClick={loadData}
-            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all"
+            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-200 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Refresh Stock
           </button>
@@ -962,7 +1132,7 @@ export default function StockInventoryPage() {
               <button
                 type="button"
                 onClick={() => setShowMatrixModal(false)}
-                className="px-4 py-2 bg-white border border-gray-250 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 text-xs transition-colors cursor-pointer"
+                className="px-4 py-2 bg-white border border-gray-255 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 text-xs transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -973,6 +1143,187 @@ export default function StockInventoryPage() {
               >
                 {savingMatrix && <RefreshCw className="w-3 h-3 animate-spin" />}
                 Save Grid Matrix Adjustments
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSV IMPORT MODAL */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 border-b border-gray-100 bg-slate-50/80 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-indigo-600" /> Import Products via CSV
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload catalog product variants and initialize their stock levels instantly.
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowImportModal(false);
+                  setParsedRows([]);
+                  setImportFileName("");
+                }}
+                className="p-1 h-7 w-7 text-gray-400 hover:text-gray-900 border border-gray-200 hover:bg-gray-100 rounded-full flex items-center justify-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Instructions and Download Template */}
+              <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h4 className="text-xs font-bold text-indigo-950 uppercase tracking-wider">CSV Data Template</h4>
+                  <p className="text-xs text-indigo-900/80">
+                    Use our standardized CSV schema to map properties correctly. All headers are case-sensitive.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={downloadCSVTemplate}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer whitespace-nowrap"
+                >
+                  <FileDown className="w-4 h-4" /> Download Template
+                </button>
+              </div>
+
+              {/* Upload Drop Zone */}
+              <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center bg-gray-50/50 hover:bg-gray-50/80 transition-all relative">
+                <input 
+                  type="file" 
+                  accept=".csv"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div className="space-y-2 pointer-events-none">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                  <div className="text-sm font-semibold text-gray-700">
+                    {importFileName ? (
+                      <span className="text-indigo-600">{importFileName}</span>
+                    ) : (
+                      "Click to browse or drag your .csv file here"
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-400">Supported formats: Standard UTF-8 CSV up to 10MB</p>
+                </div>
+              </div>
+
+              {/* Target Warehouse Context */}
+              {parsedRows.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+                    Target Warehouse Context for Stock quantities
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                    <select
+                      value={selectedWarehouseId === "All" ? (warehouses[0]?.id || "") : selectedWarehouseId}
+                      onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                      className="bg-white border border-gray-250 rounded-lg py-1.5 px-3 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                    >
+                      {warehouses.map((wh) => (
+                        <option key={wh.id} value={wh.id}>
+                          {wh.name} ({wh.code})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-[10px] text-gray-400">
+                    If your CSV includes the "CurrentStock" column, inventory levels will be seeded under this specific warehouse facility.
+                  </p>
+                </div>
+              )}
+
+              {/* Preview Grid */}
+              {parsedRows.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
+                    <span>Preview of Parsed Data (First 5 records)</span>
+                    <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      {parsedRows.length} Rows Detected
+                    </span>
+                  </h4>
+                  <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-gray-200 text-gray-555 font-bold">
+                          <th className="p-3">Title</th>
+                          <th className="p-3">SKU</th>
+                          <th className="p-3 text-center">Size</th>
+                          <th className="p-3 text-right">Price</th>
+                          <th className="p-3 text-center">Stock</th>
+                          <th className="p-3 text-center">Import Status</th>
+                          <th className="p-3">Value Discrepancies</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {parsedRows.slice(0, 5).map((row, index) => {
+                          const isExists = row.status === "EXISTS";
+                          return (
+                            <tr key={index} className={`hover:bg-slate-50/50 ${isExists ? "bg-amber-50/20" : ""}`}>
+                              <td className="p-3 font-semibold text-gray-800">{row.title || "--"}</td>
+                              <td className="p-3 font-mono text-gray-600">{row.sku || "--"}</td>
+                              <td className="p-3 text-center font-bold">{row.size || "--"}</td>
+                              <td className="p-3 text-right font-mono font-bold">${parseFloat(row.price || 0).toFixed(2)}</td>
+                              <td className="p-3 text-center font-bold text-indigo-600">{row.currentStock || "0"}</td>
+                              <td className="p-3 text-center">
+                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                  isExists 
+                                    ? "bg-amber-100 text-amber-800" 
+                                    : "bg-emerald-100 text-emerald-800"
+                                }`}>
+                                  {isExists ? "Skip (Exists)" : "Ready (New)"}
+                                </span>
+                              </td>
+                              <td className="p-3 text-xs text-amber-800 max-w-[250px]" title={row.discrepancies?.join(", ")}>
+                                {isExists ? (
+                                  row.discrepancies && row.discrepancies.length > 0 ? (
+                                    <span className="flex flex-col gap-0.5">
+                                      {row.discrepancies.map((disc: string, idx: number) => (
+                                        <span key={idx} className="block text-[10px] text-amber-700">• {disc}</span>
+                                      ))}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-400 italic text-[10px]">Identical SKU (No value changes)</span>
+                                  )
+                                ) : (
+                                  <span className="text-gray-400 text-[10px]">—</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-gray-100 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setParsedRows([]);
+                  setImportFileName("");
+                }}
+                className="px-4 py-2 bg-white border border-gray-255 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 text-xs transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeImport}
+                disabled={importing || parsedRows.length === 0}
+                className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                {importing && <RefreshCw className="w-3 h-3 animate-spin" />}
+                Execute Bulk Import
               </button>
             </div>
           </div>

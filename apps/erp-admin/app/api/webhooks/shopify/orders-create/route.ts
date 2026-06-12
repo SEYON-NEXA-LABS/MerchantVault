@@ -250,12 +250,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Resolve company by code or fallback to 'syn'
-    let { data: company, error: compErr } = await supabaseAdmin
-      .from("Company")
-      .select("id")
-      .eq("code", "syn")
-      .maybeSingle();
+    // Resolve company by companyId, code, or fallback to 'syn'
+    const companyId = body.companyId;
+    let companyQuery = supabaseAdmin.from("Company").select("id");
+    if (companyId) {
+      companyQuery = companyQuery.eq("id", companyId);
+    } else {
+      companyQuery = companyQuery.eq("code", "syn");
+    }
+    let { data: company, error: compErr } = await companyQuery.maybeSingle();
 
     if (compErr || !company) {
       const { data: newComp } = await supabaseAdmin

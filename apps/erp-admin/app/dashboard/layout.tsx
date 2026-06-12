@@ -99,6 +99,16 @@ export default function DashboardLayout({
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
+  const getStorefrontUrl = () => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const base = isLocal ? "http://localhost:3001" : "https://fabricvault-storefront.vercel.app";
+      return company?.id ? `${base}/?companyId=${company.id}` : base;
+    }
+    const base = "https://fabricvault-storefront.vercel.app";
+    return company?.id ? `${base}/?companyId=${company.id}` : base;
+  };
+
   useEffect(() => {
     setIsOffline(!navigator.onLine);
     const handleOnline = () => setIsOffline(false);
@@ -159,10 +169,15 @@ export default function DashboardLayout({
                 }
               }
             }
+          } else {
+            router.push("/");
           }
+        } else {
+          router.push("/");
         }
       } catch (err) {
         console.error("Failed to bootstrap user context", err);
+        router.push("/");
       } finally {
         setIsBootstrapping(false);
       }
@@ -306,6 +321,17 @@ export default function DashboardLayout({
   const getInitials = (name: string) => name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
 
   const currentUser = sessionUser || userProfileInfo[userRole];
+
+  if (isBootstrapping) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3">
+          <RefreshCw className="w-8 h-8 animate-spin text-indigo-600" />
+          <p className="text-sm font-semibold text-gray-500 font-sans">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <RoleProvider value={{ role: userRole, setRole: setUserRole }}>
@@ -569,7 +595,7 @@ export default function DashboardLayout({
               <ul className="space-y-0.5">
                 <li>
                   <a
-                    href="http://localhost:3001"
+                    href={getStorefrontUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"

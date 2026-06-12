@@ -1,23 +1,37 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@repo/db";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!supabase) {
       console.warn("Supabase client not initialized in storefront");
       return NextResponse.json({ products: [], company: null });
     }
 
-    const { data: company } = await supabase
-      .from("Company")
-      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken")
-      .eq("code", "syn")
-      .maybeSingle();
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get("companyId");
 
-    const { data: products, error } = await supabase
+    let companyQuery = supabase
+      .from("Company")
+      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken");
+
+    if (companyId) {
+      companyQuery = companyQuery.eq("id", companyId);
+    } else {
+      companyQuery = companyQuery.eq("code", "syn");
+    }
+
+    const { data: company } = await companyQuery.maybeSingle();
+
+    let productsQuery = supabase
       .from("ProductVariant")
-      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig")
-      .order("createdAt", { ascending: false });
+      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig");
+
+    if (company && company.id) {
+      productsQuery = productsQuery.eq("companyId", company.id);
+    }
+
+    const { data: products, error } = await productsQuery.order("createdAt", { ascending: false });
 
     if (error) throw error;
     return NextResponse.json({

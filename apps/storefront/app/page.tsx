@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { 
   Scissors, 
   ShoppingCart, 
@@ -15,7 +16,16 @@ import {
   Truck,
   Heart,
   Grid,
-  WifiOff
+  WifiOff,
+  Shirt,
+  Gem,
+  Watch,
+  Glasses,
+  Footprints,
+  Crown,
+  Palette,
+  Star,
+  Zap
 } from "lucide-react";
 
 // Mock Fallback Products for a premium retail aesthetic
@@ -100,7 +110,9 @@ const FALLBACK_PRODUCTS = [
   }
 ];
 
-function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties }) {
+function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: React.CSSProperties; showGallery?: boolean }) {
+  const [activeIdx, setActiveIdx] = React.useState(0);
+
   let config: any = null;
   if (prod.thumbnailConfig) {
     try {
@@ -110,7 +122,58 @@ function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties 
     }
   }
 
-  if (config && config.shapes) {
+  const imagesList = config && config.images && Array.isArray(config.images) && config.images.length > 0
+    ? config.images
+    : config && config.imageUrl
+      ? [config.imageUrl]
+      : [];
+
+  const PRODUCT_ICONS = [
+    Shirt, ShoppingBag, Gem, Watch, Glasses, Footprints,
+    Crown, Scissors, Palette, Sparkles, Star, Zap
+  ];
+
+  if (imagesList.length > 0) {
+    const activeUrl = imagesList[activeIdx] || imagesList[0];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", width: "100%", height: "100%" }}>
+        <div style={{ flex: 1, position: "relative", overflow: "hidden", borderRadius: "0.5rem" }}>
+          <img
+            src={activeUrl}
+            alt={prod.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", ...style }}
+          />
+        </div>
+        {showGallery && imagesList.length > 1 && (
+          <div style={{ display: "flex", gap: "0.375rem", overflowX: "auto", paddingBottom: "0.15rem" }}>
+            {imagesList.map((imgUrl: string, idx: number) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveIdx(idx);
+                }}
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "0.25rem",
+                  overflow: "hidden",
+                  border: activeIdx === idx ? "2px solid #1c1917" : "1px solid #e7e5e4",
+                  padding: 0,
+                  cursor: "pointer",
+                  flexShrink: 0
+                }}
+              >
+                <img src={imgUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (config) {
     const bgColor = config.color === "green" ? "#ecfdf5" : 
                     config.color === "black" ? "#f3f4f6" : 
                     config.color === "white" ? "#ffffff" : 
@@ -126,7 +189,7 @@ function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties 
                        config.color === "grey" ? "#9ca3af" :
                        config.color === "navy" ? "#0284c7" :
                        "#4f46e5";
-                       
+                        
     const textAndIconColor = config.color === "black" ? "#111827" :
                              config.color === "white" ? "#475569" :
                              config.color === "green" ? "#047857" :
@@ -138,7 +201,10 @@ function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties 
     const initials = prod.title
       ? prod.title.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase()
       : "PV";
-                       
+
+    const hash = prod.title ? prod.title.split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) : 0;
+    const IconComponent = PRODUCT_ICONS[hash % PRODUCT_ICONS.length] || Shirt;
+                        
     return (
       <div style={{ 
         width: "100%", 
@@ -152,21 +218,17 @@ function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties 
         justifyContent: "center",
         ...style 
       }}>
-        {config.shapes.map((shape: any, idx: number) => (
-          <div
-            key={idx}
-            style={{
-              position: "absolute",
-              width: `${shape.size}%`,
-              paddingBottom: `${shape.size}%`,
-              borderRadius: "50%",
-              backgroundColor: shapeColor,
-              opacity: shape.opacity || 0.15,
-              top: `${shape.top}%`,
-              left: `${shape.left}%`,
-            }}
-          />
-        ))}
+        <IconComponent
+          style={{
+            position: "absolute",
+            width: "60%",
+            height: "60%",
+            color: shapeColor,
+            opacity: 0.15,
+            pointerEvents: "none"
+          }}
+          strokeWidth={1.2}
+        />
         <span style={{
           position: "relative",
           zIndex: 5,
@@ -182,21 +244,73 @@ function ProductImage({ prod, style }: { prod: any; style?: React.CSSProperties 
     );
   }
 
+  const initials = prod.title
+    ? prod.title.split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase()
+    : "PV";
+
+  const hash = prod.title ? prod.title.split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) : 0;
+  const IconComponent = PRODUCT_ICONS[hash % PRODUCT_ICONS.length] || Shirt;
+
   return (
-    <img
-      src={`https://images.unsplash.com/photo-1617137968427-85924c800a22?w=500&auto=format&fit=crop&q=60`}
-      alt={prod.title}
-      style={{ width: "100%", height: "100%", objectFit: "cover", ...style }}
-    />
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      backgroundColor: "#f3f4f6", 
+      position: "relative", 
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "150px",
+      ...style 
+    }}>
+      <IconComponent
+        style={{
+          position: "absolute",
+          width: "60%",
+          height: "60%",
+          color: "#9ca3af",
+          opacity: 0.15,
+          pointerEvents: "none"
+        }}
+        strokeWidth={1.2}
+      />
+      <span style={{
+        position: "relative",
+        zIndex: 5,
+        fontWeight: "800",
+        fontSize: "1.25rem",
+        color: "#374151",
+        opacity: 0.9,
+        letterSpacing: "0.05em"
+      }}>
+        {initials}
+      </span>
+    </div>
   );
 }
 
 export default function StorefrontPage() {
+  const [erpAdminUrl, setErpAdminUrl] = useState("https://fabricvault.vercel.app/dashboard");
+  const [webhookUrl, setWebhookUrl] = useState("https://fabricvault.vercel.app/api/webhooks/shopify/orders-create");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      if (isLocal) {
+        setErpAdminUrl("http://localhost:3000/dashboard");
+        setWebhookUrl("http://localhost:3000/api/webhooks/shopify/orders-create");
+      }
+    }
+  }, []);
+
   const [dbVariants, setDbVariants] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<any>(null);
   const [isOffline, setIsOffline] = useState(false);
+  const [companyIdMissing, setCompanyIdMissing] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -219,6 +333,8 @@ export default function StorefrontPage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [checkoutStep, setCheckoutStep] = useState<"idle" | "loading" | "success">("idle");
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [syncStep, setSyncStep] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; subtitle: string } | null>(null);
@@ -239,10 +355,11 @@ export default function StorefrontPage() {
   const [syncStatus, setSyncStatus] = useState<"idle" | "synced" | "syncing">("idle");
 
   // Load products (DB query + Fallbacks)
-  const fetchProducts = async () => {
+  const fetchProducts = async (companyId?: string | null) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/products"); // Internal check or api
+      const url = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
+      const res = await fetch(url); // Internal check or api
       const data = await res.json();
       
       const productList = data.products || (Array.isArray(data) ? data : []);
@@ -282,8 +399,45 @@ export default function StorefrontPage() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    let companyIdVal: string | null = null;
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlCompanyId = params.get("companyId");
+      if (urlCompanyId) {
+        companyIdVal = urlCompanyId;
+        localStorage.setItem("seyon:storefront:companyId", urlCompanyId);
+        setCompanyIdMissing(false);
+      } else {
+        companyIdVal = localStorage.getItem("seyon:storefront:companyId");
+        setCompanyIdMissing(true);
+      }
+    }
+
+    fetchProducts(companyIdVal);
+
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("seyon:storefront:cart");
+      if (stored) {
+        try {
+          setCart(JSON.parse(stored));
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("checkout") === "true") {
+        setIsCheckingOut(true);
+        setIsCartOpen(false);
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("seyon:storefront:cart", JSON.stringify(cart));
+    }
+  }, [cart]);
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => 
@@ -325,8 +479,10 @@ export default function StorefrontPage() {
     
     const orderId = `storefront-${Math.floor(Math.random() * 900000) + 100000}`;
     const orderName = `#SF-${Math.floor(Math.random() * 9000) + 10000}${checkoutForm.paymentMethod === "COD" ? "-COD" : ""}`;
+    const savedCoId = typeof window !== "undefined" ? localStorage.getItem("seyon:storefront:companyId") : null;
     
     const payload = {
+      companyId: savedCoId,
       shopifyOrderId: orderId,
       orderNumber: orderName,
       customerName: checkoutForm.name,
@@ -350,7 +506,7 @@ export default function StorefrontPage() {
 
     try {
       // Send directly to the ERP Admin API orders-create endpoint
-      const response = await fetch("http://localhost:3000/api/webhooks/shopify/orders-create", {
+      const response = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -372,11 +528,34 @@ export default function StorefrontPage() {
 
   const triggerLiveSync = () => {
     setSyncStatus("syncing");
-    setTimeout(() => {
-      setSyncStatus("synced");
-      fetchProducts();
-      setTimeout(() => setSyncStatus("idle"), 2500);
-    }, 1500);
+    setSyncProgress(0);
+    setSyncStep("Initializing connection to Seyon DB...");
+
+    const steps = [
+      { progress: 15, step: "Authenticating tenant credentials..." },
+      { progress: 40, step: "Querying ProductVariant catalog..." },
+      { progress: 70, step: "Syncing stock thresholds..." },
+      { progress: 90, step: "Refreshing localized cache..." },
+      { progress: 100, step: "Catalog sync successful!" }
+    ];
+
+    let currentIdx = 0;
+    const interval = setInterval(() => {
+      if (currentIdx < steps.length) {
+        setSyncProgress(steps[currentIdx].progress);
+        setSyncStep(steps[currentIdx].step);
+        currentIdx++;
+      } else {
+        clearInterval(interval);
+        const savedCoId = typeof window !== "undefined" ? localStorage.getItem("seyon:storefront:companyId") : null;
+        fetchProducts(savedCoId);
+        setSyncStatus("synced");
+        setTimeout(() => {
+          setSyncStatus("idle");
+          setSyncProgress(0);
+        }, 2000);
+      }
+    }, 400);
   };
 
   // Filter products
@@ -411,9 +590,13 @@ export default function StorefrontPage() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           {company?.shopifyStoreUrl && company.shopifyAccessToken && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? (
-            <span style={{ backgroundColor: "#10b981", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase", fontSize: "0.65rem", fontWeight: "800" }}>Connected ✓</span>
+            <span style={{ backgroundColor: "#10b981", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase", fontSize: "0.65rem", fontWeight: "800" }}>
+              {company?.name ? `${company.name}: Connected ✓` : "Connected ✓"}
+            </span>
           ) : (
-            <span style={{ backgroundColor: "#ef4444", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase", fontSize: "0.65rem", fontWeight: "800" }}>Not Connected ⚠</span>
+            <span style={{ backgroundColor: "#ef4444", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase", fontSize: "0.65rem", fontWeight: "800" }}>
+              {company?.name ? `${company.name}: Not Connected ⚠` : "Not Connected ⚠"}
+            </span>
           )}
           <span style={{ backgroundColor: "rgba(255,255,255,0.2)", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase", fontSize: "0.65rem", fontWeight: "700" }}>Seyon Bridge</span>
           <a 
@@ -425,8 +608,8 @@ export default function StorefrontPage() {
             Shopify Admin ↗
           </a>
           <span style={{ color: "rgba(255,255,255,0.4)" }}>|</span>
-          <a 
-            href="http://localhost:3000/dashboard" 
+           <a 
+            href={erpAdminUrl} 
             target="_blank" 
             rel="noopener noreferrer"
             style={{ color: "#a5f3fc", textDecoration: "underline", fontSize: "0.75rem", fontWeight: "700" }}
@@ -455,6 +638,26 @@ export default function StorefrontPage() {
           {syncStatus === "syncing" ? "Syncing..." : syncStatus === "synced" ? "Synced ✓" : "Sync ERP Catalog"}
         </button>
       </div>
+      
+      {companyIdMissing && (
+        <div style={{
+          backgroundColor: "#fffbeb",
+          borderBottom: "1px solid #fde68a",
+          color: "#b45309",
+          padding: "0.75rem 1.25rem",
+          fontSize: "0.8rem",
+          fontWeight: "600",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "0.5rem"
+        }}>
+          <AlertCircle style={{ width: "1.1rem", height: "1.1rem", flexShrink: 0 }} />
+          <span>
+            <strong>Storefront Notice:</strong> Accessed via a direct link without a <code>companyId</code> parameter. Showing the default company channel catalog. To view a specific company's products, open the storefront from the ERP Admin dashboard sidebar.
+          </span>
+        </div>
+      )}
 
       {/* Main Navbar */}
       <header style={{
@@ -482,8 +685,12 @@ export default function StorefrontPage() {
             <Scissors style={{ width: "1.25rem", height: "1.25rem", color: "#fbbf24" }} />
           </div>
           <div>
-            <span style={{ fontSize: "1.25rem", fontWeight: "800", letterSpacing: "-0.03em" }}>SEYON</span>
-            <span style={{ fontSize: "0.85rem", fontWeight: "500", color: "#6b7280", marginLeft: "0.25rem" }}>Storefront</span>
+            <span style={{ fontSize: "1.5rem", fontWeight: "900", letterSpacing: "-0.03em", color: "#1c1917", textTransform: "uppercase" }}>
+              {company?.name || "SEYON"}
+            </span>
+            <span style={{ fontSize: "0.8rem", fontWeight: "600", color: "#4f46e5", marginLeft: "0.5rem", border: "1px solid #e0e7ff", backgroundColor: "#f5f7ff", padding: "0.15rem 0.5rem", borderRadius: "0.5rem", textTransform: "uppercase" }}>
+              Storefront
+            </span>
           </div>
         </div>
 
@@ -675,7 +882,7 @@ export default function StorefrontPage() {
 
                       {/* Product Image */}
                       <div className="product-image-container" onClick={() => setSelectedProduct(prod)}>
-                        <ProductImage prod={prod} />
+                        <ProductImage prod={prod} showGallery={false} />
                         <button className="quick-view-btn">
                           Quick View
                         </button>
@@ -687,12 +894,14 @@ export default function StorefrontPage() {
                           <span style={{ fontSize: "0.75rem", color: "#a8a29e", textTransform: "uppercase", fontWeight: "700" }}>{prod.sku}</span>
                         </div>
 
-                        <h4 
-                          onClick={() => setSelectedProduct(prod)}
-                          style={{ fontSize: "1.05rem", fontWeight: "700", color: "#1c1917", margin: "0.4rem 0 0.5rem 0", cursor: "pointer" }}
-                        >
-                          {prod.title}
-                        </h4>
+                        <Link href={`/products/${prod.id}`} style={{ textDecoration: "none" }}>
+                          <h4 
+                            style={{ fontSize: "1.05rem", fontWeight: "700", color: "#1c1917", margin: "0.4rem 0 0.5rem 0", cursor: "pointer" }}
+                            className="product-title-hover"
+                          >
+                            {prod.title}
+                          </h4>
+                        </Link>
 
                         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
                           <span style={{ backgroundColor: "#f5f5f4", border: "1px solid #e7e5e4", color: "#44403c", fontSize: "0.7rem", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", fontWeight: "600" }}>
@@ -1132,26 +1341,32 @@ export default function StorefrontPage() {
 
       {/* QUICK VIEW MODAL OVERLAY */}
       {selectedProduct && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          backdropFilter: "blur(2px)",
-          zIndex: 50,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "1rem"
-        }}>
-          <div style={{
-            backgroundColor: "#fff",
-            borderRadius: "1.5rem",
-            width: "100%",
-            maxWidth: "680px",
-            boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
-            overflow: "hidden",
-            position: "relative"
-          }}>
+        <div 
+          onClick={() => setSelectedProduct(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(2px)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem"
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "1.5rem",
+              width: "100%",
+              maxWidth: "680px",
+              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)",
+              overflow: "hidden",
+              position: "relative"
+            }}
+          >
             <button 
               onClick={() => setSelectedProduct(null)}
               style={{
@@ -1173,7 +1388,7 @@ export default function StorefrontPage() {
               <X style={{ width: "1.1rem", height: "1.1rem" }} />
             </button>
 
-            <div style={{ display: "flex", flexDirection: "column", md: "row" } as any}>
+            <div className="quickview-modal-content">
               {/* Image Column */}
               <div style={{ flex: 1, backgroundColor: "#f5f5f4", position: "relative" }}>
                 <ProductImage prod={selectedProduct} style={{ minHeight: "300px" }} />
@@ -1324,6 +1539,21 @@ export default function StorefrontPage() {
           opacity: 1;
           transform: translate(-50%, -50%) scale(1);
         }
+        .product-title-hover {
+          transition: color 0.2s ease;
+        }
+        .product-title-hover:hover {
+          color: #4338ca !important;
+        }
+        .quickview-modal-content {
+          display: flex;
+          flex-direction: column;
+        }
+        @media (min-width: 600px) {
+          .quickview-modal-content {
+            flex-direction: row;
+          }
+        }
         .toast-container {
           position: fixed;
           bottom: 2rem;
@@ -1402,6 +1632,89 @@ export default function StorefrontPage() {
               <span style={{ display: "inline-block", width: "0.5rem", height: "0.5rem", borderRadius: "50%", backgroundColor: "#ef4444" }}></span>
               <span>Reconnecting automatically...</span>
             </div>
+          </div>
+        </div>
+      )}
+      {syncStatus === "syncing" && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(15, 23, 42, 0.6)",
+          backdropFilter: "blur(8px)",
+          zIndex: 100,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem"
+        }}>
+          <div style={{
+            backgroundColor: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "1.25rem",
+            boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
+            width: "100%",
+            maxWidth: "400px",
+            padding: "1.75rem",
+            textAlign: "center",
+            fontFamily: "'Outfit', sans-serif"
+          }}>
+            <div style={{
+              width: "3.5rem",
+              height: "3.5rem",
+              backgroundColor: "#f5f3ff",
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 1.25rem auto"
+            }}>
+              <TrendingUp style={{ width: "1.75rem", height: "1.75rem", color: "#4f46e5" }} />
+            </div>
+            
+            <h3 style={{ fontSize: "1.1rem", fontWeight: "800", color: "#0f172a", margin: "0 0 0.5rem 0" }}>
+              Catalog Synchronization
+            </h3>
+            
+            <div style={{ 
+              fontSize: "0.75rem", 
+              backgroundColor: "#f8fafc", 
+              border: "1px solid #e2e8f0", 
+              borderRadius: "0.5rem", 
+              padding: "0.75rem",
+              marginBottom: "1.25rem",
+              textAlign: "left",
+              color: "#334155"
+            }}>
+              <p style={{ margin: "0 0 0.25rem 0" }}><strong>Tenant:</strong> {company?.name ? `${company.name.toUpperCase()} (${company.code})` : "Default (syn)"}</p>
+              <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748b", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <strong>ID:</strong> {company?.id || "00000000-0000-0000-0000-000000000000"}
+              </p>
+            </div>
+
+            <p style={{ fontSize: "0.8rem", color: "#475569", fontWeight: "600", marginBottom: "0.75rem", minHeight: "1.25rem" }}>
+              {syncStep}
+            </p>
+
+            <div style={{
+              width: "100%",
+              height: "0.5rem",
+              backgroundColor: "#f1f5f9",
+              borderRadius: "9999px",
+              overflow: "hidden",
+              marginBottom: "0.5rem"
+            }}>
+              <div style={{
+                width: `${syncProgress}%`,
+                height: "100%",
+                backgroundColor: "#4f46e5",
+                borderRadius: "9999px",
+                transition: "width 0.3s ease-in-out"
+              }} />
+            </div>
+            
+            <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: "700" }}>
+              {syncProgress}% Complete
+            </span>
           </div>
         </div>
       )}

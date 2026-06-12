@@ -100,11 +100,12 @@ export default function ProductThumbnail({
       .toUpperCase();
   }, [skuTitle]);
 
-  if (imageUrl) {
+  const finalImageUrl = imageUrl || parsedConfig?.imageUrl;
+  if (finalImageUrl) {
     return (
       <div className={`relative overflow-hidden border border-slate-200 flex-shrink-0 bg-white ${cfg.container} ${className}`}>
         <img
-          src={imageUrl}
+          src={finalImageUrl}
           alt={skuTitle}
           className="w-full h-full object-cover"
         />
