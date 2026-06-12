@@ -121,14 +121,24 @@ export default function PurchaseOrdersPage() {
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [poRes, whRes, varRes, vendorRes] = await Promise.all([
+      let whData = [];
+      const cachedWhs = localStorage.getItem("fabricvault:warehouses");
+      if (cachedWhs) {
+        whData = JSON.parse(cachedWhs);
+      } else {
+        const whRes = await fetch("/api/warehouses");
+        whData = await whRes.json();
+        if (Array.isArray(whData)) {
+          localStorage.setItem("fabricvault:warehouses", JSON.stringify(whData));
+        }
+      }
+
+      const [poRes, varRes, vendorRes] = await Promise.all([
         fetch("/api/purchase-orders"),
-        fetch("/api/warehouses"),
         fetch("/api/inventory"),
         fetch("/api/vendors")
       ]);
       const poData = await poRes.json();
-      const whData = await whRes.json();
       const varData = await varRes.json();
       const vendorData = await vendorRes.json();
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
@@ -11,8 +12,55 @@ export async function GET() {
     }
 
     try {
-      const decoded = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-      return NextResponse.json({ authenticated: true, user: decoded });
+      const user = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
+      
+      let company = null;
+      let warehouses: any[] = [];
+
+      // Query database if we have a resolved companyId
+      if (user.companyId && user.companyId !== "00000000-0000-0000-0000-000000000000") {
+        const { data: coData } = await supabase
+          .from("Company")
+          .select("id, name, code, shopifyShopDomain, syncActive")
+          .eq("id", user.companyId)
+          .maybeSingle();
+        
+        company = coData;
+
+        const { data: whData } = await supabase
+          .from("Warehouse")
+          .select("id, name, code, addressLine1, addressLine2, city, state, zip, country, isDefaultPickup")
+          .eq("companyId", user.companyId)
+          .order("createdAt", { ascending: false });
+
+        warehouses = whData || [];
+      } else {
+        // Fallback for unseeded state: look up by companyCode
+        const code = user.companyCode || "syn";
+        const { data: coData } = await supabase
+          .from("Company")
+          .select("id, name, code, shopifyShopDomain, syncActive")
+          .eq("code", code)
+          .maybeSingle();
+
+        if (coData) {
+          company = coData;
+          const { data: whData } = await supabase
+            .from("Warehouse")
+            .select("id, name, code, addressLine1, addressLine2, city, state, zip, country, isDefaultPickup")
+            .eq("companyId", coData.id)
+            .order("createdAt", { ascending: false });
+
+          warehouses = whData || [];
+        }
+      }
+
+      return NextResponse.json({ 
+        authenticated: true, 
+        user, 
+        company, 
+        warehouses 
+      });
     } catch (e) {
       return NextResponse.json({ authenticated: false, error: "Invalid session token" }, { status: 400 });
     }

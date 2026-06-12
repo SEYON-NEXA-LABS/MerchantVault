@@ -9,7 +9,7 @@ export async function POST() {
     const { data: oldCompany } = await supabase
       .from("Company")
       .select("id")
-      .eq("code", "seyon")
+      .eq("code", "syn")
       .maybeSingle();
 
     if (oldCompany) {
@@ -17,10 +17,10 @@ export async function POST() {
 
       // Select Warehouses & Variants first for deep cleanup
       const { data: whs } = await supabase.from("Warehouse").select("id").eq("companyId", companyId);
-      const whIds = (whs || []).map((w) => w.id);
+      const whIds = (whs || []).map((w: any) => w.id);
 
       const { data: vars } = await supabase.from("ProductVariant").select("id").eq("companyId", companyId);
-      const varIds = (vars || []).map((v) => v.id);
+      const varIds = (vars || []).map((v: any) => v.id);
 
       // Delete child dependencies to avoid Foreign Key Violations
       await supabase.from("Subscription").delete().eq("companyId", companyId);
@@ -52,7 +52,7 @@ export async function POST() {
       .from("Company")
       .insert({
         name: "Seyon Clothing",
-        code: "seyon",
+        code: "syn",
         shopifyStoreUrl: "https://seyon-clothing.myshopify.com",
         shopifyAccessToken: "shpat_mockaccesstoken12345",
         whatsappNumber: "+919876543210",
@@ -99,8 +99,8 @@ export async function POST() {
 
     if (whErr || !whsCreated) throw whErr || new Error("Failed to insert Warehouses");
 
-    const whMumbai = whsCreated.find((w) => w.code === "MUM-01")!;
-    const whBangalore = whsCreated.find((w) => w.code === "BLR-02")!;
+    const whMumbai = whsCreated.find((w: any) => w.code === "MUM-01")!;
+    const whBangalore = whsCreated.find((w: any) => w.code === "BLR-02")!;
 
     // 4. Insert Users
     const { error: userErr } = await supabase
@@ -259,7 +259,7 @@ export async function POST() {
     ];
 
     const stockPayload = stockLevels.map((st) => {
-      const variant = variantsCreated.find((v) => v.sku === st.sku)!;
+      const variant = variantsCreated.find((v: any) => v.sku === st.sku)!;
       return {
         warehouseId: st.whId,
         variantId: variant.id,
@@ -273,14 +273,14 @@ export async function POST() {
     // 7. Insert Serialized Units (5 units per variant, per warehouse)
     const unitsPayload: any[] = [];
     stockLevels.forEach((st) => {
-      const variant = variantsCreated.find((v) => v.sku === st.sku)!;
+      const variant = variantsCreated.find((v: any) => v.sku === st.sku)!;
       const whCode = st.whId === whMumbai.id ? "MUM-01" : "BLR-02";
       for (let i = 1; i <= 5; i++) {
         unitsPayload.push({
           companyId,
           variantId: variant.id,
           warehouseId: st.whId,
-          qrCodeString: `seyon:${whCode}:${variant.sku}:${i.toString().padStart(4, "0")}`,
+          qrCodeString: `syn:${whCode}:${variant.sku}:${i.toString().padStart(4, "0")}`,
           status: "AVAILABLE"
         });
       }
@@ -292,7 +292,7 @@ export async function POST() {
     // Sync global variant stock totals
     for (const variant of variantsCreated) {
       const levels = stockLevels.filter((s) => s.sku === variant.sku);
-      const total = levels.reduce((sum, s) => sum + s.level, 0);
+      const total = levels.reduce((sum: number, s: any) => sum + s.level, 0);
 
       await supabase
         .from("ProductVariant")
@@ -325,7 +325,7 @@ export async function POST() {
     ];
 
     const movementsPayload = movements.map((m) => {
-      const variant = variantsCreated.find((v) => v.sku === m.sku)!;
+      const variant = variantsCreated.find((v: any) => v.sku === m.sku)!;
       return {
         companyId,
         variantId: variant.id,

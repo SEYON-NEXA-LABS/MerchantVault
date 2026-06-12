@@ -18,7 +18,9 @@ import {
   Edit2,
   MapPin,
   Check,
-  Truck
+  Truck,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
@@ -52,6 +54,11 @@ export default function SettingsPage() {
 
 function SettingsContent() {
   const [activeTab, setActiveTab] = useState<"shopify" | "company" | "warehouses" | "logistics">("shopify");
+  const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+
+  const togglePasswordVisibility = (key: string) => {
+    setShowPasswords(prev => ({ ...prev, [key]: !prev[key] }));
+  };
   
   // Shopify credentials form states
   const [shopUrl, setShopUrl] = useState("");
@@ -212,10 +219,32 @@ function SettingsContent() {
   // Fetch company settings from API
   const fetchSettings = async () => {
     setLoadingSettings(true);
+    const cachedCompany = localStorage.getItem("fabricvault:company");
+    if (cachedCompany) {
+      try {
+        const data = JSON.parse(cachedCompany);
+        setCompanyName(data.name || "");
+        setCurrency(data.currency || "INR");
+        setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
+        setTaxId(data.taxId || "");
+        setGstin(data.gstin || "");
+        setLowStockMode(data.lowStockMode || "MANUAL");
+        if (data.shopifyStoreUrl) {
+          setShopUrl(data.shopifyStoreUrl.replace("https://", ""));
+          setIsConnected(true);
+        }
+        if (data.shopifyAccessToken) {
+          setAccessToken(data.shopifyAccessToken);
+        }
+      } catch (e) {
+        console.error("Failed to parse cached company settings", e);
+      }
+    }
     try {
       const res = await fetch("/api/settings");
       const data = await res.json();
       if (!data.error) {
+        localStorage.setItem("fabricvault:company", JSON.stringify(data));
         setCompanyName(data.name || "");
         setCurrency(data.currency || "INR");
         setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
@@ -307,6 +336,9 @@ function SettingsContent() {
       const data = await res.json();
       if (data.success) {
         toast.success(`Company details saved! Default low stock threshold set to ${defaultThreshold} units.`);
+        if (data.company) {
+          localStorage.setItem("fabricvault:company", JSON.stringify(data.company));
+        }
       } else {
         toast.error(data.error || "Failed to save company details.");
       }
@@ -523,30 +555,48 @@ function SettingsContent() {
                     <label className="font-semibold text-gray-600 flex items-center gap-1.5">
                       <Key className="w-3.5 h-3.5 text-gray-400" /> Admin API Access Token
                     </label>
-                    <input 
-                      required 
-                      type="password" 
-                      value={accessToken} 
-                      disabled={handshaking}
-                      onChange={e => setAccessToken(e.target.value)} 
-                      placeholder="shpat_..." 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
-                    />
+                    <div className="relative">
+                      <input 
+                        required 
+                        type={showPasswords.shopifyToken ? "text" : "password"} 
+                        value={accessToken} 
+                        disabled={handshaking}
+                        onChange={e => setAccessToken(e.target.value)} 
+                        placeholder="shpat_..." 
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility("shopifyToken")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
+                      >
+                        {showPasswords.shopifyToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-1">
                     <label className="font-semibold text-gray-600 flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5 text-gray-400" /> Webhook API Secret Key
                     </label>
-                    <input 
-                      required 
-                      type="password" 
-                      value={secretKey} 
-                      disabled={handshaking}
-                      onChange={e => setSecretKey(e.target.value)} 
-                      placeholder="whsec_..." 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
-                    />
+                    <div className="relative">
+                      <input 
+                        required 
+                        type={showPasswords.shopifySecret ? "text" : "password"} 
+                        value={secretKey} 
+                        disabled={handshaking}
+                        onChange={e => setSecretKey(e.target.value)} 
+                        placeholder="whsec_..." 
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility("shopifySecret")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
+                      >
+                        {showPasswords.shopifySecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="pt-3 border-t border-gray-100 flex items-center gap-3">
@@ -922,13 +972,22 @@ function SettingsContent() {
                         </div>
                         <div className="space-y-1">
                           <label className="font-semibold text-gray-600">API Password</label>
-                          <input
-                            type="password"
-                            value={shiprocketPassword}
-                            onChange={(e) => setShiprocketPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                          />
+                          <div className="relative">
+                            <input
+                              type={showPasswords.shiprocket ? "text" : "password"}
+                              value={shiprocketPassword}
+                              onChange={(e) => setShiprocketPassword(e.target.value)}
+                              placeholder="••••••••"
+                              className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => togglePasswordVisibility("shiprocket")}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
+                            >
+                              {showPasswords.shiprocket ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

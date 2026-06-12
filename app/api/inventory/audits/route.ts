@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
     // If we're doing a selective audit but some items don't have stock records yet, 
     // fetch their variant IDs to populate them with 0 expected stock.
-    let finalItems = (stocks || []).map(s => ({
+    let finalItems = (stocks || []).map((s: any) => ({
       auditId: audit.id,
       variantId: s.variantId,
       expectedQty: s.currentStockLevel,
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     }));
 
     if (Array.isArray(selectedVariantIds) && selectedVariantIds.length > 0) {
-      const missingVariantIds = selectedVariantIds.filter(vid => !finalItems.some(item => item.variantId === vid));
+      const missingVariantIds = selectedVariantIds.filter((vid: any) => !finalItems.some((item: any) => item.variantId === vid));
       for (const vid of missingVariantIds) {
         finalItems.push({
           auditId: audit.id,

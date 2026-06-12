@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET(
   req: Request,
@@ -7,10 +8,17 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
     const { data: po, error } = await supabase
       .from("PurchaseOrder")
       .select(`
         id,
+        companyId,
         poNumber,
         vendorName,
         vendorEmail,
@@ -36,6 +44,10 @@ export async function GET(
       return NextResponse.json({ error: "Purchase Order not found" }, { status: 404 });
     }
 
+    if (po.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Purchase Order" }, { status: 401 });
+    }
+
     return NextResponse.json(po);
   } catch (error: any) {
     console.error("Get Purchase Order Error:", error);
@@ -49,6 +61,28 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
+    // Verify PO belongs to company first
+    const { data: poCheck, error: checkErr } = await supabase
+      .from("PurchaseOrder")
+      .select("companyId")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (checkErr) throw checkErr;
+    if (!poCheck) {
+      return NextResponse.json({ error: "Purchase Order not found" }, { status: 404 });
+    }
+
+    if (poCheck.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Purchase Order" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { status, vendorName, vendorEmail, warehouseId } = body;
 

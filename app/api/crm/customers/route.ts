@@ -30,7 +30,7 @@ export async function GET() {
     // Aggregate by phone number
     const customerMap: Record<string, any> = {};
 
-    (fulfillments || []).forEach(f => {
+    (fulfillments || []).forEach((f: any) => {
       const phone = f.customerPhone || "UNKNOWN";
       if (!customerMap[phone]) {
         customerMap[phone] = {

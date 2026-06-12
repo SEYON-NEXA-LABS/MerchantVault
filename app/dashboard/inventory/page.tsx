@@ -107,12 +107,20 @@ export default function StockInventoryPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [invRes, whRes] = await Promise.all([
-        fetch("/api/inventory"),
-        fetch("/api/warehouses")
-      ]);
+      let whData = [];
+      const cachedWhs = localStorage.getItem("fabricvault:warehouses");
+      if (cachedWhs) {
+        whData = JSON.parse(cachedWhs);
+      } else {
+        const whRes = await fetch("/api/warehouses");
+        whData = await whRes.json();
+        if (Array.isArray(whData)) {
+          localStorage.setItem("fabricvault:warehouses", JSON.stringify(whData));
+        }
+      }
+
+      const invRes = await fetch("/api/inventory");
       const invData = await invRes.json();
-      const whData = await whRes.json();
 
       if (Array.isArray(whData)) {
         setWarehouses(whData);

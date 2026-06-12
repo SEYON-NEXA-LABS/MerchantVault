@@ -42,7 +42,7 @@ To support V Textile Company alongside other potential customers (SaaS model), t
 ## 📂 System Folder Map & File Matrix
 
 ```text
-vtex-ops-portal/
+syn-ops-portal/
 ├── app/
 │   ├── layout.tsx                 # Base Root Shell layout with Global Header/Nav UI
 │   ├── page.tsx                   # User Login Screen / Conditional Redirect Control

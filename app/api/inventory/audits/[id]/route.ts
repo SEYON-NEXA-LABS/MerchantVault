@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function GET(
   request: Request,
@@ -7,6 +8,11 @@ export async function GET(
 ) {
   try {
     const { id: auditId } = await params;
+
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
 
     // 1. Fetch the parent audit and its items
     const { data: audit, error: auditErr } = await supabase
@@ -27,6 +33,10 @@ export async function GET(
 
     if (auditErr || !audit) {
       return NextResponse.json({ error: "Audit session not found" }, { status: 404 });
+    }
+
+    if (audit.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Audit session" }, { status: 401 });
     }
 
     const warehouseId = audit.warehouseId;
@@ -57,8 +67,8 @@ export async function GET(
 
       // In-Transit: sum of pending outgoing or incoming transfers for this warehouse
       const inTransit = (transfers || [])
-        .filter(t => t.variantId === vid && (t.fromWarehouseId === warehouseId || t.toWarehouseId === warehouseId))
-        .reduce((sum, t) => sum + t.quantity, 0);
+        .filter((t: any) => t.variantId === vid && (t.fromWarehouseId === warehouseId || t.toWarehouseId === warehouseId))
+        .reduce((sum: number, t: any) => sum + t.quantity, 0);
 
       // Incoming PO: sum of items ordered but not received for this warehouse
       const incomingPO = (poItems || [])
@@ -67,7 +77,7 @@ export async function GET(
           poi.purchaseOrder?.warehouseId === warehouseId &&
           ["SENT", "PARTIALLY_RECEIVED"].includes(poi.purchaseOrder?.status)
         )
-        .reduce((sum, poi) => sum + Math.max(0, poi.quantityOrdered - poi.quantityReceived), 0);
+        .reduce((sum: number, poi: any) => sum + Math.max(0, poi.quantityOrdered - poi.quantityReceived), 0);
 
       // Ready to dispatch (Allocated) and Returned (RTO) are derived deterministically 
       // from the variant ID to keep them stable and consistent for demo purposes.
@@ -100,6 +110,27 @@ export async function PUT(
 ) {
   try {
     const { id: auditId } = await params;
+
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
+    const { data: auditCheck, error: checkErr } = await supabase
+      .from("InventoryAudit")
+      .select("companyId")
+      .eq("id", auditId)
+      .maybeSingle();
+
+    if (checkErr) throw checkErr;
+    if (!auditCheck) {
+      return NextResponse.json({ error: "Audit session not found" }, { status: 404 });
+    }
+
+    if (auditCheck.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Audit session" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { items } = body; // Array of { id: string, actualQty: number }
 
@@ -160,6 +191,11 @@ export async function POST(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
     // 1. Fetch parent audit details
     const { data: audit, error: auditErr } = await supabase
       .from("InventoryAudit")
@@ -169,6 +205,10 @@ export async function POST(
 
     if (auditErr || !audit) {
       return NextResponse.json({ error: "Audit not found" }, { status: 404 });
+    }
+
+    if (audit.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Audit session" }, { status: 401 });
     }
 
     if (audit.status !== "IN_PROGRESS") {
@@ -240,7 +280,7 @@ export async function POST(
 
       if (allStocksErr) throw allStocksErr;
 
-      const globalStockLevel = (allStocks || []).reduce((sum, s) => sum + s.currentStockLevel, 0);
+      const globalStockLevel = (allStocks || []).reduce((sum: number, s: any) => sum + s.currentStockLevel, 0);
 
       const { error: variantUpdateErr } = await supabase
         .from("ProductVariant")

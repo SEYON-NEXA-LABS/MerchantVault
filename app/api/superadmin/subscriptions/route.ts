@@ -19,8 +19,8 @@ export async function GET() {
     if (subErr) throw subErr;
 
     // 3. Map subscriptions to companies
-    const mapped = (companies || []).map(comp => {
-      const sub = (subscriptions || []).find(s => s.companyId === comp.id);
+    const mapped = (companies || []).map((comp: any) => {
+      const sub = (subscriptions || []).find((s: any) => s.companyId === comp.id);
       return {
         ...comp,
         subscription: sub || null

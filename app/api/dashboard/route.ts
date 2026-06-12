@@ -34,19 +34,19 @@ export async function GET() {
 
     // ── KPI Stats ──
     const totalOrders = orders.length;
-    const processingOrders = orders.filter(o => o.deliveryStatus === "PROCESSING").length;
-    const shippedOrders = orders.filter(o => o.deliveryStatus === "SHIPPED").length;
-    const deliveredOrders = orders.filter(o => o.deliveryStatus === "DELIVERED").length;
-    const rtoInitiated = orders.filter(o => o.deliveryStatus === "RTO_INITIATED").length;
-    const rtoReceived = orders.filter(o => o.deliveryStatus === "RTO_RECEIVED").length;
+    const processingOrders = orders.filter((o: any) => o.deliveryStatus === "PROCESSING").length;
+    const shippedOrders = orders.filter((o: any) => o.deliveryStatus === "SHIPPED").length;
+    const deliveredOrders = orders.filter((o: any) => o.deliveryStatus === "DELIVERED").length;
+    const rtoInitiated = orders.filter((o: any) => o.deliveryStatus === "RTO_INITIATED").length;
+    const rtoReceived = orders.filter((o: any) => o.deliveryStatus === "RTO_RECEIVED").length;
     const totalRto = rtoInitiated + rtoReceived;
     const rtoPercentage = totalOrders > 0 ? ((totalRto / totalOrders) * 100).toFixed(2) : "0.00";
 
     const totalVariants = variants.length;
-    const totalStockUnits = variants.reduce((sum, v) => sum + (v.currentStockLevel || 0), 0);
-    const lowStockVariants = variants.filter(v => v.currentStockLevel <= v.safetyStockLimit && v.currentStockLevel > 0);
-    const outOfStockVariants = variants.filter(v => v.currentStockLevel === 0);
-    const healthyStockVariants = variants.filter(v => v.currentStockLevel > v.safetyStockLimit);
+    const totalStockUnits = variants.reduce((sum: number, v: any) => sum + (v.currentStockLevel || 0), 0);
+    const lowStockVariants = variants.filter((v: any) => v.currentStockLevel <= v.safetyStockLimit && v.currentStockLevel > 0);
+    const outOfStockVariants = variants.filter((v: any) => v.currentStockLevel === 0);
+    const healthyStockVariants = variants.filter((v: any) => v.currentStockLevel > v.safetyStockLimit);
 
     // ── Sales Overview (orders grouped by day, last 7 days) ──
     const now = new Date();
@@ -58,7 +58,7 @@ export async function GET() {
       const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
 
-      const dayOrders = orders.filter(o => {
+      const dayOrders = orders.filter((o: any) => {
         const created = new Date(o.createdAt);
         return created >= dayStart && created < dayEnd;
       });
@@ -85,7 +85,7 @@ export async function GET() {
 
     // ── Top Products (grouped by product title) ──
     const productGroups: { [title: string]: { title: string; baseSku: string; variantCount: number; totalStock: number } } = {};
-    variants.forEach(v => {
+    variants.forEach((v: any) => {
       if (!productGroups[v.title]) {
         const parts = v.sku.split("-");
         const baseSku = parts.slice(0, Math.max(1, parts.length - 2)).join("-");
@@ -106,7 +106,7 @@ export async function GET() {
       }));
 
     // ── Recent Orders (last 5) ──
-    const recentOrders = orders.slice(0, 5).map(o => {
+    const recentOrders = orders.slice(0, 5).map((o: any) => {
       const created = new Date(o.createdAt);
       const diffMs = now.getTime() - created.getTime();
       const diffMins = Math.floor(diffMs / 60000);
@@ -136,7 +136,7 @@ export async function GET() {
     });
 
     // ── Low Stock Alerts ──
-    const lowStockAlerts = lowStockVariants.slice(0, 4).map(v => ({
+    const lowStockAlerts = lowStockVariants.slice(0, 4).map((v: any) => ({
       name: `${v.title} - ${v.color} / ${v.size}`,
       sku: v.sku,
       qty: v.currentStockLevel,

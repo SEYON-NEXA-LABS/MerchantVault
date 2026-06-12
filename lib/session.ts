@@ -23,16 +23,42 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   }
 }
 
-export async function getContextCompanyId(): Promise<string | null> {
-  const user = await getSessionUser();
-  if (user?.companyId) return user.companyId;
+export interface ContextSession {
+  companyId: string | null;
+  companyCode: string;
+  user: SessionUser | null;
+}
 
-  // Fallback to seyon for local dev mode/testing
+export async function getContextSession(): Promise<ContextSession> {
+  const user = await getSessionUser();
+  if (!user) {
+    return { companyId: null, companyCode: "", user: null };
+  }
+
+  if (user.companyId && user.companyId !== "00000000-0000-0000-0000-000000000000") {
+    return {
+      companyId: user.companyId,
+      companyCode: user.companyCode || "",
+      user
+    };
+  }
+
+  // Fallback to query dynamically matching the user's companyCode
+  const code = user.companyCode || "syn";
   const { data: company } = await supabase
     .from("Company")
-    .select("id")
-    .eq("code", "seyon")
+    .select("id, code")
+    .eq("code", code)
     .maybeSingle();
 
-  return company?.id || null;
+  return {
+    companyId: company?.id || null,
+    companyCode: company?.code || code,
+    user
+  };
+}
+
+export async function getContextCompanyId(): Promise<string | null> {
+  const session = await getContextSession();
+  return session.companyId;
 }

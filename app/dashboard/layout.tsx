@@ -95,7 +95,7 @@ export default function DashboardLayout({
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const bootstrapContext = async () => {
       try {
         const res = await fetch("/api/auth/session");
         if (res.ok) {
@@ -107,13 +107,43 @@ export default function DashboardLayout({
               email: data.user.email || `${data.user.username}@seyon.local`,
               roleLabel: data.user.role === "SUPERADMIN" ? "Platform Administrator" : data.user.role === "TENANTADMIN" ? "Tenant Administrator" : "Warehouse Operator"
             });
+            localStorage.setItem("fabricvault:user", JSON.stringify(data.user));
+
+            if (data.company) {
+              localStorage.setItem("fabricvault:company", JSON.stringify(data.company));
+            }
+
+            if (Array.isArray(data.warehouses)) {
+              setWarehouses(data.warehouses);
+              localStorage.setItem("fabricvault:warehouses", JSON.stringify(data.warehouses));
+              const savedWh = localStorage.getItem("activeWarehouseId");
+              if (savedWh && data.warehouses.some((w: any) => w.id === savedWh)) {
+                setActiveWhId(savedWh);
+              } else {
+                const defaultWh = data.warehouses.find((w: any) => w.isDefaultPickup) || data.warehouses[0];
+                if (defaultWh) {
+                  setActiveWhId(defaultWh.id);
+                  localStorage.setItem("activeWarehouseId", defaultWh.id);
+                }
+                if (data.warehouses.length > 1 && !savedWh) {
+                  setShowWhModal(true);
+                }
+              }
+            }
           }
         }
       } catch (err) {
-        console.error("Failed to load user session", err);
+        console.error("Failed to bootstrap user context", err);
       }
     };
-    fetchSession();
+    bootstrapContext();
+
+    const handleStorageChange = () => {
+      const savedWh = localStorage.getItem("activeWarehouseId");
+      if (savedWh) setActiveWhId(savedWh);
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   useEffect(() => {
@@ -125,41 +155,6 @@ export default function DashboardLayout({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const fetchWhs = async () => {
-      try {
-        const res = await fetch("/api/warehouses");
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setWarehouses(data);
-          const savedWh = localStorage.getItem("activeWarehouseId");
-          if (savedWh && data.some(w => w.id === savedWh)) {
-            setActiveWhId(savedWh);
-          } else {
-            const defaultWh = data.find(w => w.isDefaultPickup) || data[0];
-            if (defaultWh) {
-              setActiveWhId(defaultWh.id);
-              localStorage.setItem("activeWarehouseId", defaultWh.id);
-            }
-            if (data.length > 1 && !savedWh) {
-              setShowWhModal(true);
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load warehouses in global state", err);
-      }
-    };
-    fetchWhs();
-
-    const handleStorageChange = () => {
-      const savedWh = localStorage.getItem("activeWarehouseId");
-      if (savedWh) setActiveWhId(savedWh);
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Handle Escape key to close warehouse selection modal
@@ -199,6 +194,10 @@ export default function DashboardLayout({
   const handleLogout = () => {
     // Clear cookie and redirect
     document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    localStorage.removeItem("activeWarehouseId");
+    localStorage.removeItem("fabricvault:warehouses");
+    localStorage.removeItem("fabricvault:company");
+    localStorage.removeItem("fabricvault:user");
     router.push("/");
   };
 
@@ -498,8 +497,20 @@ export default function DashboardLayout({
                 </div>
               </div>
             </div>
-            
             <div className="flex items-center gap-6">
+              {/* Scanner Connectivity Status */}
+              <div 
+                title="USB Keyboard-Emulation scanner ready. Place cursor in any scan field to begin."
+                className="flex items-center gap-2 text-xs font-semibold text-indigo-750 bg-indigo-50/80 border border-indigo-100 px-3 py-1.5 rounded-lg select-none cursor-help shadow-sm"
+              >
+                <Scan className="w-3.5 h-3.5 text-indigo-600 animate-pulse" />
+                <span>Scanner: Ready</span>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                </span>
+              </div>
+
               {/* Active Warehouse Indicator & Switcher */}
               <button 
                 onClick={() => setShowWhModal(true)}
@@ -633,13 +644,15 @@ export default function DashboardLayout({
 
                     {/* Actions Segment */}
                     <div className="pt-2 border-t border-gray-150/80 space-y-1">
-                      <Link
-                        href="/dashboard/settings"
-                        onClick={() => setShowProfileMenu(false)}
-                        className="flex items-center gap-2.5 px-2.5 py-2 text-xs font-semibold text-gray-700 hover:text-gray-950 hover:bg-slate-50 rounded-lg transition-colors"
-                      >
-                        <Settings className="w-4 h-4 text-gray-400" /> Account Settings
-                      </Link>
+                      {hasAccess(["SUPERADMIN", "TENANTADMIN"]) && (
+                        <Link
+                          href="/dashboard/settings"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-2.5 px-2.5 py-2 text-xs font-semibold text-gray-700 hover:text-gray-950 hover:bg-slate-50 rounded-lg transition-colors"
+                        >
+                          <Settings className="w-4 h-4 text-gray-400" /> Account Settings
+                        </Link>
+                      )}
                       
                       <button
                         onClick={() => {
@@ -673,7 +686,7 @@ export default function DashboardLayout({
           <footer className="h-8 bg-stone-100 text-stone-600 border-t border-stone-200 flex items-center justify-between px-6 text-[10px] font-mono select-none flex-shrink-0">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5 text-stone-900 font-semibold">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: SEYON (vtex)
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: SEYON (syn)
               </span>
               <span className="text-stone-300">|</span>
               <span>Shopify: seyon-clothing.myshopify.com</span>

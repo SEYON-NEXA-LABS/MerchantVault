@@ -36,18 +36,87 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { warehouseId, variantId, newStockLevel, operatorEmail } = body;
-
-    if (!warehouseId || !variantId || typeof newStockLevel !== "number") {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
     const companyId = await getContextCompanyId();
     if (!companyId) {
       return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
-    // 1. Fetch current stock for this variant at this warehouse
+    const { warehouseId, operatorEmail, variantId, newStockLevel, items } = body;
+
+    // 1. Handle batch items submission
+    if (Array.isArray(items)) {
+      if (!warehouseId) {
+        return NextResponse.json({ error: "Warehouse ID is required for batch updates" }, { status: 400 });
+      }
+
+      for (const item of items) {
+        const { variantId: itemVarId, newStockLevel: itemNewStock } = item;
+        if (!itemVarId || typeof itemNewStock !== "number") continue;
+
+        // Fetch current stock to calculate delta
+        const { data: currentStock } = await supabase
+          .from("WarehouseStock")
+          .select("currentStockLevel")
+          .eq("warehouseId", warehouseId)
+          .eq("variantId", itemVarId)
+          .maybeSingle();
+
+        const oldStock = currentStock ? currentStock.currentStockLevel : 0;
+        const delta = itemNewStock - oldStock;
+
+        // Upsert WarehouseStock level
+        await supabase
+          .from("WarehouseStock")
+          .upsert({
+            warehouseId,
+            variantId: itemVarId,
+            currentStockLevel: itemNewStock,
+            updatedAt: new Date().toISOString()
+          }, {
+            onConflict: "warehouseId,variantId"
+          });
+
+        // Log StockMovement
+        if (delta !== 0) {
+          const movementType = delta > 0 ? "INWARD" : "OUTWARD";
+          await supabase
+            .from("StockMovement")
+            .insert({
+              companyId,
+              variantId: itemVarId,
+              warehouseId,
+              type: movementType,
+              quantity: Math.abs(delta),
+              operatorEmail: operatorEmail || "system@seyon.local",
+              syncStatus: "SUCCESS"
+            });
+        }
+
+        // Update cached aggregated stock level on ProductVariant table
+        const { data: allWarehouseStocks } = await supabase
+          .from("WarehouseStock")
+          .select("currentStockLevel")
+          .eq("variantId", itemVarId);
+
+        const totalAggregatedStock = (allWarehouseStocks || []).reduce((sum: number, sItem: any) => sum + sItem.currentStockLevel, 0);
+
+        await supabase
+          .from("ProductVariant")
+          .update({
+            currentStockLevel: totalAggregatedStock,
+            updatedAt: new Date().toISOString()
+          })
+          .eq("id", itemVarId);
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
+    // 2. Fallback: Handle single item update (backward compatibility)
+    if (!warehouseId || !variantId || typeof newStockLevel !== "number") {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
     const { data: currentStock, error: fetchErr } = await supabase
       .from("WarehouseStock")
       .select("currentStockLevel")
@@ -60,7 +129,6 @@ export async function POST(request: Request) {
     const oldStock = currentStock ? currentStock.currentStockLevel : 0;
     const delta = newStockLevel - oldStock;
 
-    // 2. Upsert the warehouse stock level
     const { data: updatedStock, error: upsertErr } = await supabase
       .from("WarehouseStock")
       .upsert({
@@ -76,7 +144,6 @@ export async function POST(request: Request) {
 
     if (upsertErr) throw upsertErr;
 
-    // 3. Log StockMovement if there is a change
     if (delta !== 0) {
       const movementType = delta > 0 ? "INWARD" : "OUTWARD";
       const { error: moveErr } = await supabase
@@ -94,7 +161,6 @@ export async function POST(request: Request) {
       if (moveErr) console.error("Logged movement error:", moveErr);
     }
 
-    // 4. Update the cached aggregated stock level on ProductVariant table
     const { data: allWarehouseStocks, error: allStocksErr } = await supabase
       .from("WarehouseStock")
       .select("currentStockLevel")
@@ -102,7 +168,7 @@ export async function POST(request: Request) {
 
     if (allStocksErr) throw allStocksErr;
 
-    const totalAggregatedStock = (allWarehouseStocks || []).reduce((sum, item) => sum + item.currentStockLevel, 0);
+    const totalAggregatedStock = (allWarehouseStocks || []).reduce((sum: number, item: any) => sum + item.currentStockLevel, 0);
 
     const { error: varUpdateErr } = await supabase
       .from("ProductVariant")

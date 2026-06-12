@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getContextCompanyId } from "@/lib/session";
 
 export async function POST(
   req: Request,
@@ -7,6 +8,12 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+    
+    const companyId = await getContextCompanyId();
+    if (!companyId) {
+      return NextResponse.json({ error: "Company context not found" }, { status: 404 });
+    }
+
     const body = await req.json();
     const { items, operatorEmail } = body; // Array of { variantId, quantityToReceive }
 
@@ -26,7 +33,11 @@ export async function POST(
       return NextResponse.json({ error: "Purchase Order not found" }, { status: 404 });
     }
 
-    const { warehouseId, companyId } = po;
+    if (po.companyId !== companyId) {
+      return NextResponse.json({ error: "Unauthorized access to this Purchase Order" }, { status: 401 });
+    }
+
+    const { warehouseId } = po;
 
     // 2. Fetch current PO items to compare quantities
     const { data: poItems, error: itemsErr } = await supabase
@@ -41,7 +52,7 @@ export async function POST(
       const { variantId, quantityToReceive } = item;
       if (quantityToReceive <= 0) continue;
 
-      const matchedPOItem = poItems.find(pi => pi.variantId === variantId);
+      const matchedPOItem = poItems.find((pi: any) => pi.variantId === variantId);
       if (!matchedPOItem) continue;
 
       const newQtyReceived = matchedPOItem.quantityReceived + quantityToReceive;
@@ -89,7 +100,7 @@ export async function POST(
         .select("currentStockLevel")
         .eq("variantId", variantId);
 
-      const totalStock = (allStocks || []).reduce((sum, s) => sum + (s.currentStockLevel || 0), 0);
+      const totalStock = (allStocks || []).reduce((sum: number, s: any) => sum + (s.currentStockLevel || 0), 0);
 
       const { error: updateVarErr } = await supabase
         .from("ProductVariant")

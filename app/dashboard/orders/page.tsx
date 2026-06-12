@@ -96,8 +96,18 @@ export default function OrdersPage() {
   // Load basic configurations
   const loadConfig = async () => {
     try {
-      const res = await fetch("/api/warehouses");
-      const whs = await res.json();
+      let whs = [];
+      const cachedWhs = localStorage.getItem("fabricvault:warehouses");
+      if (cachedWhs) {
+        whs = JSON.parse(cachedWhs);
+      } else {
+        const res = await fetch("/api/warehouses");
+        whs = await res.json();
+        if (Array.isArray(whs)) {
+          localStorage.setItem("fabricvault:warehouses", JSON.stringify(whs));
+        }
+      }
+
       if (Array.isArray(whs)) {
         setWarehouses(whs);
         if (whs.length > 0) {
@@ -213,7 +223,18 @@ export default function OrdersPage() {
   };
 
   const handleVerifySku = () => {
-    if (scannedSku.trim().toUpperCase() === targetVariant.sku) {
+    const rawInput = scannedSku.trim().toUpperCase();
+    let skuToVerify = rawInput;
+
+    // Support unique serialized QR tokens (syn:wh:sku:serial)
+    if (rawInput.startsWith("syn:")) {
+      const parts = rawInput.split(":");
+      if (parts.length >= 3) {
+        skuToVerify = parts[2];
+      }
+    }
+
+    if (skuToVerify === targetVariant.sku.toUpperCase()) {
       toast.success("SKU Verified! Item match confirmed.");
       setFulfillmentStep(2);
     } else {

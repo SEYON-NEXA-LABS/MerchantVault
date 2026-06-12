@@ -79,7 +79,7 @@ export async function loginUser(formData: FormData) {
     operator: { role: "STAFF", email: "operator@seyon.local", pass: "operator123" }
   };
 
-  if (companyCode === "seyon" && devAccounts[username]) {
+  if ((companyCode === "seyon" || companyCode === "syn") && devAccounts[username]) {
     const match = devAccounts[username];
     if (match.pass === password) {
       const mockUserIdMap: Record<string, string> = {
@@ -88,14 +88,21 @@ export async function loginUser(formData: FormData) {
         operator: "00000000-0000-0000-0000-000000000003"
       };
 
+      // Query database company to get the real companyId
+      const { data: dbCompany } = await supabase
+        .from("Company")
+        .select("id, name")
+        .eq("code", companyCode)
+        .maybeSingle();
+
       const sessionData = {
         id: mockUserIdMap[username] || "00000000-0000-0000-0000-000000000000",
         username: username,
         email: match.email,
         role: match.role,
-        companyId: "00000000-0000-0000-0000-000000000000",
-        companyCode: "seyon",
-        companyName: "Seyon Clothing (Mock Fallback)"
+        companyId: dbCompany?.id || "00000000-0000-0000-0000-000000000000",
+        companyCode: companyCode,
+        companyName: dbCompany?.name || (companyCode === "syn" ? "SEYON (Mock Fallback)" : "Seyon Clothing (Mock Fallback)")
       };
 
       const token = Buffer.from(JSON.stringify(sessionData)).toString("base64");

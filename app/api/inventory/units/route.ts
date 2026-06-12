@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { getContextCompanyId } from "@/lib/session";
+import { getContextSession } from "@/lib/session";
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Warehouse ID is required" }, { status: 400 });
     }
 
-    const companyId = await getContextCompanyId();
+    const { companyId } = await getContextSession();
     if (!companyId) {
       return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
@@ -53,10 +53,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const companyId = await getContextCompanyId();
+    const { companyId, companyCode } = await getContextSession();
     if (!companyId) {
       return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
+
+    const activeCompanyCode = companyCode || "syn";
 
     // 1. Validate structured QR format
     const parts = qrCodeString.split(":");
@@ -68,8 +70,8 @@ export async function POST(request: Request) {
 
     const [qrCompanyCode, qrWarehouseCode, qrSku, qrSerial] = parts;
 
-    // Validate Company code matches (flexible comparison case-insensitive)
-    if (qrCompanyCode.toLowerCase() !== "seyon" && qrCompanyCode.toLowerCase() !== "vtex") {
+    // Validate Company code matches dynamically from session context
+    if (!activeCompanyCode || qrCompanyCode.toLowerCase() !== activeCompanyCode.toLowerCase()) {
       return NextResponse.json({ error: "QR code belongs to another tenant/company." }, { status: 400 });
     }
 
@@ -232,7 +234,7 @@ async function adjustStockCounts(
     .select("currentStockLevel")
     .eq("variantId", variantId);
 
-  const totalStock = (allStocks || []).reduce((sum, s) => sum + s.currentStockLevel, 0);
+  const totalStock = (allStocks || []).reduce((sum: number, s: any) => sum + s.currentStockLevel, 0);
 
   await supabase
     .from("ProductVariant")

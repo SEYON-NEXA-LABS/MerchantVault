@@ -97,6 +97,26 @@ function ShopifySyncContent() {
         </div>
       </div>
 
+      {/* Sync Direction Explanation Banner */}
+      <div className="bg-[#fdfbf9] border border-amber-950/10 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs shadow-sm">
+        <div className="space-y-1">
+          <h4 className="font-bold text-indigo-950 flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-650" /> Coordinated Two-Way Sync Ecosystem
+          </h4>
+          <p className="text-indigo-950/60 leading-relaxed max-w-3xl">
+            FabricVault operates a coordinated data exchange. **Shopify** acts as the primary source for new orders, customers, and product definitions (**Shopify → ERP**), while the **ERP** acts as the source of truth for physical stock levels, pushing reconciled warehouse quantities back to Shopify storefronts (**ERP → Shopify**).
+          </p>
+        </div>
+        <div className="flex gap-2 flex-wrap text-[10px] font-extrabold">
+          <span className="bg-indigo-50/60 text-indigo-900 border border-indigo-100/50 px-2.5 py-1 rounded-lg">
+            Shopify → ERP (Orders & Catalog)
+          </span>
+          <span className="bg-amber-50/60 text-amber-800 border border-amber-100/50 px-2.5 py-1 rounded-lg">
+            ERP → Shopify (Warehouse Stock)
+          </span>
+        </div>
+      </div>
+
       {/* Sync Health & Module Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
@@ -243,7 +263,7 @@ function ShopifySyncContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             { name: "Linen Summer Shirt - Soft Blue / S", sku: "SHT-LIN-04-SB-S", qty: 2, limit: 10, status: "OutOfStock Synced", color: "bg-red-50 text-red-700 border-red-100" },
-            { name: "Vtex Denim Jeans - Onyx Black / XL", sku: "JNS-SLM-02-OB-XL", qty: 3, limit: 5, status: "LowStock Synced", color: "bg-amber-50 text-amber-700 border-amber-100" },
+            { name: "syn Denim Jeans - Onyx Black / XL", sku: "JNS-SLM-02-OB-XL", qty: 3, limit: 5, status: "LowStock Synced", color: "bg-amber-50 text-amber-700 border-amber-100" },
             { name: "Seyon Classic Cotton Tee - White / L", sku: "TSH-COT-01-W-L", qty: 12, limit: 20, status: "In Sync", color: "bg-emerald-50 text-emerald-700 border-emerald-100" }
           ].map((item, idx) => (
             <div key={idx} className="border border-gray-200 rounded-lg p-3.5 space-y-3 bg-slate-50/50 hover:border-gray-300 transition-colors">

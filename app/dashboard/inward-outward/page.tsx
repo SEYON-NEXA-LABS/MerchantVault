@@ -15,7 +15,9 @@ import {
   Sparkles,
   RefreshCw,
   X,
-  FileCheck
+  FileCheck,
+  Trash2,
+  ListPlus
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,6 +46,12 @@ interface ScanLog {
   quantity: number;
 }
 
+interface ScannedQueueItem {
+  variant: Variant;
+  quantity: number;
+  mode: "INWARD" | "OUTWARD";
+}
+
 export default function InwardOutwardPage() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
@@ -56,6 +64,9 @@ export default function InwardOutwardPage() {
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Batch queue states
+  const [scannedQueue, setScannedQueue] = useState<ScannedQueueItem[]>([]);
 
   // Damaged code visual browser modal
   const [showCatalogModal, setShowCatalogModal] = useState(false);
@@ -70,11 +81,19 @@ export default function InwardOutwardPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [whRes, invRes] = await Promise.all([
-        fetch("/api/warehouses"),
-        fetch("/api/inventory")
-      ]);
-      const whs = await whRes.json();
+      let whs = [];
+      const cachedWhs = localStorage.getItem("fabricvault:warehouses");
+      if (cachedWhs) {
+        whs = JSON.parse(cachedWhs);
+      } else {
+        const whRes = await fetch("/api/warehouses");
+        whs = await whRes.json();
+        if (Array.isArray(whs)) {
+          localStorage.setItem("fabricvault:warehouses", JSON.stringify(whs));
+        }
+      }
+
+      const invRes = await fetch("/api/inventory");
       const inv = await invRes.json();
 
       if (Array.isArray(whs)) {
@@ -136,7 +155,8 @@ export default function InwardOutwardPage() {
     }
   }, [barcodeInput, variants]);
 
-  const handleSubmitScan = async (e: React.FormEvent) => {
+  // Add currently selected scanned item into our batch list
+  const handleAddToQueue = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedWarehouseId) {
       toast.error("Please select a warehouse location first.");
@@ -151,56 +171,107 @@ export default function InwardOutwardPage() {
       return;
     }
 
-    // Calculate new stock level
-    const currentWhStock = selectedVariant.currentStockLevel; 
-    let newStockLevel = currentWhStock;
-    if (operationMode === "INWARD") {
-      newStockLevel += quantity;
+    // Check if the item already exists in the queue with the same operation mode
+    const existingIndex = scannedQueue.findIndex(
+      (item) => item.variant.id === selectedVariant.id && item.mode === operationMode
+    );
+
+    if (existingIndex > -1) {
+      const updatedQueue = [...scannedQueue];
+      updatedQueue[existingIndex].quantity += quantity;
+      setScannedQueue(updatedQueue);
     } else {
-      if (currentWhStock < quantity) {
-        toast.warning(`Insufficient stock level. Dispatching ${quantity} but warehouse only has ${currentWhStock}.`);
-      }
-      newStockLevel = Math.max(0, currentWhStock - quantity);
+      setScannedQueue((prev) => [
+        ...prev,
+        {
+          variant: selectedVariant,
+          quantity: quantity,
+          mode: operationMode,
+        },
+      ]);
+    }
+
+    toast.success(`Queued ${quantity}x ${selectedVariant.sku} (${operationMode})`);
+
+    // Reset scanner input
+    setBarcodeInput("");
+    setQuantity(1);
+    setSelectedVariant(null);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  // Modify quantity directly in the table
+  const handleUpdateQueueQty = (index: number, newQty: number) => {
+    if (newQty <= 0) {
+      handleRemoveFromQueue(index);
+      return;
+    }
+    const updated = [...scannedQueue];
+    updated[index].quantity = newQty;
+    setScannedQueue(updated);
+  };
+
+  const handleRemoveFromQueue = (index: number) => {
+    setScannedQueue((prev) => prev.filter((_, i) => i !== index));
+    toast.info("Item removed from queue.");
+  };
+
+  // Submit all queued items to the backend in one request
+  const handleSubmitBatch = async () => {
+    if (scannedQueue.length === 0) {
+      toast.error("Scan queue is empty. Please scan some items first.");
+      return;
     }
 
     setSubmitting(true);
     try {
+      const itemsPayload = scannedQueue.map((item) => {
+        const currentWhStock = item.variant.currentStockLevel;
+        let newStockLevel = currentWhStock;
+        if (item.mode === "INWARD") {
+          newStockLevel += item.quantity;
+        } else {
+          newStockLevel = Math.max(0, currentWhStock - item.quantity);
+        }
+        return {
+          variantId: item.variant.id,
+          newStockLevel,
+        };
+      });
+
       const res = await fetch("/api/warehouses/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           warehouseId: selectedWarehouseId,
-          variantId: selectedVariant.id,
-          newStockLevel,
-          operatorEmail: "operator@seyon-clothing.co"
-        })
+          operatorEmail: "operator@seyon-clothing.co",
+          items: itemsPayload,
+        }),
       });
 
       const data = await res.json();
       if (data.success) {
-        toast.success(`Successfully registered ${operationMode} scan entry!`);
+        toast.success(`Successfully posted batch of ${scannedQueue.length} items to inventory!`);
         
-        // Add log entry
+        // Add log entries to history
         const whName = warehouses.find(w => w.id === selectedWarehouseId)?.name || "Warehouse";
-        const newLog: ScanLog = {
+        const newLogs = scannedQueue.map((item) => ({
           id: `SCAN-${Math.floor(Math.random() * 9000) + 1000}`,
           timestamp: new Date().toLocaleTimeString(),
-          sku: selectedVariant.sku,
-          title: `${selectedVariant.title} (${selectedVariant.color}/${selectedVariant.size})`,
+          sku: item.variant.sku,
+          title: `${item.variant.title} (${item.variant.color}/${item.variant.size})`,
           warehouseName: whName,
-          type: operationMode,
-          quantity
-        };
-        setScanHistory(prev => [newLog, ...prev]);
+          type: item.mode,
+          quantity: item.quantity,
+        }));
+        setScanHistory((prev) => [...newLogs, ...prev]);
 
-        // Reset scanning field & reload inventory catalog
-        setBarcodeInput("");
-        setQuantity(1);
-        setSelectedVariant(null);
+        // Reset queue & reload stock data
+        setScannedQueue([]);
         await loadData();
         inputRef.current?.focus();
       } else {
-        toast.error(data.error || "Failed to submit scan entry.");
+        toast.error(data.error || "Failed to commit scan queue.");
       }
     } catch (err) {
       toast.error("Failed to connect to stock management endpoints.");
@@ -233,7 +304,7 @@ export default function InwardOutwardPage() {
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Barcode Inward & Outward</h1>
           <p className="text-sm text-gray-500">
-            Scan physical barcodes to log inward stock arrivals or outward customer order dispatches.
+            Scan multiple items to compile a batch queue, calibrate quantities, and commit to inventory in one go.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -249,7 +320,7 @@ export default function InwardOutwardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Scan Station Form Column */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6">
             
             {/* Header / Active Context */}
@@ -298,7 +369,7 @@ export default function InwardOutwardPage() {
             </div>
 
             {/* Scanning Form */}
-            <form onSubmit={handleSubmitScan} className="space-y-5 text-xs">
+            <form onSubmit={handleAddToQueue} className="space-y-5 text-xs">
               
               {/* Scan Barcode Field */}
               <div className="space-y-1">
@@ -393,23 +464,128 @@ export default function InwardOutwardPage() {
                 <div className="flex items-end">
                   <button
                     type="submit"
-                    disabled={submitting || !selectedVariant}
-                    className={`w-full text-white font-bold py-2 rounded-lg text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 ${
-                      operationMode === "INWARD" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700"
-                    }`}
+                    disabled={!selectedVariant}
+                    className="w-full bg-indigo-900 hover:bg-indigo-950 text-white font-bold py-2.5 rounded-lg text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
                   >
-                    {submitting && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                    Confirm {operationMode === "INWARD" ? "Inward Item" : "Outward Item"}
+                    <ListPlus className="w-4 h-4" />
+                    Queue Scanned Item
                   </button>
                 </div>
               </div>
 
             </form>
           </div>
+
+          {/* Batch Scanned Items Queue Table */}
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex justify-between items-center pb-2 border-b border-gray-100 flex-wrap gap-4">
+              <div>
+                <h3 className="font-bold text-gray-950 text-sm flex items-center gap-2">
+                  <span>📋</span> Scanned Items Queue
+                </h3>
+                <p className="text-[10px] text-gray-500 mt-0.5">Review items locally before sending them to the server.</p>
+              </div>
+              <div className="flex gap-2">
+                {scannedQueue.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setScannedQueue([]);
+                      toast.info("Scan queue cleared.");
+                    }}
+                    className="px-3 py-1.5 border border-gray-200 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-600 transition-colors"
+                  >
+                    Clear Queue
+                  </button>
+                )}
+                <button
+                  onClick={handleSubmitBatch}
+                  disabled={submitting || scannedQueue.length === 0}
+                  className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  {submitting && <RefreshCw className="w-3 h-3 animate-spin" />}
+                  Submit Batch ({scannedQueue.length} items)
+                </button>
+              </div>
+            </div>
+
+            {scannedQueue.length === 0 ? (
+              <div className="text-center py-12 text-gray-400 text-xs">
+                Queue is empty. Scan barcodes to add items here.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-gray-50/70 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[10px]">
+                      <th className="py-2.5 px-4">Variant details</th>
+                      <th className="py-2.5 px-4">SKU</th>
+                      <th className="py-2.5 px-4">Direction</th>
+                      <th className="py-2.5 px-4 text-center">Quantity</th>
+                      <th className="py-2.5 px-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {scannedQueue.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="py-3 px-4 font-semibold text-gray-900">
+                          {item.variant.title}
+                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5">
+                            Color: {item.variant.color} | Size: {item.variant.size}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono text-gray-650">{item.variant.sku}</td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${
+                            item.mode === "INWARD" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100"
+                          }`}>
+                            {item.mode}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-center border border-gray-200 rounded-lg bg-gray-50 max-w-[80px] mx-auto">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQueueQty(idx, item.quantity - 1)}
+                              className="px-2 py-1 text-gray-500 hover:bg-gray-150 rounded-l-lg transition-colors"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              onChange={(e) => handleUpdateQueueQty(idx, Math.max(1, parseInt(e.target.value) || 1))}
+                              className="w-full bg-transparent font-bold text-center text-xs focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateQueueQty(idx, item.quantity + 1)}
+                              className="px-2 py-1 text-gray-500 hover:bg-gray-150 rounded-r-lg transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={() => handleRemoveFromQueue(idx)}
+                            className="text-gray-400 hover:text-rose-600 p-1 transition-colors"
+                            title="Remove item"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Recent Scan History Column */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
             <h2 className="font-bold text-gray-900 text-sm flex items-center gap-2">
               <History className="w-4 h-4 text-indigo-600" /> Recent Scans Ledger (Live)

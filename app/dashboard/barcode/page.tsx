@@ -90,8 +90,18 @@ export default function BarcodePage() {
 
     const fetchWhs = async () => {
       try {
-        const res = await fetch("/api/warehouses");
-        const data = await res.json();
+        let data = [];
+        const cachedWhs = localStorage.getItem("fabricvault:warehouses");
+        if (cachedWhs) {
+          data = JSON.parse(cachedWhs);
+        } else {
+          const res = await fetch("/api/warehouses");
+          data = await res.json();
+          if (Array.isArray(data)) {
+            localStorage.setItem("fabricvault:warehouses", JSON.stringify(data));
+          }
+        }
+
         if (Array.isArray(data)) {
           setWarehouses(data);
         }
@@ -167,7 +177,7 @@ export default function BarcodePage() {
       return numericId || "999901";
     }
     if (qrPayloadType === "SERIALIZED") {
-      return `vtex:${activeWhCode}:${variant?.sku || ""}:0001`;
+      return `syn:${activeWhCode}:${variant?.sku || ""}:0001`;
     }
     return qrPayloadType === "URL" ? getShopifyUrl(variant) : (variant?.sku || "");
   };
@@ -366,7 +376,7 @@ export default function BarcodePage() {
                       onChange={(e) => setQrPayloadType(e.target.value as any)}
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none"
                     >
-                      <option value="SERIALIZED">Serialized QR Token (vtex:wh:sku:serial)</option>
+                      <option value="SERIALIZED">Serialized QR Token (syn:wh:sku:serial)</option>
                       <option value="URL">Shopify URL Redirect</option>
                       <option value="SKU">SKU Raw Text</option>
                     </select>
@@ -490,7 +500,7 @@ export default function BarcodePage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">1. Company Slug:</span>
-                <span className="text-slate-800">vtex</span>
+                <span className="text-slate-800">syn</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">2. Warehouse:</span>
