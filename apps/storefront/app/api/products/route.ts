@@ -10,6 +10,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get("companyId");
+    const brandParam = searchParams.get("brand");
 
     let companyQuery = supabase
       .from("Company")
@@ -23,12 +24,34 @@ export async function GET(request: Request) {
 
     const { data: company } = await companyQuery.maybeSingle();
 
+    let brands: any[] = [];
+    let brandId: string | null = null;
+
+    if (company && company.id) {
+      const { data: companyBrands } = await supabase
+        .from("Brand")
+        .select("id, name, code")
+        .eq("companyId", company.id);
+      brands = companyBrands || [];
+
+      if (brandParam) {
+        const activeBrand = brands.find(b => b.code === brandParam.toLowerCase());
+        if (activeBrand) {
+          brandId = activeBrand.id;
+        }
+      }
+    }
+
     let productsQuery = supabase
       .from("ProductVariant")
-      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig");
+      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig, brandId");
 
     if (company && company.id) {
       productsQuery = productsQuery.eq("companyId", company.id);
+    }
+
+    if (brandId) {
+      productsQuery = productsQuery.eq("brandId", brandId);
     }
 
     const { data: products, error } = await productsQuery.order("createdAt", { ascending: false });
@@ -36,10 +59,11 @@ export async function GET(request: Request) {
     if (error) throw error;
     return NextResponse.json({
       products: products || [],
-      company: company || null
+      company: company || null,
+      brands
     });
   } catch (error: any) {
     console.error("Fetch Storefront Products Error:", error);
-    return NextResponse.json({ products: [], company: null }, { status: 500 });
+    return NextResponse.json({ products: [], company: null, brands: [] }, { status: 500 });
   }
 }

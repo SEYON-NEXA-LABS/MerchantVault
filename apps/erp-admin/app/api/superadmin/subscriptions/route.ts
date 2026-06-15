@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase";
 
 export async function GET() {
   try {
     // 1. Fetch all companies
     const { data: companies, error: compErr } = await supabase
       .from("Company")
-      .select("id, name, code, contactEmail, logoUrl, timezone, currency, onboardingCompleted, onboardingStep, isActive, createdAt")
+      .select(`
+        id, name, code, contactEmail, logoUrl, timezone, currency, onboardingCompleted, onboardingStep, isActive, createdAt,
+        Warehouse ( id, name, code, addressLine1, city, state, country, isDefaultPickup ),
+        Brand ( id, name, code )
+      `)
       .order("name", { ascending: true });
 
     if (compErr) throw compErr;

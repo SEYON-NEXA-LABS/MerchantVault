@@ -344,7 +344,10 @@ export default function DashboardLayout({
           <div className="p-4 flex items-center gap-3 border-b border-gray-100">
             <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm">S</div>
             <div>
-              <h1 className="font-bold text-sm uppercase tracking-wide">Seyon ERP</h1>
+              <div className="flex items-center gap-1.5">
+                <h1 className="font-bold text-sm uppercase tracking-wide">Seyon ERP</h1>
+                <span className="text-[8px] bg-amber-50 border border-amber-200 text-amber-600 font-extrabold px-1 rounded uppercase">Pre-Release</span>
+              </div>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">CRM + ERP</p>
             </div>
           </div>

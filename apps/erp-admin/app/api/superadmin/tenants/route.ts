@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase";
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +35,171 @@ export async function POST(req: Request) {
       if (updateErr) throw updateErr;
 
       return NextResponse.json({ success: true, username: adminUser.username });
+    }
+
+    if (action === "TOGGLE_COMPANY_ACTIVE") {
+      const { companyId, isActive } = body;
+      if (!companyId) {
+        return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
+      }
+
+      const { data, error } = await supabase
+        .from("Company")
+        .update({ isActive: !!isActive })
+        .eq("id", companyId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, company: data });
+    }
+
+    if (action === "UPDATE_COMPANY_METADATA") {
+      const { companyId, name, contactEmail, logoUrl, timezone, currency } = body;
+      if (!companyId) {
+        return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
+      }
+
+      const updates: any = {};
+      if (name) updates.name = name;
+      if (contactEmail !== undefined) updates.contactEmail = contactEmail;
+      if (logoUrl !== undefined) updates.logoUrl = logoUrl;
+      if (timezone) updates.timezone = timezone;
+      if (currency) updates.currency = currency;
+
+      const { data, error } = await supabase
+        .from("Company")
+        .update(updates)
+        .eq("id", companyId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, company: data });
+    }
+
+    if (action === "CREATE_WAREHOUSE") {
+      const { companyId, name, code, addressLine1, city, state, zip, country, isDefaultPickup } = body;
+      if (!companyId || !name || !code) {
+        return NextResponse.json({ error: "Company ID, name, and code are required" }, { status: 400 });
+      }
+
+      const { data, error } = await supabase
+        .from("Warehouse")
+        .insert({
+          companyId,
+          name,
+          code,
+          addressLine1: addressLine1 || "",
+          city: city || "",
+          state: state || "",
+          zip: zip || "",
+          country: country || "",
+          isDefaultPickup: !!isDefaultPickup
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, warehouse: data });
+    }
+
+    if (action === "UPDATE_WAREHOUSE") {
+      const { warehouseId, name, code, addressLine1, city, state, zip, country, isDefaultPickup } = body;
+      if (!warehouseId) {
+        return NextResponse.json({ error: "Warehouse ID is required" }, { status: 400 });
+      }
+
+      const updates: any = {};
+      if (name) updates.name = name;
+      if (code) updates.code = code;
+      if (addressLine1 !== undefined) updates.addressLine1 = addressLine1;
+      if (city !== undefined) updates.city = city;
+      if (state !== undefined) updates.state = state;
+      if (zip !== undefined) updates.zip = zip;
+      if (country !== undefined) updates.country = country;
+      if (isDefaultPickup !== undefined) updates.isDefaultPickup = !!isDefaultPickup;
+
+      const { data, error } = await supabase
+        .from("Warehouse")
+        .update(updates)
+        .eq("id", warehouseId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, warehouse: data });
+    }
+
+    if (action === "DELETE_WAREHOUSE") {
+      const { warehouseId } = body;
+      if (!warehouseId) {
+        return NextResponse.json({ error: "Warehouse ID is required" }, { status: 400 });
+      }
+
+      const { error } = await supabase
+        .from("Warehouse")
+        .delete()
+        .eq("id", warehouseId);
+
+      if (error) throw error;
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === "CREATE_BRAND") {
+      const { companyId, name, code } = body;
+      if (!companyId || !name || !code) {
+        return NextResponse.json({ error: "Company ID, name, and code are required" }, { status: 400 });
+      }
+
+      const { data, error } = await supabase
+        .from("Brand")
+        .insert({
+          companyId,
+          name,
+          code: code.toLowerCase().trim()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, brand: data });
+    }
+
+    if (action === "UPDATE_BRAND") {
+      const { brandId, name, code } = body;
+      if (!brandId) {
+        return NextResponse.json({ error: "Brand ID is required" }, { status: 400 });
+      }
+
+      const updates: any = {};
+      if (name) updates.name = name;
+      if (code) updates.code = code.toLowerCase().trim();
+
+      const { data, error } = await supabase
+        .from("Brand")
+        .update(updates)
+        .eq("id", brandId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return NextResponse.json({ success: true, brand: data });
+    }
+
+    if (action === "DELETE_BRAND") {
+      const { brandId } = body;
+      if (!brandId) {
+        return NextResponse.json({ error: "Brand ID is required" }, { status: 400 });
+      }
+
+      const { error } = await supabase
+        .from("Brand")
+        .delete()
+        .eq("id", brandId);
+
+      if (error) throw error;
+      return NextResponse.json({ success: true });
     }
 
     // Default: Onboarding Flow
@@ -132,6 +297,22 @@ export async function POST(req: Request) {
       });
 
     if (whErr) console.error("Onboarding default warehouse error:", whErr);
+
+    // 4b. Create Default Brands
+    const brandsToInsert = code.toLowerCase() === "wolfcabin"
+      ? [
+          { companyId: company.id, name: "The Wolf Cabin", code: "wolfcabin" },
+          { companyId: company.id, name: "Alpha Brand", code: "alpha" }
+        ]
+      : [
+          { companyId: company.id, name: name, code: code.toLowerCase().trim() }
+        ];
+
+    const { error: brandErr } = await supabase
+      .from("Brand")
+      .insert(brandsToInsert);
+
+    if (brandErr) console.error("Onboarding default brands error:", brandErr);
 
     // 5. Create the initial Subscription config
     const nextRenewalDate = new Date();

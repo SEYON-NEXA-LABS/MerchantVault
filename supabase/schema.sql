@@ -362,5 +362,24 @@ ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "category" TEXT DEFAULT 'T
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "targetGroup" TEXT DEFAULT 'Adults' NOT NULL;
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "ageRange" TEXT;
 
+-- Idempotent adjustments for Multi-Brand Setup
+CREATE TABLE IF NOT EXISTS "Brand" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "name" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "Brand_companyId_code_key" UNIQUE ("companyId", "code")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_brand_company" ON "Brand" ("companyId");
+
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "brandId" UUID REFERENCES "Brand"("id") ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS "idx_product_variant_brand" ON "ProductVariant" ("brandId");
+
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "brandId" UUID REFERENCES "Brand"("id") ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS "idx_user_brand" ON "User" ("brandId");
+
+
 
 
