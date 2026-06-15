@@ -206,13 +206,13 @@ export default function DashboardLayout({
   // Handle Escape key to close warehouse selection modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && showWhModal && activeWhId) {
+      if (e.key === "Escape" && showWhModal) {
         setShowWhModal(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [showWhModal, activeWhId]);
+  }, [showWhModal]);
 
   useEffect(() => {
     const fetchLowStock = async () => {
@@ -857,7 +857,7 @@ export default function DashboardLayout({
         {/* Warehouse Selection Modal (Glassmorphism backdrop) */}
         {showWhModal && (
           <div 
-            onClick={() => activeWhId && setShowWhModal(false)}
+            onClick={() => setShowWhModal(false)}
             className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           >
             <div 
@@ -865,14 +865,12 @@ export default function DashboardLayout({
               className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh] relative"
             >
               <div className="p-5 border-b border-gray-100 bg-slate-50/80 relative">
-                {activeWhId && (
-                  <button
-                    onClick={() => setShowWhModal(false)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-all cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowWhModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-lg transition-all cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
                 <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
                   <span>📍</span> Select Active Warehouse Location
                 </h3>
@@ -933,25 +931,38 @@ export default function DashboardLayout({
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-8 text-xs text-gray-400">
-                    No warehouses found matching search.
+                  <div className="text-center py-8 text-xs text-gray-450 space-y-2">
+                    <p>No warehouses found matching search.</p>
+                    {warehouses.length === 0 && hasAccess(["SUPERADMIN", "TENANTADMIN"]) && (
+                      <p className="text-[11px] text-gray-500">
+                        This tenant company has no warehouses configured yet.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
 
-              {activeWhId && (
-                <div className="p-4 bg-slate-50 border-t border-gray-100 flex justify-end">
-                  <button
+              <div className="p-4 bg-slate-50 border-t border-gray-100 flex justify-between items-center">
+                {warehouses.length === 0 && hasAccess(["SUPERADMIN", "TENANTADMIN"]) && (
+                  <Link
+                    href="/dashboard/settings"
                     onClick={() => setShowWhModal(false)}
-                    className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold px-4 py-2 rounded-lg text-xs shadow-sm transition-colors"
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-850 hover:underline flex items-center gap-1"
                   >
-                    Close
-                  </button>
-                </div>
-              )}
+                    ⚙️ Setup Warehouse
+                  </Link>
+                )}
+                <button
+                  onClick={() => setShowWhModal(false)}
+                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold px-4 py-2 rounded-lg text-xs shadow-sm transition-colors ml-auto"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
+
 
         {/* Offline Overlay Modal */}
         {isOffline && (
