@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAdmin } from "../../lib/supabase";
 
 export async function loginUser(formData: FormData) {
   const username = formData.get("username")?.toString().trim();
@@ -21,10 +21,13 @@ export async function loginUser(formData: FormData) {
     return { error: "Password must be at least 6 characters long" };
   }
 
+  let shouldRedirect = false;
+
   // 1. Attempt database-backed user authentication
   try {
     const isEmail = username.includes("@");
-    const baseQuery = supabase
+    // Use supabaseAdmin to bypass RLS since the user is not yet logged in/authenticated
+    const baseQuery = supabaseAdmin
       .from("User")
       .select("id, username, email, role, companyId, password, isActive");
 
@@ -37,42 +40,57 @@ export async function loginUser(formData: FormData) {
         return { error: "This user account has been deactivated." };
       }
 
-      const { data: company, error: compErr } = await supabase
-        .from("Company")
-        .select("id, name, code")
-        .eq("id", user.companyId)
-        .maybeSingle();
+      let companyCode = "";
+      let companyName = "";
 
-      if (!compErr && company) {
-        const sessionData = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          companyId: user.companyId,
-          companyCode: company.code,
-          companyName: company.name
-        };
+      if (user.companyId) {
+        const { data: company, error: compErr } = await supabaseAdmin
+          .from("Company")
+          .select("id, name, code")
+          .eq("id", user.companyId)
+          .maybeSingle();
 
-        const token = Buffer.from(JSON.stringify(sessionData)).toString("base64");
-        const cookieStore = await cookies();
-        cookieStore.set("sb-access-token", token, {
-          path: "/",
-          maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days vs 1 day
-          httpOnly: false,
-          sameSite: "lax"
-        });
-        
-        redirect("/dashboard");
+        if (compErr || !company) {
+          return { error: "Associated tenant company not found" };
+        }
+        companyCode = company.code;
+        companyName = company.name;
+      } else if (user.role !== "SUPERADMIN") {
+        return { error: "This account must belong to a registered company." };
+      } else {
+        companyCode = "superadmin";
+        companyName = "Platform Administration";
       }
+
+      const sessionData = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        companyId: user.companyId,
+        companyCode,
+        companyName
+      };
+
+      const token = Buffer.from(JSON.stringify(sessionData)).toString("base64");
+      const cookieStore = await cookies();
+      cookieStore.set("sb-access-token", token, {
+        path: "/",
+        maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days vs 1 day
+        httpOnly: false,
+        sameSite: "lax"
+      });
+      
+      shouldRedirect = true;
     }
   } catch (err: any) {
-    // Next.js redirect throws an internal exception which we shouldn't swallow in a generic catch block
-    if (err.message === "NEXT_REDIRECT") {
-      throw err;
-    }
     console.warn("Database lookup failed/skipped during login:", err.message || err);
   }
+
+  if (shouldRedirect) {
+    redirect("/dashboard");
+  }
+
 
   // 2. In-memory developer accounts fallback (for empty database seeding)
   const devAccounts: Record<string, { role: "SUPERADMIN" | "TENANTADMIN" | "STAFF"; email: string; pass: string }> = {
@@ -91,11 +109,12 @@ export async function loginUser(formData: FormData) {
       };
 
       // Query database company to get the real companyId, fall back to "seyon"
-      const { data: dbCompany } = await supabase
+      const { data: dbCompany } = await supabaseAdmin
         .from("Company")
         .select("id, name, code")
         .eq("code", "seyon")
         .maybeSingle();
+
 
       const companyCode = dbCompany?.code || "seyon";
       const sessionData = {
