@@ -231,12 +231,32 @@ export async function GET(
 
     const { data: variant, error } = await supabase
       .from("ProductVariant")
-      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig")
+      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig, brandId, companyId")
       .eq("id", id)
       .maybeSingle();
 
     if (error || !variant) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    company = null;
+    if (variant.companyId) {
+      const { data: coData } = await supabase
+        .from("Company")
+        .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, themeConfig")
+        .eq("id", variant.companyId)
+        .maybeSingle();
+      company = coData;
+    }
+
+    let brand = null;
+    if (variant.brandId) {
+      const { data: brandData } = await supabase
+        .from("Brand")
+        .select("id, name, code, logoUrl, themeConfig")
+        .eq("id", variant.brandId)
+        .maybeSingle();
+      brand = brandData;
     }
 
     const mappedProduct = {
@@ -256,10 +276,12 @@ export async function GET(
 
     return NextResponse.json({
       product: mappedProduct,
-      company
+      company,
+      brand
     });
   } catch (error: any) {
     console.error("Fetch Storefront Product Detail Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
+
 }

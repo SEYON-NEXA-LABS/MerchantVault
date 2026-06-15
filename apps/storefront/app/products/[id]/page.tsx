@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { applyBrandingStyles } from "../../utils/branding";
 import { 
   Scissors, 
   ShoppingCart, 
@@ -269,6 +270,7 @@ export default function ProductDetailPage() {
 
   const [product, setProduct] = useState<any | null>(null);
   const [company, setCompany] = useState<any>(null);
+  const [brand, setBrand] = useState<any>(null);
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -333,6 +335,10 @@ export default function ProductDetailPage() {
   }, [cart]);
 
   useEffect(() => {
+    applyBrandingStyles(company, brand);
+  }, [company, brand]);
+
+  useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
@@ -344,6 +350,9 @@ export default function ProductDetailPage() {
         setProduct(data.product);
         if (data.company) {
           setCompany(data.company);
+        }
+        if (data.brand) {
+          setBrand(data.brand);
         }
         if (data.product) {
           setSelectedSize(data.product.size || "M");
@@ -409,7 +418,7 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = (prod: any, size: string, color: string) => {
     addToCart(prod, size, color);
-    router.push("/?checkout=true");
+    router.push("/checkout");
   };
 
   const updateCartQty = (idx: number, delta: number) => {
@@ -492,23 +501,31 @@ export default function ProductDetailPage() {
         alignItems: "center"
       }}>
         <Link href={`/?companyId=${company?.id || ""}${selectedBrand ? `&brand=${selectedBrand}` : ""}`} style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "#09090b" }}>
-          <div style={{
-            backgroundColor: "#09090b",
-            color: "#ffffff",
-            width: "2rem",
-            height: "2rem",
-            borderRadius: "0.375rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontWeight: "700",
-            fontSize: "1rem"
-          }}>{(company?.code === "wolfcabin" ? "W" : (company?.name ? company.name[0] : "S")).toUpperCase()}</div>
+          {brand?.logoUrl ? (
+            <img 
+              src={brand.logoUrl} 
+              alt={brand?.name || company?.name || "Logo"} 
+              style={{ height: "2.25rem", objectFit: "contain", borderRadius: "var(--radius)" }} 
+            />
+          ) : (
+            <div style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              width: "2rem",
+              height: "2rem",
+              borderRadius: "var(--radius)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "700",
+              fontSize: "1rem"
+            }}>{(brand?.name ? brand.name[0] : (company?.code === "wolfcabin" ? "W" : (company?.name ? company.name[0] : "S"))).toUpperCase()}</div>
+          )}
           <div>
             <span style={{ fontSize: "1.15rem", fontWeight: "700", letterSpacing: "-0.025em", textTransform: "uppercase" }}>
-              {company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON")}
+              {brand?.name || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON"))}
             </span>
-            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid #e4e4e7", padding: "0.1rem 0.35rem", borderRadius: "0.25rem", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
               PRE-RELEASE
             </span>
           </div>
@@ -524,15 +541,17 @@ export default function ProductDetailPage() {
             ERP Panel ↗
           </a>
           
-          <button 
-            onClick={() => setIsCartOpen(true)}
+          <Link 
+            href="/cart"
             style={{
               background: "none",
               border: "none",
               cursor: "pointer",
               position: "relative",
               color: "#09090b",
-              padding: "0.4rem"
+              padding: "0.4rem",
+              display: "flex",
+              alignItems: "center"
             }}
           >
             <ShoppingCart style={{ width: "1.25rem", height: "1.25rem" }} />
@@ -541,8 +560,8 @@ export default function ProductDetailPage() {
                 position: "absolute",
                 top: "0px",
                 right: "0px",
-                backgroundColor: "#09090b",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--primary-foreground)",
                 fontSize: "0.65rem",
                 fontWeight: "600",
                 width: "18px",
@@ -555,7 +574,7 @@ export default function ProductDetailPage() {
                 {cartCount}
               </span>
             )}
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -669,15 +688,15 @@ export default function ProductDetailPage() {
                       key={size}
                       onClick={() => setSelectedSize(size)}
                       style={{
-                        border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid #e4e4e7",
-                        backgroundColor: isSelected ? "#09090b" : "#ffffff",
-                        color: isSelected ? "#ffffff" : "#09090b",
+                        border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid var(--border)",
+                        backgroundColor: isSelected ? "var(--primary)" : "#ffffff",
+                        color: isSelected ? "var(--primary-foreground)" : "#09090b",
                         padding: "0.45rem 0.9rem",
-                        borderRadius: "0.375rem",
+                        borderRadius: "var(--radius)",
                         fontWeight: "600",
                         fontSize: getSizeFontSize(size),
                         cursor: "pointer",
-                        outline: isSelected ? "2px solid #09090b" : "none",
+                        outline: isSelected ? "2px solid var(--primary)" : "none",
                         outlineOffset: "2px",
                         transition: "all 0.15s ease",
                         display: "inline-flex",
@@ -709,15 +728,15 @@ export default function ProductDetailPage() {
                       key={color}
                       onClick={() => setSelectedColor(color)}
                       style={{
-                        border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid #e4e4e7",
+                        border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid var(--border)",
                         backgroundColor: bgVal,
                         color: isDark ? "#ffffff" : "#09090b",
                         padding: "0.45rem 0.85rem",
-                        borderRadius: "0.375rem",
+                        borderRadius: "var(--radius)",
                         fontWeight: "600",
                         fontSize: "0.75rem",
                         cursor: "pointer",
-                        outline: isSelected ? `2px solid ${bgVal === "#fafafa" ? "#09090b" : bgVal}` : "none",
+                        outline: isSelected ? `2px solid var(--primary)` : "none",
                         outlineOffset: "2px",
                         transition: "all 0.15s ease"
                       }}
@@ -737,9 +756,9 @@ export default function ProductDetailPage() {
                 style={{
                   flex: 1,
                   backgroundColor: "#ffffff",
-                  border: "1.5px solid #09090b",
-                  color: "#09090b",
-                  borderRadius: "0.375rem",
+                  border: "1.5px solid var(--primary)",
+                  color: "var(--primary)",
+                  borderRadius: "var(--radius)",
                   padding: "0.75rem",
                   fontSize: "0.85rem",
                   fontWeight: "500",
@@ -747,7 +766,7 @@ export default function ProductDetailPage() {
                   opacity: inStock ? 1 : 0.5,
                   transition: "background-color 0.15s ease"
                 }}
-                onMouseOver={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "#f4f4f5"; }}
+                onMouseOver={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "rgba(13, 148, 136, 0.05)"; }}
                 onMouseOut={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "#ffffff"; }}
               >
                 Add to Cart
@@ -758,18 +777,18 @@ export default function ProductDetailPage() {
                 disabled={!inStock}
                 style={{
                   flex: 1.5,
-                  backgroundColor: inStock ? "#09090b" : "#e4e4e7",
+                  backgroundColor: inStock ? "var(--primary)" : "#e4e4e7",
                   border: "none",
-                  color: inStock ? "#ffffff" : "#a1a1aa",
-                  borderRadius: "0.375rem",
+                  color: inStock ? "var(--primary-foreground)" : "#a1a1aa",
+                  borderRadius: "var(--radius)",
                   padding: "0.75rem",
                   fontSize: "0.85rem",
                   fontWeight: "500",
                   cursor: inStock ? "pointer" : "not-allowed",
                   transition: "background-color 0.15s ease"
                 }}
-                onMouseOver={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "#27272a"; }}
-                onMouseOut={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "#09090b"; }}
+                onMouseOver={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "rgba(13, 148, 136, 0.9)"; }}
+                onMouseOut={(e) => { if (inStock) e.currentTarget.style.backgroundColor = "var(--primary)"; }}
               >
                 Buy Now
               </button>

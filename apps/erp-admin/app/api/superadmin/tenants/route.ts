@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     }
 
     if (action === "UPDATE_COMPANY_METADATA") {
-      const { companyId, name, contactEmail, logoUrl, timezone, currency } = body;
+      const { companyId, name, contactEmail, logoUrl, timezone, currency, themeConfig } = body;
       if (!companyId) {
         return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
       }
@@ -66,6 +66,8 @@ export async function POST(req: Request) {
       if (logoUrl !== undefined) updates.logoUrl = logoUrl;
       if (timezone) updates.timezone = timezone;
       if (currency) updates.currency = currency;
+      if (themeConfig !== undefined) updates.themeConfig = themeConfig;
+
 
       const { data, error } = await supabase
         .from("Company")
@@ -147,7 +149,7 @@ export async function POST(req: Request) {
     }
 
     if (action === "CREATE_BRAND") {
-      const { companyId, name, code } = body;
+      const { companyId, name, code, logoUrl, themeConfig } = body;
       if (!companyId || !name || !code) {
         return NextResponse.json({ error: "Company ID, name, and code are required" }, { status: 400 });
       }
@@ -157,7 +159,9 @@ export async function POST(req: Request) {
         .insert({
           companyId,
           name,
-          code: code.toLowerCase().trim()
+          code: code.toLowerCase().trim(),
+          logoUrl: logoUrl || null,
+          themeConfig: themeConfig || null
         })
         .select()
         .single();
@@ -167,7 +171,7 @@ export async function POST(req: Request) {
     }
 
     if (action === "UPDATE_BRAND") {
-      const { brandId, name, code } = body;
+      const { brandId, name, code, logoUrl, themeConfig } = body;
       if (!brandId) {
         return NextResponse.json({ error: "Brand ID is required" }, { status: 400 });
       }
@@ -175,6 +179,9 @@ export async function POST(req: Request) {
       const updates: any = {};
       if (name) updates.name = name;
       if (code) updates.code = code.toLowerCase().trim();
+      if (logoUrl !== undefined) updates.logoUrl = logoUrl;
+      if (themeConfig !== undefined) updates.themeConfig = themeConfig;
+
 
       const { data, error } = await supabase
         .from("Brand")

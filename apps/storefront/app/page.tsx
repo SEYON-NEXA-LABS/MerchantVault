@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { applyBrandingStyles } from "./utils/branding";
 import { 
   Scissors, 
   ShoppingCart, 
@@ -477,7 +478,6 @@ export default function StorefrontPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<{ product: any; quantity: number; selectedSize: string; selectedColor: string }[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [quickViewSize, setQuickViewSize] = useState("M");
   const [quickViewColor, setQuickViewColor] = useState("Indigo Blue");
@@ -490,10 +490,39 @@ export default function StorefrontPage() {
     }
   }, [selectedProduct]);
 
+  // Sync brand/company branding configuration details
+  useEffect(() => {
+    if (company) {
+      localStorage.setItem("seyon:company", JSON.stringify(company));
+      localStorage.setItem("seyon:storefront:company", JSON.stringify(company));
+    }
+  }, [company]);
+
+  useEffect(() => {
+    if (brands && brands.length > 0) {
+      localStorage.setItem("seyon:storefront:brands", JSON.stringify(brands));
+      
+      const activeBrandObj = selectedBrand 
+        ? brands.find(b => b.code === selectedBrand.toLowerCase())
+        : null;
+      if (activeBrandObj) {
+        localStorage.setItem("seyon:storefront:activeBrand", JSON.stringify(activeBrandObj));
+      } else {
+        localStorage.removeItem("seyon:storefront:activeBrand");
+      }
+    }
+  }, [brands, selectedBrand]);
+
+  useEffect(() => {
+    const activeBrandObj = selectedBrand && brands.length > 0 
+      ? brands.find(b => b.code === selectedBrand.toLowerCase()) 
+      : null;
+    applyBrandingStyles(company, activeBrandObj);
+  }, [selectedBrand, brands, company]);
+
   const [syncProgress, setSyncProgress] = useState(0);
   const [syncStep, setSyncStep] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; subtitle: string } | null>(null);
   const [checkoutForm, setCheckoutForm] = useState({
     name: "John Doe",
@@ -620,8 +649,7 @@ export default function StorefrontPage() {
 
       const params = new URLSearchParams(window.location.search);
       if (params.get("checkout") === "true") {
-        setIsCheckingOut(true);
-        setIsCartOpen(false);
+        window.location.href = "/checkout";
       }
     }
   }, []);
@@ -766,6 +794,14 @@ export default function StorefrontPage() {
       }
     }, 400);
   };
+
+  const activeBrandObj = selectedBrand && brands.length > 0 
+    ? brands.find(b => b.code === selectedBrand.toLowerCase()) 
+    : null;
+  const activeLogoUrl = activeBrandObj?.logoUrl || null;
+  const activeTheme = activeBrandObj?.themeConfig 
+    ? (typeof activeBrandObj.themeConfig === "string" ? JSON.parse(activeBrandObj.themeConfig) : activeBrandObj.themeConfig)
+    : (company?.themeConfig ? (typeof company.themeConfig === "string" ? JSON.parse(company.themeConfig) : company.themeConfig) : null);
 
   const filteredProducts = (useSampleData ? FALLBACK_PRODUCTS : products).filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -932,29 +968,37 @@ export default function StorefrontPage() {
         top: 0,
         zIndex: 40,
         backgroundColor: "rgba(255, 255, 255, 0.95)",
-        borderBottom: "1px solid #e4e4e7",
+        borderBottom: "1px solid var(--border)",
         padding: "1rem 1.5rem",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div style={{
-            backgroundColor: "#09090b",
-            color: "#ffffff",
-            padding: "0.45rem",
-            borderRadius: "0.375rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            <Scissors style={{ width: "1.15rem", height: "1.15rem" }} />
-          </div>
+          {activeLogoUrl ? (
+            <img 
+              src={activeLogoUrl} 
+              alt={activeBrandObj?.name || company?.name || "Logo"} 
+              style={{ height: "2.25rem", objectFit: "contain", borderRadius: "var(--radius)" }} 
+            />
+          ) : (
+            <div style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              padding: "0.45rem",
+              borderRadius: "var(--radius)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <Scissors style={{ width: "1.15rem", height: "1.15rem" }} />
+            </div>
+          )}
           <div>
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
-              {company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON")}
+              {activeBrandObj?.name || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON"))}
             </span>
-            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid #e4e4e7", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
               PRE-RELEASE
             </span>
           </div>
@@ -985,8 +1029,8 @@ export default function StorefrontPage() {
               }}
               style={{
                 padding: "0.3rem 1.5rem 0.3rem 0.5rem",
-                borderRadius: "0.375rem",
-                border: "1px solid #e4e4e7",
+                borderRadius: "var(--radius)",
+                border: "1px solid var(--border)",
                 fontSize: "0.8rem",
                 fontWeight: "600",
                 color: "#09090b",
@@ -1014,23 +1058,23 @@ export default function StorefrontPage() {
             style={{
               width: "100%",
               padding: "0.45rem 1rem 0.45rem 2.25rem",
-              borderRadius: "0.375rem",
-              border: "1px solid #e4e4e7",
+              borderRadius: "var(--radius)",
+              border: "1px solid var(--border)",
               fontSize: "0.85rem",
               outline: "none",
               backgroundColor: "#ffffff",
               transition: "border-color 0.15s ease",
               color: "#09090b"
             }}
-            onFocus={(e) => e.target.style.borderColor = "#09090b"}
-            onBlur={(e) => e.target.style.borderColor = "#e4e4e7"}
+            onFocus={(e) => e.target.style.borderColor = "var(--primary)"}
+            onBlur={(e) => e.target.style.borderColor = "var(--border)"}
           />
         </div>
 
         {/* Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <button 
-            onClick={() => setIsCartOpen(true)}
+          <Link 
+            href="/cart"
             style={{
               position: "relative",
               backgroundColor: "transparent",
@@ -1040,7 +1084,7 @@ export default function StorefrontPage() {
               alignItems: "center",
               gap: "0.25rem",
               padding: "0.4rem",
-              borderRadius: "0.375rem",
+              borderRadius: "var(--radius)",
               color: "#09090b"
             }}
           >
@@ -1050,8 +1094,8 @@ export default function StorefrontPage() {
                 position: "absolute",
                 top: "-0.15rem",
                 right: "-0.15rem",
-                backgroundColor: "#09090b",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--primary-foreground)",
                 fontSize: "0.65rem",
                 fontWeight: "600",
                 width: "18px",
@@ -1064,32 +1108,30 @@ export default function StorefrontPage() {
                 {totalItems}
               </span>
             )}
-          </button>
+          </Link>
         </div>
       </header>
 
-      {!isCheckingOut ? (
-        <>
-          {/* Minimalist Hero section (Shadcn aesthetic) */}
+      {/* Minimalist Hero section (Shadcn aesthetic) */}
           <section style={{
             padding: "4.5rem 1.5rem",
             textAlign: "center",
-            borderBottom: "1px solid #e4e4e7",
+            borderBottom: "1px solid var(--border)",
             backgroundColor: "#fafafa"
           }}>
             <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", border: "1px solid #e4e4e7", backgroundColor: "#ffffff", padding: "0.25rem 0.6rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginBottom: "1.25rem" }}>
-                <Sparkles style={{ width: "0.8rem", height: "0.8rem", color: "#09090b" }} />
-                <span>0% Commission Native Sales Channel</span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", border: "1px solid var(--border)", backgroundColor: "#ffffff", padding: "0.25rem 0.6rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginBottom: "1.25rem" }}>
+                <Sparkles style={{ width: "0.8rem", height: "0.8rem", color: "var(--primary)" }} />
+                <span>{activeTheme?.bannerText || "0% Commission Native Sales Channel"}</span>
               </div>
               <h2 style={{ fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.03em", color: "#09090b", margin: "0 0 1rem 0", lineHeight: "1.15" }}>
-                Premium Garments, Synced in Real-Time
+                {activeTheme?.heroTitle || "Premium Garments, Synced in Real-Time"}
               </h2>
               <p style={{ color: "#71717a", fontSize: "0.95rem", lineHeight: "1.5", maxWidth: "550px", margin: "0 auto 1.75rem auto" }}>
-                Experience direct database checkout. Directly linked to the Seyon ERP registry for absolute stock guarantee and instant order fulfillment.
+                {activeTheme?.heroSubtitle || "Experience direct database checkout. Directly linked to the Seyon ERP registry for absolute stock guarantee and instant order fulfillment."}
               </p>
               <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem" }}>
-                <a href="#catalog" style={{ textDecoration: "none", backgroundColor: "#09090b", color: "#ffffff", padding: "0.55rem 1.25rem", borderRadius: "0.375rem", fontWeight: "500", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                <a href="#catalog" style={{ textDecoration: "none", backgroundColor: "var(--primary)", color: "var(--primary-foreground)", padding: "0.55rem 1.25rem", borderRadius: "var(--radius)", fontWeight: "500", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
                   Explore Catalog <ArrowRight style={{ width: "0.9rem", height: "0.9rem" }} />
                 </a>
               </div>
@@ -1111,10 +1153,10 @@ export default function StorefrontPage() {
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     style={{
-                      backgroundColor: selectedCategory === cat ? "#09090b" : "#ffffff",
-                      color: selectedCategory === cat ? "#ffffff" : "#27272a",
-                      border: "1px solid #e4e4e7",
-                      borderRadius: "0.375rem",
+                      backgroundColor: selectedCategory === cat ? "var(--primary)" : "#ffffff",
+                      color: selectedCategory === cat ? "var(--primary-foreground)" : "#27272a",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius)",
                       padding: "0.35rem 0.85rem",
                       fontSize: "0.8rem",
                       fontWeight: "500",
@@ -1237,10 +1279,10 @@ export default function StorefrontPage() {
                             onClick={() => addToCart(prod, prod.size, prod.color)}
                             disabled={!inStock}
                             style={{
-                              backgroundColor: inStock ? "#09090b" : "#e4e4e7",
-                              color: inStock ? "#ffffff" : "#a1a1aa",
+                              backgroundColor: inStock ? "var(--primary)" : "#e4e4e7",
+                              color: inStock ? "var(--primary-foreground)" : "#a1a1aa",
                               border: "none",
-                              borderRadius: "0.375rem",
+                              borderRadius: "var(--radius)",
                               padding: "0.45rem 0.75rem",
                               fontSize: "0.75rem",
                               fontWeight: "500",
@@ -1261,234 +1303,6 @@ export default function StorefrontPage() {
               </div>
             )}
           </section>
-        </>
-      ) : (
-        /* Checkout View */
-        <section style={{ flex: 1, padding: "3rem 1.5rem", maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", md: "1.6fr 1fr", gap: "2.5rem" } as any} className="checkout-grid">
-            {/* Form */}
-            <div style={{ backgroundColor: "#ffffff", border: "1px solid #e4e4e7", borderRadius: "0.5rem", padding: "1.75rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                <h3 style={{ fontSize: "1.15rem", fontWeight: "700", color: "#09090b", margin: 0 }}>Secure Checkout</h3>
-                <button 
-                  onClick={() => setIsCheckingOut(false)}
-                  style={{ backgroundColor: "transparent", border: "none", color: "#71717a", fontSize: "0.8rem", fontWeight: "500", cursor: "pointer", textDecoration: "underline" }}
-                >
-                  ← Return
-                </button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", fontSize: "0.85rem" }}>
-                <div>
-                  <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Customer Name *</p>
-                  <input
-                    type="text"
-                    value={checkoutForm.name}
-                    onChange={(e) => setCheckoutForm({ ...checkoutForm, name: e.target.value })}
-                    style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                  />
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="form-row">
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Phone *</p>
-                    <input
-                      type="text"
-                      value={checkoutForm.phone}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, phone: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Email *</p>
-                    <input
-                      type="email"
-                      value={checkoutForm.email}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, email: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Shipping Address Line 1 *</p>
-                  <input
-                    type="text"
-                    value={checkoutForm.addressLine1}
-                    onChange={(e) => setCheckoutForm({ ...checkoutForm, addressLine1: e.target.value })}
-                    style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                  />
-                </div>
-
-                <div>
-                  <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Shipping Address Line 2</p>
-                  <input
-                    type="text"
-                    value={checkoutForm.addressLine2}
-                    onChange={(e) => setCheckoutForm({ ...checkoutForm, addressLine2: e.target.value })}
-                    style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                  />
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="form-row">
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>City *</p>
-                    <input
-                      type="text"
-                      value={checkoutForm.city}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, city: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>State *</p>
-                    <input
-                      type="text"
-                      value={checkoutForm.state}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, state: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="form-row">
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>ZIP / Postal Code *</p>
-                    <input
-                      type="text"
-                      value={checkoutForm.zip}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, zip: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                  <div>
-                    <p style={{ margin: "0 0 0.35rem 0", fontWeight: "500", color: "#27272a" }}>Country *</p>
-                    <input
-                      type="text"
-                      value={checkoutForm.country}
-                      onChange={(e) => setCheckoutForm({ ...checkoutForm, country: e.target.value })}
-                      style={{ width: "100%", padding: "0.55rem", border: "1px solid #e4e4e7", borderRadius: "0.375rem", fontSize: "0.85rem", outline: "none", color: "#09090b" }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginTop: "0.75rem" }}>
-                  <p style={{ margin: "0 0 0.5rem 0", fontWeight: "500", color: "#27272a" }}>Payment Mode</p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }} className="form-row">
-                    <button
-                      type="button"
-                      onClick={() => setCheckoutForm({ ...checkoutForm, paymentMethod: "COD" })}
-                      style={{
-                        padding: "0.6rem",
-                        borderRadius: "0.375rem",
-                        border: checkoutForm.paymentMethod === "COD" ? "1.5px solid #09090b" : "1px solid #e4e4e7",
-                        backgroundColor: checkoutForm.paymentMethod === "COD" ? "#fafafa" : "#ffffff",
-                        fontWeight: "500",
-                        fontSize: "0.8rem",
-                        cursor: "pointer",
-                        color: "#09090b"
-                      }}
-                    >
-                      💵 Cash on Delivery (COD)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCheckoutForm({ ...checkoutForm, paymentMethod: "CARD" })}
-                      style={{
-                        padding: "0.6rem",
-                        borderRadius: "0.375rem",
-                        border: checkoutForm.paymentMethod === "CARD" ? "1.5px solid #09090b" : "1px solid #e4e4e7",
-                        backgroundColor: checkoutForm.paymentMethod === "CARD" ? "#fafafa" : "#ffffff",
-                        fontWeight: "500",
-                        fontSize: "0.8rem",
-                        cursor: "pointer",
-                        color: "#09090b"
-                      }}
-                    >
-                      💳 Credit / Debit Card
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Summary */}
-            <div style={{ backgroundColor: "#ffffff", border: "1px solid #e4e4e7", borderRadius: "0.5rem", padding: "1.75rem", height: "fit-content" }}>
-              <h4 style={{ fontSize: "1rem", fontWeight: "600", color: "#09090b", margin: "0 0 1rem 0" }}>Order Summary</h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxHeight: "250px", overflowY: "auto", marginBottom: "1.25rem" }}>
-                {cart.map((item, idx) => (
-                  <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#27272a" }}>
-                    <span style={{ flex: 1, paddingRight: "1rem" }}>{item.product.title} (Qty: {item.quantity})</span>
-                    <span style={{ fontWeight: "500" }}>₹{item.product.price * item.quantity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ borderTop: "1px solid #e4e4e7", paddingTop: "1rem", fontSize: "0.85rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#71717a" }}>
-                  <span>Subtotal</span>
-                  <span>₹{cartTotal}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#16a34a", fontWeight: "500", marginTop: "0.25rem" }}>
-                  <span>Shipping</span>
-                  <span>FREE</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#09090b", fontWeight: "700", fontSize: "1.05rem", borderTop: "1px solid #e4e4e7", paddingTop: "0.75rem", marginTop: "0.75rem" }}>
-                  <span>Total</span>
-                  <span>₹{cartTotal}</span>
-                </div>
-              </div>
-
-              {checkoutStep === "success" ? (
-                <div style={{ textAlign: "center", marginTop: "1.5rem", padding: "1rem", backgroundColor: "#f0fdf4", borderRadius: "0.375rem", border: "1px solid #dcfce7" }}>
-                  <p style={{ color: "#16a34a", fontWeight: "600", margin: 0, fontSize: "0.85rem" }}>✓ Order Placed Successfully!</p>
-                  <button 
-                    onClick={() => {
-                      setIsCheckingOut(false);
-                      setCheckoutStep("idle");
-                    }}
-                    style={{
-                      marginTop: "0.5rem",
-                      backgroundColor: "#16a34a",
-                      color: "#ffffff",
-                      border: "none",
-                      borderRadius: "0.25rem",
-                      padding: "0.35rem 0.75rem",
-                      fontWeight: "500",
-                      fontSize: "0.75rem",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Return to Catalog
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleCheckout}
-                  disabled={checkoutStep === "loading" || cart.length === 0}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#09090b",
-                    color: "#ffffff",
-                    border: "none",
-                    borderRadius: "0.375rem",
-                    padding: "0.75rem",
-                    fontWeight: "500",
-                    fontSize: "0.85rem",
-                    cursor: checkoutStep === "loading" ? "not-allowed" : "pointer",
-                    marginTop: "1.25rem",
-                    transition: "background-color 0.15s ease"
-                  }}
-                  onMouseOver={(e) => { if (checkoutStep !== "loading" && cart.length > 0) e.currentTarget.style.backgroundColor = "#27272a"; }}
-                  onMouseOut={(e) => { if (checkoutStep !== "loading" && cart.length > 0) e.currentTarget.style.backgroundColor = "#09090b"; }}
-                >
-                  {checkoutStep === "loading" ? "Placing Order..." : "Confirm & Place Order"}
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Footer */}
       <footer style={{
@@ -1510,168 +1324,6 @@ export default function StorefrontPage() {
         </div>
       </footer>
 
-      {/* CART DRAWER SLIDE-OUT OVERLAY */}
-      {isCartOpen && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "rgba(9,9,11,0.4)",
-          backdropFilter: "blur(2px)",
-          zIndex: 50,
-          display: "flex",
-          justifyContent: "flex-end"
-        }} onClick={() => setIsCartOpen(false)}>
-          <div style={{
-            backgroundColor: "#ffffff",
-            width: "100%",
-            maxWidth: "380px",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            boxShadow: "-4px 0 20px rgba(0,0,0,0.08)",
-            animation: "slideIn 0.2s ease-out"
-          }} onClick={(e) => e.stopPropagation()}>
-            {/* Header */}
-            <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #e4e4e7", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h4 style={{ fontSize: "1rem", fontWeight: "600", margin: 0, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <ShoppingBag style={{ width: "1.1rem", height: "1.1rem" }} /> Shopping Cart ({totalItems})
-              </h4>
-              <button 
-                onClick={() => {
-                  setIsCartOpen(false);
-                  setCheckoutStep("idle");
-                }}
-                style={{ backgroundColor: "transparent", border: "none", cursor: "pointer", color: "#71717a", padding: "0.25rem" }}
-              >
-                <X style={{ width: "1.2rem", height: "1.2rem" }} />
-              </button>
-            </div>
-
-            {/* Cart Items List */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem" }}>
-              {checkoutStep === "success" ? (
-                <div style={{ textAlign: "center", padding: "3rem 1rem" }}>
-                  <div style={{ display: "inline-flex", padding: "0.75rem", backgroundColor: "#f0fdf4", borderRadius: "50%", color: "#16a34a", marginBottom: "1rem" }}>
-                    <CheckCircle2 style={{ width: "2rem", height: "2rem" }} />
-                  </div>
-                  <h5 style={{ fontSize: "1.1rem", fontWeight: "600", color: "#09090b", margin: "0 0 0.5rem 0" }}>Simulated Checkout Successful!</h5>
-                  <p style={{ color: "#71717a", fontSize: "0.8rem", lineHeight: "1.4", margin: "0 0 1.25rem 0" }}>
-                    Order registered. Stock reduction trigger active.
-                  </p>
-                  <button 
-                    onClick={() => setCheckoutStep("idle")}
-                    style={{
-                      backgroundColor: "#09090b",
-                      color: "#ffffff",
-                      border: "none",
-                      borderRadius: "0.375rem",
-                      padding: "0.5rem 1rem",
-                      fontWeight: "500",
-                      fontSize: "0.8rem",
-                      cursor: "pointer"
-                    }}
-                  >
-                    Continue Shopping
-                  </button>
-                </div>
-              ) : checkoutStep === "loading" ? (
-                <div style={{ textAlign: "center", padding: "5rem 1rem" }}>
-                  <div style={{ border: "2px solid #e4e4e7", borderTop: "2px solid #09090b", borderRadius: "50%", width: "2rem", height: "2rem", animation: "spin 0.8s linear infinite", margin: "0 auto 1.25rem auto" }}></div>
-                  <h5 style={{ fontSize: "0.9rem", fontWeight: "600", color: "#09090b", margin: 0 }}>Processing Order</h5>
-                </div>
-              ) : cart.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
-                  <ShoppingCart style={{ width: "2rem", height: "2rem", color: "#a1a1aa", margin: "0 auto 1rem auto" }} />
-                  <p style={{ color: "#71717a", fontSize: "0.85rem" }}>Your cart is empty.</p>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  {cart.map((item, index) => (
-                    <div 
-                      key={index}
-                      style={{
-                        display: "flex",
-                        gap: "0.75rem",
-                        paddingBottom: "1rem",
-                        borderBottom: "1px solid #f4f4f5"
-                      }}
-                    >
-                      <div style={{ width: "3.5rem", height: "3.5rem", backgroundColor: "#f4f4f5", borderRadius: "0.25rem", overflow: "hidden" }}>
-                        <ProductImage prod={item.product} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <h6 style={{ fontSize: "0.8rem", fontWeight: "600", margin: "0 0 0.15rem 0", color: "#09090b" }}>{item.product.title}</h6>
-                        <p style={{ fontSize: "0.7rem", color: "#71717a", margin: "0 0 0.4rem 0" }}>
-                          Size: {item.selectedSize} | Color: {item.selectedColor}
-                        </p>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                            <button 
-                              onClick={() => updateCartQty(index, -1)}
-                              style={{ width: "1.25rem", height: "1.25rem", borderRadius: "0.25rem", border: "1px solid #e4e4e7", backgroundColor: "#ffffff", cursor: "pointer", fontWeight: "500", fontSize: "0.7rem", color: "#09090b", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
-                            >-</button>
-                            <span style={{ fontSize: "0.75rem", fontWeight: "600", minWidth: "1rem", textAlign: "center" }}>{item.quantity}</span>
-                            <button 
-                              onClick={() => updateCartQty(index, 1)}
-                              style={{ width: "1.25rem", height: "1.25rem", borderRadius: "0.25rem", border: "1px solid #e4e4e7", backgroundColor: "#ffffff", cursor: "pointer", fontWeight: "500", fontSize: "0.7rem", color: "#09090b", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
-                            >+</button>
-                          </div>
-                          <button 
-                            onClick={() => removeFromCart(item.product.id, item.selectedSize, item.selectedColor)}
-                            style={{ backgroundColor: "transparent", border: "none", color: "#dc2626", fontSize: "0.7rem", fontWeight: "500", cursor: "pointer" }}
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer Summary */}
-            {cart.length > 0 && checkoutStep === "idle" && (
-              <div style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid #e4e4e7", backgroundColor: "#ffffff" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem", fontSize: "0.85rem" }}>
-                  <span style={{ color: "#71717a" }}>Subtotal</span>
-                  <span style={{ fontWeight: "600", color: "#09090b" }}>₹{cartTotal}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1.25rem", fontSize: "0.85rem" }}>
-                  <span style={{ color: "#71717a" }}>Shipping</span>
-                  <span style={{ color: "#16a34a", fontWeight: "600" }}>FREE</span>
-                </div>
-                <button 
-                  onClick={() => {
-                    setIsCheckingOut(true);
-                    setIsCartOpen(false);
-                  }}
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#09090b",
-                    color: "#ffffff",
-                    border: "none",
-                    borderRadius: "0.375rem",
-                    padding: "0.75rem",
-                    fontWeight: "500",
-                    fontSize: "0.85rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                    transition: "background-color 0.15s ease"
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#27272a"}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#09090b"}
-                >
-                  Checkout <ArrowRight style={{ width: "0.9rem", height: "0.9rem" }} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* QUICK VIEW MODAL OVERLAY */}
       {selectedProduct && (
@@ -1767,15 +1419,15 @@ export default function StorefrontPage() {
                             key={sz}
                             onClick={() => setQuickViewSize(sz)}
                             style={{
-                              border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid #e4e4e7",
-                              backgroundColor: isSelected ? "#09090b" : "#ffffff",
-                              color: isSelected ? "#ffffff" : "#09090b",
+                              border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid var(--border)",
+                              backgroundColor: isSelected ? "var(--primary)" : "#ffffff",
+                              color: isSelected ? "var(--primary-foreground)" : "#09090b",
                               padding: "0.3rem 0.65rem",
-                              borderRadius: "0.25rem",
+                              borderRadius: "var(--radius)",
                               fontWeight: "600",
                               fontSize: getSizeFontSize(sz),
                               cursor: "pointer",
-                              outline: isSelected ? "2px solid #09090b" : "none",
+                              outline: isSelected ? "2px solid var(--primary)" : "none",
                               outlineOffset: "2px",
                               display: "inline-flex",
                               alignItems: "center",
@@ -1806,15 +1458,15 @@ export default function StorefrontPage() {
                             key={cl}
                             onClick={() => setQuickViewColor(cl)}
                             style={{
-                              border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid #e4e4e7",
+                              border: isSelected ? "1px solid rgba(0,0,0,0.15)" : "1px solid var(--border)",
                               backgroundColor: bgVal,
                               color: isDark ? "#ffffff" : "#09090b",
                               padding: "0.35rem 0.65rem",
-                              borderRadius: "0.25rem",
+                              borderRadius: "var(--radius)",
                               fontWeight: "600",
                               fontSize: "0.7rem",
                               cursor: "pointer",
-                              outline: isSelected ? `2px solid ${bgVal === "#fafafa" ? "#09090b" : bgVal}` : "none",
+                              outline: isSelected ? `2px solid var(--primary)` : "none",
                               outlineOffset: "2px"
                             }}
                           >
@@ -1833,10 +1485,10 @@ export default function StorefrontPage() {
                     }}
                     style={{
                       width: "100%",
-                      backgroundColor: selectedProduct.currentStockLevel > 0 ? "#09090b" : "#e4e4e7",
-                      color: selectedProduct.currentStockLevel > 0 ? "#ffffff" : "#a1a1aa",
+                      backgroundColor: selectedProduct.currentStockLevel > 0 ? "var(--primary)" : "#e4e4e7",
+                      color: selectedProduct.currentStockLevel > 0 ? "var(--primary-foreground)" : "#a1a1aa",
                       border: "none",
-                      borderRadius: "0.375rem",
+                      borderRadius: "var(--radius)",
                       padding: "0.65rem",
                       fontWeight: "500",
                       fontSize: "0.85rem",
@@ -2118,7 +1770,7 @@ export default function StorefrontPage() {
               <div style={{
                 width: `${syncProgress}%`,
                 height: "100%",
-                backgroundColor: "#09090b",
+                backgroundColor: "var(--primary)",
                 borderRadius: "9999px",
                 transition: "width 0.2s ease-in-out"
               }} />

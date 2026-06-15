@@ -43,6 +43,8 @@ interface Brand {
   id: string;
   name: string;
   code: string;
+  logoUrl?: string | null;
+  themeConfig?: any | null;
 }
 
 interface Company {
@@ -105,6 +107,13 @@ function CompaniesContent() {
   const [showAddBrandForm, setShowAddBrandForm] = useState(false);
   const [brandName, setBrandName] = useState("");
   const [brandCode, setBrandCode] = useState("");
+  const [brandLogoUrl, setBrandLogoUrl] = useState("");
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState("#0d9488");
+  const [brandAccentColor, setBrandAccentColor] = useState("#fbbf24");
+  const [brandRadius, setBrandRadius] = useState("0.375rem");
+  const [brandBannerText, setBrandBannerText] = useState("0% Commission Native Sales Channel");
+  const [brandHeroTitle, setBrandHeroTitle] = useState("Premium Garments, Synced in Real-Time");
+  const [brandHeroSubtitle, setBrandHeroSubtitle] = useState("Experience direct database checkout.");
 
   // Onboarding fields
   const [newCompanyName, setNewCompanyName] = useState("");
@@ -317,6 +326,13 @@ function CompaniesContent() {
     setSelectedBrand(null);
     setBrandName("");
     setBrandCode("");
+    setBrandLogoUrl("");
+    setBrandPrimaryColor("#0d9488");
+    setBrandAccentColor("#fbbf24");
+    setBrandRadius("0.375rem");
+    setBrandBannerText("0% Commission Native Sales Channel");
+    setBrandHeroTitle("Premium Garments, Synced in Real-Time");
+    setBrandHeroSubtitle("Experience direct database checkout.");
     setShowAddBrandForm(true);
   };
 
@@ -324,6 +340,18 @@ function CompaniesContent() {
     setSelectedBrand(b);
     setBrandName(b.name);
     setBrandCode(b.code);
+    setBrandLogoUrl(b.logoUrl || "");
+
+    let theme: any = {};
+    if (b.themeConfig) {
+      theme = typeof b.themeConfig === "string" ? JSON.parse(b.themeConfig) : b.themeConfig;
+    }
+    setBrandPrimaryColor(theme.primary || "#0d9488");
+    setBrandAccentColor(theme.accent || "#fbbf24");
+    setBrandRadius(theme.radius || "0.375rem");
+    setBrandBannerText(theme.bannerText || "0% Commission Native Sales Channel");
+    setBrandHeroTitle(theme.heroTitle || "Premium Garments, Synced in Real-Time");
+    setBrandHeroSubtitle(theme.heroSubtitle || "Experience direct database checkout.");
     setShowAddBrandForm(true);
   };
 
@@ -333,10 +361,21 @@ function CompaniesContent() {
 
     try {
       const action = selectedBrand ? "UPDATE_BRAND" : "CREATE_BRAND";
+      const themeConfig = {
+        primary: brandPrimaryColor,
+        accent: brandAccentColor,
+        radius: brandRadius,
+        bannerText: brandBannerText,
+        heroTitle: brandHeroTitle,
+        heroSubtitle: brandHeroSubtitle
+      };
+
       const payload: any = {
         action,
         name: brandName,
-        code: brandCode
+        code: brandCode,
+        logoUrl: brandLogoUrl || null,
+        themeConfig: themeConfig
       };
 
       if (selectedBrand) {
@@ -906,11 +945,11 @@ function CompaniesContent() {
                 </div>
 
                 {showAddBrandForm && (
-                  <form onSubmit={handleSaveBrand} className="bg-stone-50 p-4 border border-stone-200 rounded-xl space-y-3 max-w-md">
-                    <h5 className="font-bold text-stone-900 border-b border-stone-200 pb-1">
-                      {selectedBrand ? "Edit Brand details" : "Add New Brand"}
+                  <form onSubmit={handleSaveBrand} className="bg-stone-50 p-5 border border-stone-200 rounded-xl space-y-4 max-w-lg animate-in fade-in slide-in-from-top-1.5 duration-200">
+                    <h5 className="font-extrabold text-stone-900 border-b border-stone-200 pb-1.5 text-xs flex items-center gap-1.5">
+                      <span>🎨</span> {selectedBrand ? "Edit Brand Aesthetics & Settings" : "Configure New Brand Storefront"}
                     </h5>
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3.5">
                       <div className="space-y-1">
                         <label className="font-bold text-stone-605">Brand Name</label>
                         <input
@@ -918,7 +957,7 @@ function CompaniesContent() {
                           type="text"
                           value={brandName}
                           onChange={(e) => setBrandName(e.target.value)}
-                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs"
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500"
                           placeholder="e.g. Alpha Collections"
                         />
                       </div>
@@ -929,25 +968,123 @@ function CompaniesContent() {
                           type="text"
                           value={brandCode}
                           onChange={(e) => setBrandCode(e.target.value)}
-                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs font-mono"
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-teal-500"
                           placeholder="e.g. alpha"
+                        />
+                      </div>
+
+                      <div className="space-y-1 col-span-2">
+                        <label className="font-bold text-stone-605">Logo Image URL</label>
+                        <input
+                          type="url"
+                          value={brandLogoUrl}
+                          onChange={(e) => setBrandLogoUrl(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          placeholder="https://example.com/logo.png"
+                        />
+                      </div>
+
+                      <div className="space-y-1 col-span-2 border-t border-stone-200/50 pt-2">
+                        <h6 className="font-bold text-[10px] text-stone-500 uppercase tracking-wide mb-2">Color Palette (Tweakcn Inspired)</h6>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="font-semibold text-stone-600 text-[10px]">Primary Brand Color</label>
+                            <div className="flex gap-2 items-center">
+                              <input
+                                type="color"
+                                value={brandPrimaryColor}
+                                onChange={(e) => setBrandPrimaryColor(e.target.value)}
+                                className="w-8 h-8 rounded-lg cursor-pointer border border-stone-200 p-0"
+                              />
+                              <input
+                                type="text"
+                                value={brandPrimaryColor}
+                                onChange={(e) => setBrandPrimaryColor(e.target.value)}
+                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[10px] font-mono focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <label className="font-semibold text-stone-600 text-[10px]">Accent Color</label>
+                            <div className="flex gap-2 items-center">
+                              <input
+                                type="color"
+                                value={brandAccentColor}
+                                onChange={(e) => setBrandAccentColor(e.target.value)}
+                                className="w-8 h-8 rounded-lg cursor-pointer border border-stone-200 p-0"
+                              />
+                              <input
+                                type="text"
+                                value={brandAccentColor}
+                                onChange={(e) => setBrandAccentColor(e.target.value)}
+                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[10px] font-mono focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-stone-605">Corner Radius</label>
+                        <select
+                          value={brandRadius}
+                          onChange={(e) => setBrandRadius(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none"
+                        >
+                          <option value="0px">0px (Sharp borders)</option>
+                          <option value="0.25rem">4px (Subtle curves)</option>
+                          <option value="0.375rem">6px (Shadcn default)</option>
+                          <option value="0.5rem">8px (Standard curves)</option>
+                          <option value="0.75rem">12px (High rounded)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-stone-605">Top Banner Text</label>
+                        <input
+                          type="text"
+                          value={brandBannerText}
+                          onChange={(e) => setBrandBannerText(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          placeholder="e.g. Free shipping on orders over ₹3000!"
+                        />
+                      </div>
+
+                      <div className="space-y-1 col-span-2">
+                        <label className="font-bold text-stone-605">Hero Welcome Title</label>
+                        <input
+                          type="text"
+                          value={brandHeroTitle}
+                          onChange={(e) => setBrandHeroTitle(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          placeholder="e.g. Handcrafted Premium Silks"
+                        />
+                      </div>
+
+                      <div className="space-y-1 col-span-2">
+                        <label className="font-bold text-stone-605">Hero Description Subtitle</label>
+                        <textarea
+                          value={brandHeroSubtitle}
+                          onChange={(e) => setBrandHeroSubtitle(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-teal-500 min-h-[50px] resize-none"
+                          placeholder="Brief brand story or sub-header..."
                         />
                       </div>
                     </div>
 
-                    <div className="flex gap-2 justify-end border-t border-stone-200 pt-2.5">
+                    <div className="flex gap-2 justify-end border-t border-stone-200 pt-3">
                       <button
                         type="button"
                         onClick={() => setShowAddBrandForm(false)}
-                        className="px-3 py-1.5 border border-stone-250 hover:bg-white rounded-lg font-bold text-stone-700"
+                        className="px-3.5 py-2 border border-stone-250 hover:bg-white rounded-lg font-bold text-stone-700 transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="bg-teal-600 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-lg font-bold shadow-xs"
+                        className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-bold shadow-xs transition-colors"
                       >
-                        Save Brand
+                        Save Brand Config
                       </button>
                     </div>
                   </form>

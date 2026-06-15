@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
     let companyQuery = supabase
       .from("Company")
-      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken");
+      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, themeConfig");
 
     if (companyId) {
       companyQuery = companyQuery.eq("id", companyId);
@@ -30,9 +30,10 @@ export async function GET(request: Request) {
     if (company && company.id) {
       const { data: companyBrands } = await supabase
         .from("Brand")
-        .select("id, name, code")
+        .select("id, name, code, logoUrl, themeConfig")
         .eq("companyId", company.id);
       brands = companyBrands || [];
+
 
       if (brandParam) {
         const activeBrand = brands.find(b => b.code === brandParam.toLowerCase());
