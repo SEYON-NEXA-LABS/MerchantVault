@@ -81,16 +81,11 @@ export async function loginUser(formData: FormData) {
         sameSite: "lax"
       });
       
-      shouldRedirect = true;
+      return { success: true };
     }
   } catch (err: any) {
     console.warn("Database lookup failed/skipped during login:", err.message || err);
   }
-
-  if (shouldRedirect) {
-    redirect("/dashboard");
-  }
-
 
   // 2. In-memory developer accounts fallback (for empty database seeding)
   const devAccounts: Record<string, { role: "SUPERADMIN" | "TENANTADMIN" | "STAFF"; email: string; pass: string }> = {
@@ -136,7 +131,7 @@ export async function loginUser(formData: FormData) {
         sameSite: "lax"
       });
       
-      redirect("/dashboard");
+      return { success: true };
     }
   }
 

@@ -36,8 +36,10 @@ function HelpContent() {
   const topicParam = searchParams.get("topic");
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     "Getting Started": true,
+    "Operating SOPs": true,
     "Inventory & Barcodes": true,
     "Orders & Logistics": true,
     "Brand Customization & Storefront Channels": true
@@ -52,6 +54,128 @@ function HelpContent() {
 
   // Help topic content dictionary
   const topics: HelpTopic[] = [
+    {
+      id: "sop-workflows",
+      title: "Step-by-Step Operating Workflows (SOPs)",
+      category: "Operating SOPs",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Step-by-Step Operations Flow (SOP)</h1>
+          <p className="text-sm text-slate-707 leading-relaxed">
+            Follow this end-to-end standard operating procedure (SOP) to manage suppliers, purchase supply, receiving, barcode operations, order verification, fulfillment, logistics dispatches, transfers, and inventory audits.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">1. Vendor Registration & Directory</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            Before ordering inventory, register your suppliers and fabric manufacturers in the directory:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Go to the **Vendors** management panel.</li>
+            <li>Click **Add Vendor** and input details (Name, Contact Email, GSTIN, and Billing Address).</li>
+            <li>Verify the active status. This vendor is now available for procurement orders.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">2. Purchase Order (PO) Procurement</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            Create a purchase order request to supply garments to your warehouse locations:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Go to **Purchase Orders** and click **Create Purchase Order**.</li>
+            <li>Select the target Vendor, destination Warehouse, and enter a unique PO Number.</li>
+            <li>Add the product variants, specifying the ordered quantities and unit cost prices.</li>
+            <li>Set the status to **SENT** when dispatching the PO to the supplier.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">3. Stock Receiving (Inbound PO Check-in)</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            When the supplier's shipment arrives at the destination warehouse:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Open the corresponding **Purchase Order** details page.</li>
+            <li>Click **Receive Items** to open the inbound check-in panel.</li>
+            <li>Scan or input the received quantity for each variant.</li>
+            <li>Click **Receive & Commit** to automatically increment the warehouse inventory stock levels and update the PO to **COMPLETED** (or **PARTIALLY RECEIVED**).</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">4. Barcode Labeling & Shelving</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            If the incoming garments do not have physical labels attached yet:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Open the **Barcode Operations** section.</li>
+            <li>Select the SKU and quantity corresponding to the received batch.</li>
+            <li>Select the appropriate tag layout size (e.g. 2"x2" standard tag) and print.</li>
+            <li>Attach the printed barcode to the garment hangtags and shelve them.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">5. COD Order Call Verification</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            In Indian e-commerce retail, Cash On Delivery (COD) orders must be verified over a phone call before shipping to prevent high RTO (Return to Origin) losses:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Go to the **Order Board** and select the **COD Call Log** tab.</li>
+            <li>Contact the customer using the phone number listed on the order card.</li>
+            <li>Once confirmed, click **Verify Order**. If unreachable after 3 attempts or cancelled by the user, mark as **Unreachable** or **Cancelled** respectively.</li>
+            <li>Orders that are not marked **VERIFIED** (or prepaid **PAID**) will trigger a safety alert block before packaging.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">6. Order Fulfillment (Pick & Pack Barcode Matching)</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            When a customer places an order on your storefront (and passes COD checks):
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Go to the **Order Board** and locate the order in **Active / Processing**.</li>
+            <li>Pick the physical garments from the warehouse shelves matching the order details.</li>
+            <li>Verify item accuracy by scanning each picked garment's barcode label in the Order Panel.</li>
+            <li>Confirm package dimensions and weight, then generate the shipping **AWB** from your carrier.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">7. Logistics Handover & Manifests</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            Before packages are loaded onto the courier driver's vehicle:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Open the **Logistics** panel and click **Create Manifest**.</li>
+            <li>Select the courier partner (e.g. Bluedart or Delhivery) and assign all packed parcels.</li>
+            <li>Print the manifest sheet and have the courier driver sign it as custody validation.</li>
+            <li>Submit the manifest. The packages are now dispatched, and status updates are sent to the buyer.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">8. Inter-Warehouse Stock Transfers</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            To balance supply levels by moving garment stock between different warehouse nodes:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Navigate to **Stock Transfers** and select **Initiate Transfer**.</li>
+            <li>Specify the source location, destination warehouse, garment variant, and quantity.</li>
+            <li>**Sent (Shipped)**: Once packed and loaded, the source operator logs it as shipped, decrementing source warehouse stock levels.</li>
+            <li>**Completed (Received)**: Once received, the destination operator scans the arrivals, incrementing destination warehouse stock levels.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">9. Inventory Cycle Auditing</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            Reconcile physical floor stock levels with database counts to resolve shrinkage:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Open **Inventory Audits** and create a count session for the warehouse.</li>
+            <li>Walk the shelves and scan all physical tags. The ledger tracks the expected vs scanned delta.</li>
+            <li>Use the **Audio Feedback** beep/buzz indicators to verify correct tag scanning.</li>
+            <li>Click **Reconcile & Close** to commit counts, overwrite database levels, and log adjustment details.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">10. Handling Customer Returns (RTO)</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            If a package is returned (Return to Origin) or returned by a customer:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li>Go to the **Logistics Returns** tab.</li>
+            <li>Scan the returned package's **AWB barcode**.</li>
+            <li>Select the destination warehouse node to restock the return.</li>
+            <li>Submit the RMA to increment the catalog stock levels and update the Shopify status automatically.</li>
+          </ol>
+        </div>
+      )
+    },
     {
       id: "intro",
       title: "Introduction to SEYON Operations",
@@ -515,7 +639,13 @@ function HelpContent() {
       {/* CHM Help Header Toolbar */}
       <div className="h-14 bg-slate-100 border-b border-slate-200 flex items-center justify-between px-4 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-slate-600" />
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="p-1.5 hover:bg-slate-200 rounded text-slate-600 transition-colors mr-1 flex items-center justify-center border border-slate-300 bg-white shadow-xs cursor-pointer"
+            title={sidebarCollapsed ? "Expand Navigation Tree" : "Collapse Navigation Tree"}
+          >
+            <BookOpen className="w-5 h-5" />
+          </button>
           <div>
             <h2 className="font-extrabold text-sm text-slate-900">Operations Guide Help System</h2>
             <p className="text-[10px] text-slate-500 font-mono">v1.2.0-userhelp</p>
@@ -537,73 +667,75 @@ function HelpContent() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Side: CHM Nested TOC Navigation Tree */}
-        <aside className="w-80 border-r border-slate-200 flex flex-col h-full bg-slate-50 overflow-y-auto">
-          <div className="p-3 bg-slate-100/50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Table of Contents
-          </div>
-          
-          <div className="p-2 space-y-1">
-            {categories.map((cat) => {
-              const catTopics = filteredTopics.filter(t => t.category === cat);
-              if (catTopics.length === 0) return null;
+        {!sidebarCollapsed && (
+          <aside className="w-80 border-r border-slate-200 flex flex-col h-full bg-slate-50 overflow-y-auto transition-all duration-200">
+            <div className="p-3 bg-slate-100/50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              Table of Contents
+            </div>
+            
+            <div className="p-2 space-y-1">
+              {categories.map((cat) => {
+                const catTopics = filteredTopics.filter(t => t.category === cat);
+                if (catTopics.length === 0) return null;
 
-              const isExpanded = expandedFolders[cat];
+                const isExpanded = expandedFolders[cat];
 
-              return (
-                <div key={cat} className="space-y-0.5">
-                  {/* Folder Folder */}
-                  <button
-                    onClick={() => toggleFolder(cat)}
-                    className="w-full flex items-center justify-between p-2 rounded-md hover:bg-slate-200/60 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                return (
+                  <div key={cat} className="space-y-0.5">
+                    {/* Folder Folder */}
+                    <button
+                      onClick={() => toggleFolder(cat)}
+                      className="w-full flex items-center justify-between p-2 rounded-md hover:bg-slate-200/60 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                        {isExpanded ? (
+                          <FolderOpen className="w-4 h-4 text-amber-500" />
+                        ) : (
+                          <Folder className="w-4 h-4 text-amber-500" />
+                        )}
+                        <span>{cat}</span>
+                      </div>
                       {isExpanded ? (
-                        <FolderOpen className="w-4 h-4 text-amber-500" />
+                        <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                       ) : (
-                        <Folder className="w-4 h-4 text-amber-500" />
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                       )}
-                      <span>{cat}</span>
-                    </div>
-                    {isExpanded ? (
-                      <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+
+                    {/* Nested Folder Children Documents */}
+                    {isExpanded && (
+                      <div className="pl-6 space-y-0.5 border-l border-slate-200 ml-4 py-0.5">
+                        {catTopics.map((topic) => {
+                          const isActive = activeTopicId === topic.id;
+                          return (
+                            <button
+                              key={topic.id}
+                              onClick={() => setActiveTopicId(topic.id)}
+                              className={`w-full flex items-center gap-2 p-1.5 rounded-md transition-colors text-left text-xs font-medium ${
+                                isActive 
+                                  ? "bg-indigo-50 text-indigo-700 font-bold" 
+                                  : "text-slate-650 hover:bg-slate-200/55 hover:text-slate-900"
+                              }`}
+                            >
+                              <FileText className={`w-3.5 h-3.5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
+                              <span className="truncate">{topic.title}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
-                  </button>
+                  </div>
+                );
+              })}
 
-                  {/* Nested Folder Children Documents */}
-                  {isExpanded && (
-                    <div className="pl-6 space-y-0.5 border-l border-slate-200 ml-4 py-0.5">
-                      {catTopics.map((topic) => {
-                        const isActive = activeTopicId === topic.id;
-                        return (
-                          <button
-                            key={topic.id}
-                            onClick={() => setActiveTopicId(topic.id)}
-                            className={`w-full flex items-center gap-2 p-1.5 rounded-md transition-colors text-left text-xs font-medium ${
-                              isActive 
-                                ? "bg-indigo-50 text-indigo-700 font-bold" 
-                                : "text-slate-650 hover:bg-slate-200/55 hover:text-slate-900"
-                            }`}
-                          >
-                            <FileText className={`w-3.5 h-3.5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
-                            <span className="truncate">{topic.title}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+              {filteredTopics.length === 0 && (
+                <div className="p-4 text-center text-xs text-slate-400">
+                  No matching help topics found.
                 </div>
-              );
-            })}
-
-            {filteredTopics.length === 0 && (
-              <div className="p-4 text-center text-xs text-slate-400">
-                No matching help topics found.
-              </div>
-            )}
-          </div>
-        </aside>
+              )}
+            </div>
+          </aside>
+        )}
 
         {/* Right Side: CHM Document Reading Pane */}
         <main className="flex-1 overflow-y-auto p-8 bg-white selection:bg-indigo-150">

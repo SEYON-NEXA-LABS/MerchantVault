@@ -36,6 +36,8 @@ export default function Home() {
       if (res && res.error) {
         setError(res.error);
         setLoading(false);
+      } else if (res && res.success) {
+        window.location.href = "/dashboard";
       }
     } catch (err: any) {
       setError("Failed to establish session. Please verify database connection.");
@@ -62,6 +64,8 @@ export default function Home() {
       if (res && res.error) {
         setError(res.error);
         setLoading(false);
+      } else if (res && res.success) {
+        window.location.href = "/dashboard";
       }
     } catch (err: any) {
       setError("Failed to establish session. Please verify database connection.");
