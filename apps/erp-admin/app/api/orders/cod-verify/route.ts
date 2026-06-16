@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getContextCompanyId } from "@/lib/session";
-import { Client } from "pg";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request: Request) {
   try {
@@ -14,29 +14,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const dbUrl = process.env.DATABASE_URL;
-    if (!dbUrl) {
-      return NextResponse.json({ error: "Database URL not configured" }, { status: 500 });
+    const { data: order, error: updateErr } = await supabase
+      .from("OrderFulfillment")
+      .update({ codVerificationStatus: status })
+      .eq("id", orderId)
+      .eq("companyId", companyId)
+      .select()
+      .single();
+
+    if (updateErr) {
+      throw updateErr;
     }
 
-    const client = new Client({ connectionString: dbUrl });
-    await client.connect();
-
-    let order;
-    try {
-      const res = await client.query(
-        `UPDATE "OrderFulfillment"
-         SET "codVerificationStatus" = $1
-         WHERE "id" = $2 AND "companyId" = $3
-         RETURNING *`,
-        [status, orderId, companyId]
-      );
-      if (res.rows.length === 0) {
-        return NextResponse.json({ error: "Order not found" }, { status: 404 });
-      }
-      order = res.rows[0];
-    } finally {
-      await client.end();
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, order });

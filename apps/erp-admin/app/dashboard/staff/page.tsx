@@ -25,6 +25,9 @@ interface User {
   role: "SUPERADMIN" | "TENANTADMIN" | "STAFF";
   isActive: boolean;
   createdAt: string;
+  updatedAt?: string;
+  passwordChangedAt?: string;
+  statusChangedAt?: string;
 }
 
 export default function StaffPage() {
@@ -315,6 +318,7 @@ function StaffContent() {
                     <th className="py-3 px-6">Staff Member</th>
                     <th className="py-3 px-6">Role</th>
                     <th className="py-3 px-6">Status</th>
+                    <th className="py-3 px-6">Security Tracking</th>
                     <th className="py-3 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
@@ -343,6 +347,26 @@ function StaffContent() {
                           }`}></span>
                           {member.isActive ? "Active" : "Disabled"}
                         </span>
+                      </td>
+                      <td className="py-3.5 px-6 text-xs text-gray-500 space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-gray-700">Pwd Reset:</span>{" "}
+                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                            {member.passwordChangedAt ? new Date(member.passwordChangedAt).toLocaleString() : "Never"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-gray-700">Status Changed:</span>{" "}
+                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                            {member.statusChangedAt ? new Date(member.statusChangedAt).toLocaleString() : "Never"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-gray-700">Modified:</span>{" "}
+                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                            {member.updatedAt ? new Date(member.updatedAt).toLocaleString() : "Never"}
+                          </span>
+                        </div>
                       </td>
                       <td className="py-3.5 px-6 text-right">
                         <div className="flex justify-end gap-2">

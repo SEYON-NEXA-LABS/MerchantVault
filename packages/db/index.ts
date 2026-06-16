@@ -8,11 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn("Warning: Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) are not defined.");
 }
 
-export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null as any;
-
-// Bypasses RLS for server-side superadmin/seeding operations
+// Bypasses RLS for server-side operations
 export const supabaseAdmin = supabaseUrl && supabaseServiceKey && supabaseServiceKey !== "your_supabase_service_role_key_here"
   ? createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -20,4 +16,8 @@ export const supabaseAdmin = supabaseUrl && supabaseServiceKey && supabaseServic
         autoRefreshToken: false
       }
     })
-  : supabase;
+  : (supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null as any);
+
+// Use the admin client (bypassing RLS) by default on the server, fallback to the anon client
+export const supabase = supabaseAdmin;
+

@@ -13,6 +13,9 @@ export async function GET() {
         isActive, 
         role, 
         createdAt, 
+        updatedAt,
+        passwordChangedAt,
+        statusChangedAt,
         Company (name)
       `)
       .order("username", { ascending: true });
@@ -47,6 +50,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: `Username "${username}" is already taken.` }, { status: 400 });
       }
 
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("User")
         .insert({
@@ -55,7 +59,10 @@ export async function POST(req: Request) {
           email: email.trim(),
           password,
           role,
-          isActive: isActive !== undefined ? !!isActive : true
+          isActive: isActive !== undefined ? !!isActive : true,
+          updatedAt: now,
+          passwordChangedAt: now,
+          statusChangedAt: now
         })
         .select()
         .single();
@@ -69,9 +76,14 @@ export async function POST(req: Request) {
     }
 
     if (action === "TOGGLE_ACTIVE") {
+      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("User")
-        .update({ isActive: !!isActive })
+        .update({ 
+          isActive: !!isActive,
+          statusChangedAt: now,
+          updatedAt: now
+        })
         .eq("id", userId)
         .select()
         .single();
@@ -85,7 +97,11 @@ export async function POST(req: Request) {
       if (role) updates.role = role;
       if (email) updates.email = email;
       if (username) updates.username = username;
-      if (password) updates.password = password;
+      if (password) {
+        updates.password = password;
+        updates.passwordChangedAt = new Date().toISOString();
+      }
+      updates.updatedAt = new Date().toISOString();
 
       const { data, error } = await supabase
         .from("User")

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@repo/db";
+import { getContextCompanyId } from "@/lib/session";
 
 // Mock customer names and data for simulation
 const MOCK_NAMES = [
@@ -22,22 +23,41 @@ const MOCK_PHONES = [
 
 export async function GET() {
   try {
-    // Upsert company using supabaseAdmin
-    let { data: company, error: compErr } = await supabaseAdmin
-      .from("Company")
-      .select("id")
-      .eq("code", "syn")
-      .maybeSingle();
+    let companyId = null;
+    try {
+      companyId = await getContextCompanyId();
+    } catch (_) {}
 
-    if (compErr || !company) {
-      const { data: newComp, error: createErr } = await supabaseAdmin
+    let company = null;
+    if (companyId) {
+      const { data: comp } = await supabaseAdmin
         .from("Company")
-        .insert({ name: "SEYON", code: "syn" })
         .select("id")
-        .single();
-      
-      if (createErr) throw createErr;
-      company = newComp;
+        .eq("id", companyId)
+        .maybeSingle();
+      company = comp;
+    }
+
+    if (!company) {
+      // Fallback to 'syn'
+      let { data: comp, error: compErr } = await supabaseAdmin
+        .from("Company")
+        .select("id")
+        .eq("code", "syn")
+        .maybeSingle();
+
+      if (compErr || !comp) {
+        const { data: newComp, error: createErr } = await supabaseAdmin
+          .from("Company")
+          .insert({ name: "SEYON", code: "syn" })
+          .select("id")
+          .single();
+        
+        if (createErr) throw createErr;
+        company = newComp;
+      } else {
+        company = comp;
+      }
     }
 
     // Resolve default warehouse
@@ -62,7 +82,7 @@ export async function GET() {
     // Generate random customer details
     const customerName = MOCK_NAMES[Math.floor(Math.random() * MOCK_NAMES.length)];
     const customerPhone = MOCK_PHONES[Math.floor(Math.random() * MOCK_PHONES.length)];
-    const customerEmail = `${customerName.toLowerCase().replace(" ", "")}@mock.com`;
+    const customerEmail = `${customerName.toLowerCase().replace(" ", "")}-${Math.floor(1000 + Math.random() * 9000)}@mock.com`;
 
     // Upsert Customer
     let { data: customer, error: custErr } = await supabaseAdmin

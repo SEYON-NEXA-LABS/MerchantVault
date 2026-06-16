@@ -96,11 +96,12 @@ export default function DashboardLayout({
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isOffline, setIsOffline] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [mounted, setMounted] = useState(false);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const getStorefrontUrl = () => {
-    if (typeof window !== "undefined") {
+    if (mounted && typeof window !== "undefined") {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
       const base = isLocal ? "http://localhost:3001" : "https://fabricvault-storefront.vercel.app";
       return company?.id ? `${base}/?companyId=${company.id}` : base;
@@ -110,6 +111,7 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
+    setMounted(true);
     setIsOffline(!navigator.onLine);
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
@@ -322,7 +324,7 @@ export default function DashboardLayout({
 
   const currentUser = sessionUser || userProfileInfo[userRole];
 
-  if (isBootstrapping) {
+  if (!mounted || isBootstrapping) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-3">

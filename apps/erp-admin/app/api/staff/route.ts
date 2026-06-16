@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data: users, error: userErr } = await supabase
       .from("User")
-      .select("id, companyId, username, email, role, isActive, createdAt, updatedAt")
+      .select("id, companyId, username, email, role, isActive, createdAt, updatedAt, passwordChangedAt, statusChangedAt")
       .eq("companyId", companyId)
       .order("createdAt", { ascending: false });
 
@@ -58,9 +58,16 @@ export async function POST(request: Request) {
 
         updateData.username = username;
       }
-      if (password !== undefined && password !== "") updateData.password = password;
+      if (password !== undefined && password !== "") {
+        updateData.password = password;
+        updateData.passwordChangedAt = new Date().toISOString();
+      }
       if (role !== undefined) updateData.role = role;
-      if (isActive !== undefined) updateData.isActive = !!isActive;
+      if (isActive !== undefined) {
+        updateData.isActive = !!isActive;
+        updateData.statusChangedAt = new Date().toISOString();
+      }
+      updateData.updatedAt = new Date().toISOString();
 
       const { data: updatedUser, error: updateErr } = await supabase
         .from("User")
@@ -95,6 +102,7 @@ export async function POST(request: Request) {
       }
 
       const email = `${username.toLowerCase()}@seyon.local`;
+      const now = new Date().toISOString();
 
       const { data: newUser, error: createErr } = await supabase
         .from("User")
@@ -104,7 +112,10 @@ export async function POST(request: Request) {
           password,
           email,
           role,
-          isActive: true
+          isActive: true,
+          updatedAt: now,
+          passwordChangedAt: now,
+          statusChangedAt: now
         })
         .select()
         .single();

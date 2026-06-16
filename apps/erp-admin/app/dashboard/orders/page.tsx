@@ -44,6 +44,9 @@ interface Order {
   rtoRiskScore?: string | null;
   shippingCost?: number | null;
   customerShippingFee?: number | null;
+  paymentStatus?: string;
+  customerId?: string | null;
+  customerEmail?: string;
 }
 
 interface Warehouse {
@@ -66,14 +69,34 @@ interface StockTransfer {
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [activeTab, setActiveTab] = useState<"ACTIVE" | "DELIVERED" | "RETURNS">("ACTIVE");
+  
+  // Tab-specific cached lists
+  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
+  const [deliveredOrders, setDeliveredOrders] = useState<Order[]>([]);
+  const [returnedOrders, setReturnedOrders] = useState<Order[]>([]);
+  
+  const [tabCounts, setTabCounts] = useState({ active: 0, delivered: 0, returns: 0 });
   const [loading, setLoading] = useState(true);
   const [simulating, setSimulating] = useState(false);
+  const [simulatingRefund, setSimulatingRefund] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  
+  // Multiple filters
+  const [codFilter, setCodFilter] = useState("All");
+  const [courierFilter, setCourierFilter] = useState("All");
+  const [riskFilter, setRiskFilter] = useState("All");
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
   
   // Selected Order for detail view / fulfillment
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Reset page when filters or tab change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, codFilter, courierFilter, riskFilter, activeTab]);
   
   // Fulfillment Wizard state
   const [isFulfilling, setIsFulfilling] = useState(false);
@@ -127,15 +150,30 @@ export default function OrdersPage() {
     }
   };
 
-  const fetchOrders = async () => {
+  const fetchCounts = async () => {
     try {
-      const res = await fetch("/api/orders");
+      const res = await fetch("/api/orders/counts");
+      const data = await res.json();
+      if (data && typeof data.active === "number") {
+        setTabCounts(data);
+      }
+    } catch (err) {
+      console.error("Failed to load order counts", err);
+    }
+  };
+
+  const fetchOrders = async (type: "active" | "delivered" | "returns") => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/orders?type=${type}`);
       const data = await res.json();
       if (Array.isArray(data)) {
-        setOrders(data);
+        if (type === "active") setActiveOrders(data);
+        else if (type === "delivered") setDeliveredOrders(data);
+        else if (type === "returns") setReturnedOrders(data);
       }
     } catch (error) {
-      toast.error("Failed to load orders");
+      toast.error(`Failed to load ${type} orders`);
     } finally {
       setLoading(false);
     }
@@ -156,20 +194,37 @@ export default function OrdersPage() {
     }
   };
 
+  const refreshCurrentTab = (tab: "ACTIVE" | "DELIVERED" | "RETURNS") => {
+    fetchCounts();
+    if (tab === "ACTIVE") fetchOrders("active");
+    else if (tab === "DELIVERED") fetchOrders("delivered");
+    else if (tab === "RETURNS") fetchOrders("returns");
+  };
+
   useEffect(() => {
     loadConfig();
-    fetchOrders();
+    fetchCounts();
+    fetchOrders("active");
     fetchTransfers();
   }, []);
 
-  const simulateOrder = async () => {
+  const handleTabChange = (newTab: "ACTIVE" | "DELIVERED" | "RETURNS") => {
+    setActiveTab(newTab);
+    if (newTab === "ACTIVE" && activeOrders.length === 0) {
+      fetchOrders("active");
+    } else if (newTab === "DELIVERED" && deliveredOrders.length === 0) {
+      fetchOrders("delivered");
+    } else if (newTab === "RETURNS" && returnedOrders.length === 0) {
+      fetchOrders("returns");
+    }
+  };  const simulateOrder = async () => {
     setSimulating(true);
     try {
       const res = await fetch("/api/webhooks/shopify/orders-create");
       const data = await res.json();
       if (data.success) {
         toast.success(`New Shopify order ${data.order.orderNumber} ingested!`);
-        fetchOrders();
+        refreshCurrentTab(activeTab);
       } else {
         toast.error("Failed to ingest mock order");
       }
@@ -177,6 +232,24 @@ export default function OrdersPage() {
       toast.error("Error simulating order webhook");
     } finally {
       setSimulating(false);
+    }
+  };
+
+  const simulateRefund = async () => {
+    setSimulatingRefund(true);
+    try {
+      const res = await fetch("/api/webhooks/shopify/refunds-create");
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message || "Shopify Return Simulated! Inventory restocked.");
+        refreshCurrentTab(activeTab);
+      } else {
+        toast.error(data.error || "Failed to simulate Shopify refund");
+      }
+    } catch (err) {
+      toast.error("Error simulating Shopify refund");
+    } finally {
+      setSimulatingRefund(false);
     }
   };
 
@@ -193,7 +266,7 @@ export default function OrdersPage() {
         if (selectedOrder?.id === orderId) {
           setSelectedOrder(prev => prev ? { ...prev, codVerificationStatus: status } : null);
         }
-        fetchOrders();
+        refreshCurrentTab(activeTab);
       } else {
         toast.error(data.error || "Failed to update COD verification");
       }
@@ -292,7 +365,7 @@ export default function OrdersPage() {
         setScannedSku("");
         setAwbNumber("");
         setSelectedOrder(data.order);
-        fetchOrders();
+        refreshCurrentTab(activeTab);
       } else {
         toast.error(data.error || "Fulfillment update failed");
       }
@@ -300,7 +373,6 @@ export default function OrdersPage() {
       toast.error("Network error during fulfillment");
     }
   };
-
   // Submit Stock Transfer request between warehouses
   const handleInitiateTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -391,16 +463,58 @@ export default function OrdersPage() {
     setShowSplitAlert(false);
   };
 
-  const filteredOrders = orders.filter(ord => {
+  const getOrdersForActiveTab = () => {
+    if (activeTab === "ACTIVE") return activeOrders;
+    if (activeTab === "DELIVERED") return deliveredOrders;
+    if (activeTab === "RETURNS") return returnedOrders;
+    return [];
+  };
+
+  const filteredOrders = getOrdersForActiveTab().filter(ord => {
     const matchesSearch = 
       ord.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ord.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (ord.awbNumber && ord.awbNumber.toLowerCase().includes(searchTerm.toLowerCase()));
       
-    const matchesStatus = statusFilter === "All" || ord.deliveryStatus === statusFilter;
+    const matchesCod = codFilter === "All" || (ord.codVerificationStatus || "PENDING") === codFilter;
+
+    let matchesCourier = true;
+    if (courierFilter !== "All") {
+      if (courierFilter === "UNASSIGNED") {
+        matchesCourier = !ord.courierPartner;
+      } else {
+        matchesCourier = ord.courierPartner?.toLowerCase() === courierFilter.toLowerCase();
+      }
+    }
+
+    let matchesRisk = true;
+    if (riskFilter !== "All") {
+      const address = ord.shippingAddressLine1 || "";
+      const isShortAddress = address.length < 15;
+      const isBadZip = ord.shippingZip && ord.shippingZip.trim().length !== 6;
+      const codStatus = ord.codVerificationStatus || "PENDING";
+      let calculatedRisk = "LOW";
+      if (codStatus === "CANCELLED") {
+        calculatedRisk = "CRITICAL";
+      } else if (isShortAddress || isBadZip || codStatus === "UNREACHABLE") {
+        calculatedRisk = "HIGH";
+      } else if (codStatus === "PENDING") {
+        calculatedRisk = "MEDIUM";
+      }
+      
+      const riskScore = (ord.rtoRiskScore || calculatedRisk).toUpperCase();
+      matchesRisk = riskScore === riskFilter.toUpperCase();
+    }
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesCod && matchesCourier && matchesRisk;
   });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
@@ -428,6 +542,14 @@ export default function OrdersPage() {
             <Sparkles className="w-4 h-4" />
             {simulating ? "Simulating..." : "Simulate Shopify Order (3 units)"}
           </button>
+          <button 
+            onClick={simulateRefund}
+            disabled={simulatingRefund}
+            className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${simulatingRefund ? "animate-spin" : ""}`} />
+            {simulatingRefund ? "Refunding..." : "Simulate Shopify Return"}
+          </button>
         </div>
       </div>
 
@@ -435,33 +557,125 @@ export default function OrdersPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Orders Table Column */}
-        <div className="lg:col-span-8 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+        <div className="lg:col-span-8 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">          {/* Tab Navigation */}
+          <div className="flex border-b border-gray-200 bg-gray-50/50">
+            <button
+              onClick={() => handleTabChange("ACTIVE")}
+              className={`flex-1 py-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 ${
+                activeTab === "ACTIVE"
+                  ? "border-indigo-600 text-indigo-600 bg-white font-extrabold"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Active Orders
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === "ACTIVE" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
+              }`}>
+                {tabCounts.active}
+              </span>
+            </button>
+            <button
+              onClick={() => handleTabChange("DELIVERED")}
+              className={`flex-1 py-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 ${
+                activeTab === "DELIVERED"
+                  ? "border-indigo-600 text-indigo-600 bg-white font-extrabold"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Delivered
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === "DELIVERED" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
+              }`}>
+                {tabCounts.delivered}
+              </span>
+            </button>
+            <button
+              onClick={() => handleTabChange("RETURNS")}
+              className={`flex-1 py-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center justify-center gap-2 ${
+                activeTab === "RETURNS"
+                  ? "border-indigo-600 text-indigo-600 bg-white font-extrabold"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Returns & RTO
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                activeTab === "RETURNS" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
+              }`}>
+                {tabCounts.returns}
+              </span>
+            </button>
+          </div>
+
           {/* Filter Toolbar */}
-          <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search orders by Order #, Customer Name, or AWB..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-400" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none"
+          <div className="p-5 border-b border-gray-100 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search orders by Order #, Customer Name, or AWB..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                />
+              </div>
+              <button
+                onClick={() => refreshCurrentTab(activeTab)}
+                className="p-2 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center gap-1.5 text-xs font-semibold"
+                title="Refresh current tab"
               >
-                <option value="All">All Statuses</option>
-                <option value="PROCESSING">Processing</option>
-                <option value="SHIPPED">Shipped</option>
-                <option value="DELIVERED">Delivered</option>
-                <option value="RTO_INITIATED">RTO Initiated</option>
-                <option value="RTO_RECEIVED">RTO Received</option>
-              </select>
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                <span>Refresh</span>
+              </button>
+            </div>
+
+            {/* Dropdown Filters Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">COD Verification</label>
+                <select
+                  value={codFilter}
+                  onChange={(e) => setCodFilter(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none w-full"
+                >
+                  <option value="All">All Verification Statuses</option>
+                  <option value="VERIFIED">Verified</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="UNREACHABLE">Unreachable</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Courier Partner</label>
+                <select
+                  value={courierFilter}
+                  onChange={(e) => setCourierFilter(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none w-full"
+                >
+                  <option value="All">All Couriers</option>
+                  <option value="Delhivery">Delhivery</option>
+                  <option value="Bluedart">Bluedart</option>
+                  <option value="FedEx">FedEx</option>
+                  <option value="DTDC">DTDC</option>
+                  <option value="UNASSIGNED">Unassigned</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">RTO Risk Score</label>
+                <select
+                  value={riskFilter}
+                  onChange={(e) => setRiskFilter(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none w-full"
+                >
+                  <option value="All">All Risk Levels</option>
+                  <option value="LOW">Low Risk</option>
+                  <option value="MEDIUM">Medium Risk</option>
+                  <option value="HIGH">High Risk</option>
+                  <option value="CRITICAL">Critical Risk</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -488,7 +702,7 @@ export default function OrdersPage() {
                     <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">No orders found. Click "Simulate Shopify Order" to ingest mock order data.</td>
                   </tr>
                 ) : (
-                  filteredOrders.map(ord => {
+                  paginatedOrders.map(ord => {
                     const active = selectedOrder?.id === ord.id;
                     return (
                       <tr 
@@ -503,15 +717,17 @@ export default function OrdersPage() {
                       >
                         <td className="py-3.5 px-5">
                           <p className="font-bold text-gray-900">{ord.orderNumber}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
-                          <div className="mt-1 flex flex-wrap gap-1.5">
+                          <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {(() => {
                               const address = ord.shippingAddressLine1 || "";
                               const isShortAddress = address.length < 15;
                               const isBadZip = ord.shippingZip && ord.shippingZip.trim().length !== 6;
                               const codStatus = ord.codVerificationStatus || "PENDING";
                               let risk = { label: "LOW RISK", class: "bg-emerald-50 text-emerald-700 border border-emerald-250/30" };
-                              if (codStatus === "CANCELLED") {
+                              
+                              if (ord.paymentStatus === "PAID") {
+                                risk = { label: "LOW RISK", class: "bg-emerald-55 text-emerald-850 border border-emerald-250" };
+                              } else if (codStatus === "CANCELLED") {
                                 risk = { label: "CRITICAL", class: "bg-red-100 text-red-800 border border-red-300 font-extrabold" };
                               } else if (isShortAddress || isBadZip || codStatus === "UNREACHABLE") {
                                 risk = { label: "HIGH RISK", class: "bg-rose-50 text-rose-700 border border-rose-250/30" };
@@ -525,12 +741,13 @@ export default function OrdersPage() {
                               );
                             })()}
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                              ord.paymentStatus === "PAID" ? "bg-indigo-50 text-indigo-750 border-indigo-200" :
                               ord.codVerificationStatus === "VERIFIED" ? "bg-emerald-50 text-emerald-700 border-emerald-250/30" :
                               ord.codVerificationStatus === "UNREACHABLE" ? "bg-rose-50 text-rose-700 border-rose-250/30" :
                               ord.codVerificationStatus === "CANCELLED" ? "bg-red-50 text-red-700 border-red-250/30" :
                               "bg-slate-50 text-slate-600 border-slate-200"
                             }`}>
-                              COD: {ord.codVerificationStatus || "PENDING"}
+                              {ord.paymentStatus === "PAID" ? "PREPAID" : `COD: ${ord.codVerificationStatus || "PENDING"}`}
                             </span>
                           </div>
                         </td>
@@ -569,6 +786,50 @@ export default function OrdersPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-4 border-t border-gray-150 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
+              <p className="text-xs text-gray-500 font-medium font-sans">
+                Showing <span className="font-bold text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> to{" "}
+                <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, filteredOrders.length)}</span> of{" "}
+                <span className="font-bold text-gray-900">{filteredOrders.length}</span> orders
+              </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-lg text-xs shadow-sm transition-all disabled:opacity-50 select-none cursor-pointer"
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pageNum = idx + 1;
+                  const active = pageNum === currentPage;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all flex items-center justify-center select-none cursor-pointer ${
+                        active 
+                          ? "bg-indigo-650 text-white shadow-sm" 
+                          : "bg-white border border-gray-200 hover:bg-gray-50 text-gray-700"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-lg text-xs shadow-sm transition-all disabled:opacity-50 select-none cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Inter-Warehouse Transfers Audit Log */}
           <div className="border-t border-gray-200 p-5 space-y-4">
@@ -682,24 +943,143 @@ export default function OrdersPage() {
                     <p className="font-mono text-gray-900 mt-0.5">{selectedOrder.totalWeightKg} kg (Standard Parcel Box)</p>
                   </div>
 
-                  {selectedOrder.awbNumber && (
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg space-y-2">
-                      <p className="font-semibold text-gray-900 flex items-center gap-1.5">
-                        <Truck className="w-3.5 h-3.5 text-indigo-600" />
-                        Courier Dispatched
-                      </p>
-                      <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                  {/* Visual Tracking Timeline */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
+                    <span className="text-gray-900 font-bold text-xs uppercase tracking-wide flex items-center gap-1.5 border-b border-gray-200 pb-2">
+                      <Truck className="w-4 h-4 text-indigo-600" />
+                      Logistics Tracking Timeline
+                    </span>
+
+                    <div className="relative pl-6 border-l-2 border-indigo-200 space-y-5 text-xs text-gray-700 ml-2">
+                      {/* Step 1: Order Ingested */}
+                      <div className="relative">
+                        <span className="absolute -left-[31px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-white ring-4 ring-white">
+                          <CheckCircle2 className="w-3 h-3" />
+                        </span>
                         <div>
-                          <span className="text-gray-400">Carrier:</span>
-                          <p className="text-gray-800 font-semibold">{selectedOrder.courierPartner}</p>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">AWB Number:</span>
-                          <p className="text-gray-800 font-semibold">{selectedOrder.awbNumber}</p>
+                          <p className="font-bold text-gray-900">Order Placed & Ingested</p>
+                          <p className="text-[10px] text-gray-500">Shopify API webhook synced successfully.</p>
+                          <p className="text-[9px] text-gray-400 font-mono mt-0.5">ID: {selectedOrder.shopifyOrderId}</p>
                         </div>
                       </div>
+
+                      {/* Step 2: COD/Prepaid Verification */}
+                      <div className="relative">
+                        {(() => {
+                          const isPrepaid = selectedOrder.paymentStatus === "PAID";
+                          const codStatus = selectedOrder.codVerificationStatus || "PENDING";
+                          let iconColor = "bg-amber-400";
+                          let title = "COD Verification: Pending";
+                          let subtitle = "Waiting for customer call validation.";
+                          
+                          if (isPrepaid) {
+                            iconColor = "bg-emerald-500";
+                            title = "Payment Confirmed (Prepaid)";
+                            subtitle = "Authorized via gateway. COD confirmation bypassed.";
+                          } else if (codStatus === "VERIFIED") {
+                            iconColor = "bg-emerald-500";
+                            title = "COD Call Verified";
+                            subtitle = "Order confirmed for logistics shipment.";
+                          } else if (codStatus === "UNREACHABLE") {
+                            iconColor = "bg-rose-500";
+                            title = "COD Unreachable";
+                            subtitle = "Attempted validation, customer unreachable.";
+                          } else if (codStatus === "CANCELLED") {
+                            iconColor = "bg-red-650";
+                            title = "Order Cancelled";
+                            subtitle = "Cancelled by operator due to failed confirmation.";
+                          }
+                          return (
+                            <>
+                              <span className={`absolute -left-[31px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white ring-4 ring-white ${iconColor}`}>
+                                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              </span>
+                              <div>
+                                <p className="font-bold text-gray-900">{title}</p>
+                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Step 3: Packing & Verification */}
+                      <div className="relative">
+                        {(() => {
+                          const isDone = selectedOrder.deliveryStatus !== "PROCESSING";
+                          let iconColor = isDone ? "bg-emerald-500" : "bg-blue-500";
+                          let title = isDone ? "Garments Checked & Packed" : "Picking & SKU Verification";
+                          let subtitle = isDone ? "Barcode scan check passed." : "Awaiting warehouse operator scan.";
+                          return (
+                            <>
+                              <span className={`absolute -left-[31px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white ring-4 ring-white ${iconColor}`}>
+                                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              </span>
+                              <div>
+                                <p className="font-bold text-gray-900">{title}</p>
+                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Step 4: Dispatch */}
+                      <div className="relative">
+                        {(() => {
+                          const isDispatched = selectedOrder.awbNumber;
+                          let iconColor = isDispatched ? "bg-emerald-500" : "bg-gray-300";
+                          let title = isDispatched ? `Dispatched via ${selectedOrder.courierPartner}` : "Awaiting AWB Generation";
+                          let subtitle = isDispatched ? `AWB: ${selectedOrder.awbNumber}` : "AWB tracking code unassigned.";
+                          return (
+                            <>
+                              <span className={`absolute -left-[31px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white ring-4 ring-white ${iconColor}`}>
+                                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              </span>
+                              <div>
+                                <p className="font-bold text-gray-900">{title}</p>
+                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Step 5: Final Delivery or Return/RTO */}
+                      <div className="relative">
+                        {(() => {
+                          const status = selectedOrder.deliveryStatus;
+                          let iconColor = "bg-gray-300";
+                          let title = "Transit & Delivery";
+                          let subtitle = "Package in transit to customer address.";
+                          if (status === "DELIVERED") {
+                            iconColor = "bg-emerald-650";
+                            title = "Delivered successfully";
+                            subtitle = "Delivered to buyer, Shopify order closed.";
+                          } else if (status === "RTO_INITIATED") {
+                            iconColor = "bg-amber-500";
+                            title = "RTO Initiated";
+                            subtitle = "Undelivered package returning to origin.";
+                          } else if (status === "RTO_RECEIVED") {
+                            iconColor = "bg-rose-500";
+                            title = "RTO Received (Inventory Restocked)";
+                            subtitle = "Package received at warehouse. Shelf counts incremented (+3 units).";
+                          }
+                          return (
+                            <>
+                              <span className={`absolute -left-[31px] top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-white ring-4 ring-white ${iconColor}`}>
+                                <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              </span>
+                              <div>
+                                <p className="font-bold text-gray-900">{title}</p>
+                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 {/* RTO Risk & COD Verification Panel */}
@@ -736,57 +1116,80 @@ export default function OrdersPage() {
                   <div className="text-[11px] text-gray-655 space-y-1 bg-white p-2.5 rounded-lg border border-gray-150">
                     <p className="font-semibold text-gray-700">Risk Assessment Analysis:</p>
                     <ul className="list-disc list-inside space-y-0.5 text-gray-600">
-                      <li>Payment Method: <span className="font-bold text-slate-800">Cash on Delivery (COD)</span></li>
+                      <li>Payment Method: <span className="font-bold text-slate-800">{selectedOrder.paymentStatus === "PAID" ? "Prepaid (Card/UPI)" : "Cash on Delivery (COD)"}</span></li>
                       {(selectedOrder.shippingAddressLine1 || "").length < 15 && (
                         <li className="text-rose-600 font-medium">⚠️ Short address details (High risk of delivery fail)</li>
                       )}
                       {(selectedOrder.shippingZip || "").trim().length !== 6 && (
                         <li className="text-rose-600 font-medium">⚠️ Zip code format is invalid (Expected 6 digits)</li>
                       )}
-                      {selectedOrder.codVerificationStatus === "UNREACHABLE" && (
+                      {(() => {
+                        const email = selectedOrder.customerEmail || "";
+                        const isValidEmail = email && email.includes("@") && email.includes(".");
+                        return !isValidEmail && (
+                          <li className="text-rose-600 font-medium">⚠️ Invalid or missing email address</li>
+                        );
+                      })()}
+                      {(() => {
+                        const cleanPhone = (selectedOrder.customerPhone || "").replace(/\D/g, "");
+                        const isValidPhone = /^(91|0)?[6-9]\d{9}$/.test(cleanPhone);
+                        return !isValidPhone && (
+                          <li className="text-rose-600 font-medium">⚠️ Invalid phone format (Expected 10-digit Indian number)</li>
+                        );
+                      })()}
+                      {selectedOrder.paymentStatus !== "PAID" && selectedOrder.codVerificationStatus === "UNREACHABLE" && (
                         <li className="text-amber-600 font-medium">⚠️ Customer unreachable during verification attempts</li>
                       )}
-                      {selectedOrder.codVerificationStatus === "VERIFIED" && (
+                      {selectedOrder.paymentStatus !== "PAID" && selectedOrder.codVerificationStatus === "VERIFIED" && (
                         <li className="text-emerald-600 font-medium">✅ Call verified with customer successfully</li>
+                      )}
+                      {selectedOrder.paymentStatus === "PAID" && (
+                        <li className="text-emerald-600 font-medium font-semibold">✅ Order fully prepaid; low RTO risk</li>
                       )}
                     </ul>
                   </div>
 
                   {/* Verification Actions */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">COD Call Log Verification</span>
-                    <div className="grid grid-cols-3 gap-2">
-                      <button
-                        onClick={() => handleCodVerify(selectedOrder.id, "VERIFIED")}
-                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
-                          selectedOrder.codVerificationStatus === "VERIFIED"
-                            ? "bg-emerald-600 text-white border-emerald-600"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-emerald-50/50"
-                        }`}
-                      >
-                        Verified
-                      </button>
-                      <button
-                        onClick={() => handleCodVerify(selectedOrder.id, "UNREACHABLE")}
-                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
-                          selectedOrder.codVerificationStatus === "UNREACHABLE"
-                            ? "bg-amber-600 text-white border-amber-600"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-amber-50/50"
-                        }`}
-                      >
-                        Unreachable
-                      </button>
-                      <button
-                        onClick={() => handleCodVerify(selectedOrder.id, "CANCELLED")}
-                        className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
-                          selectedOrder.codVerificationStatus === "CANCELLED"
-                            ? "bg-red-650 text-white border-red-650"
-                            : "bg-white text-gray-700 border-gray-200 hover:bg-red-50/50"
-                        }`}
-                      >
-                        Cancelled
-                      </button>
-                    </div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Call Log Verification</span>
+                    {selectedOrder.paymentStatus === "PAID" ? (
+                      <div className="bg-emerald-50 border border-emerald-150 rounded-lg p-3 text-[11px] text-emerald-800 font-semibold text-center leading-relaxed">
+                        Prepaid Order • Verification Bypassed
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={() => handleCodVerify(selectedOrder.id, "VERIFIED")}
+                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                            selectedOrder.codVerificationStatus === "VERIFIED"
+                              ? "bg-emerald-600 text-white border-emerald-600"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-emerald-50/50"
+                          }`}
+                        >
+                          Verified
+                        </button>
+                        <button
+                          onClick={() => handleCodVerify(selectedOrder.id, "UNREACHABLE")}
+                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                            selectedOrder.codVerificationStatus === "UNREACHABLE"
+                              ? "bg-amber-600 text-white border-amber-600"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-amber-50/50"
+                          }`}
+                        >
+                          Unreachable
+                        </button>
+                        <button
+                          onClick={() => handleCodVerify(selectedOrder.id, "CANCELLED")}
+                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                            selectedOrder.codVerificationStatus === "CANCELLED"
+                              ? "bg-red-650 text-white border-red-650"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-red-50/50"
+                          }`}
+                        >
+                          Cancelled
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -796,7 +1199,7 @@ export default function OrdersPage() {
                     {!isFulfilling ? (
                       <button
                         onClick={() => {
-                          if (selectedOrder.codVerificationStatus !== "VERIFIED") {
+                          if (selectedOrder.paymentStatus !== "PAID" && selectedOrder.codVerificationStatus !== "VERIFIED") {
                             if (!confirm("This order has NOT been COD call verified. Do you still want to proceed with packaging & logistics dispatch?")) {
                               return;
                             }

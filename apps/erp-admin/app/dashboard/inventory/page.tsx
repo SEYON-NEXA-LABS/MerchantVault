@@ -47,6 +47,7 @@ interface VariantStock {
   qty: number;
   thumbnailConfig?: string | null;
   price: number;
+  shopifyVariantId?: string | null;
 
   stocks: Array<{
     id: string;
@@ -99,6 +100,24 @@ export default function StockInventoryPage() {
   const [editVariantSku, setEditVariantSku] = useState<string | null>(null);
   const [editQty, setEditQty] = useState<number>(0);
   const [savingStock, setSavingStock] = useState(false);
+  const [syncingVariantId, setSyncingVariantId] = useState<string | null>(null);
+
+  // Manual Add/Edit Product Form states
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [productModalMode, setProductModalMode] = useState<"ADD" | "EDIT">("ADD");
+  const [savingProduct, setSavingProduct] = useState(false);
+  const [productForm, setProductForm] = useState({
+    title: "",
+    baseSku: "",
+    category: "Top",
+    targetGroup: "Adults",
+    ageRange: "",
+    safetyStockLimit: 5,
+    imageUrl: "",
+    price: 19.99,
+    warehouseId: ""
+  });
+  const [productVariants, setProductVariants] = useState<any[]>([]);
 
   // Price Edit states
   const [editPriceSku, setEditPriceSku] = useState<string | null>(null);
@@ -367,7 +386,8 @@ export default function StockInventoryPage() {
         qty: qty,
         thumbnailConfig: v.thumbnailConfig,
         price: v.price || 0,
-        stocks: v.stocks || []
+        stocks: v.stocks || [],
+        shopifyVariantId: v.shopifyVariantId
       });
     });
 
@@ -426,6 +446,211 @@ export default function StockInventoryPage() {
       toast.error("Failed to connect to stock update endpoint.");
     } finally {
       setSavingStock(false);
+    }
+  };
+
+  // Push variant to Shopify storefront
+  const handlePushToShopify = async (variantId: string, sku: string) => {
+    setSyncingVariantId(variantId);
+    try {
+      const res = await fetch("/api/inventory/push-shopify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ variantId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Successfully synced variant ${sku} with Shopify.`);
+        await loadData();
+      } else {
+        toast.error(data.error || "Failed to sync variant with Shopify.");
+      }
+    } catch (err) {
+      toast.error("Failed to connect to the Shopify sync endpoint.");
+    } finally {
+      setSyncingVariantId(null);
+    }
+  };
+
+  const handleOpenAddProduct = () => {
+    setProductModalMode("ADD");
+    setProductForm({
+      title: "",
+      baseSku: "",
+      category: "Top",
+      targetGroup: "Adults",
+      ageRange: "",
+      safetyStockLimit: 5,
+      imageUrl: "",
+      price: 19.99,
+      warehouseId: warehouses[0]?.id || ""
+    });
+    setProductVariants([
+      { size: "S", color: "Black", sku: "", price: 19.99, barcode: "", initialStock: 10 },
+      { size: "M", color: "Black", sku: "", price: 19.99, barcode: "", initialStock: 10 },
+      { size: "L", color: "Black", sku: "", price: 19.99, barcode: "", initialStock: 10 }
+    ]);
+    setShowProductModal(true);
+  };
+
+  const handleOpenEditProduct = (prod: ProductInventory) => {
+    setProductModalMode("EDIT");
+    let imgUrl = "";
+    if (prod.thumbnailConfig) {
+      try {
+        const parsed = JSON.parse(prod.thumbnailConfig);
+        imgUrl = parsed.images ? parsed.images.join(", ") : (parsed.imageUrl || "");
+      } catch (_) {}
+    }
+
+    setProductForm({
+      title: prod.name,
+      baseSku: prod.baseSku,
+      category: prod.category,
+      targetGroup: prod.targetGroup,
+      ageRange: prod.ageRange || "",
+      safetyStockLimit: prod.threshold,
+      imageUrl: imgUrl,
+      price: prod.variants[0]?.price || 0.0,
+      warehouseId: warehouses[0]?.id || ""
+    });
+    setProductVariants([]);
+    setShowProductModal(true);
+  };
+
+  const handleBaseSkuChange = (newBaseSku: string) => {
+    setProductForm(prev => ({ ...prev, baseSku: newBaseSku }));
+    setProductVariants(prev => prev.map(v => {
+      const sizePart = v.size ? v.size.toUpperCase() : "M";
+      const colorPart = v.color ? v.color.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase() : "BLK";
+      const basePart = newBaseSku.trim().toUpperCase();
+      return {
+        ...v,
+        sku: basePart ? `${basePart}-${colorPart}-${sizePart}` : ""
+      };
+    }));
+  };
+
+  const updateVariantValue = (index: number, key: string, value: any) => {
+    setProductVariants(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [key]: value };
+
+      if (key === "size" || key === "color") {
+        const sizePart = copy[index].size ? copy[index].size.toUpperCase() : "M";
+        const colorPart = copy[index].color ? copy[index].color.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase() : "BLK";
+        const basePart = productForm.baseSku ? productForm.baseSku.trim().toUpperCase() : "SKU";
+        copy[index].sku = `${basePart}-${colorPart}-${sizePart}`;
+      }
+
+      return copy;
+    });
+  };
+
+  const handleAddVariantRow = () => {
+    const defaultColor = productVariants[productVariants.length - 1]?.color || "Black";
+    const sizeOptions = ["S", "M", "L", "XL", "XXL"];
+    const lastSizeIndex = sizeOptions.indexOf(productVariants[productVariants.length - 1]?.size || "S");
+    const defaultSize = sizeOptions[(lastSizeIndex + 1) % sizeOptions.length];
+
+    const sizePart = defaultSize.toUpperCase();
+    const colorPart = defaultColor.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase();
+    const basePart = productForm.baseSku ? productForm.baseSku.trim().toUpperCase() : "SKU";
+    const generatedSku = basePart ? `${basePart}-${colorPart}-${sizePart}` : "";
+
+    setProductVariants(prev => [
+      ...prev,
+      {
+        size: defaultSize,
+        color: defaultColor,
+        sku: generatedSku,
+        price: productForm.price || 19.99,
+        barcode: "",
+        initialStock: 10
+      }
+    ]);
+  };
+
+  const handleRemoveVariantRow = (index: number) => {
+    setProductVariants(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productForm.title || !productForm.baseSku) {
+      toast.error("Product Title and Base SKU are required.");
+      return;
+    }
+
+    setSavingProduct(true);
+    try {
+      if (productModalMode === "ADD") {
+        if (productVariants.length === 0) {
+          toast.error("Please add at least one product variant.");
+          setSavingProduct(false);
+          return;
+        }
+
+        const invalidVariant = productVariants.some(v => !v.sku || !v.size || !v.color);
+        if (invalidVariant) {
+          toast.error("All variants must have a valid SKU, Size, and Color.");
+          setSavingProduct(false);
+          return;
+        }
+
+        const res = await fetch("/api/inventory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: productForm.title,
+            baseSku: productForm.baseSku,
+            category: productForm.category,
+            targetGroup: productForm.targetGroup,
+            ageRange: productForm.ageRange || null,
+            safetyStockLimit: productForm.safetyStockLimit,
+            imageUrl: productForm.imageUrl,
+            warehouseId: productForm.warehouseId,
+            variants: productVariants
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          toast.success(`Successfully created product "${productForm.title}" with ${data.variants?.length} variants.`);
+          setShowProductModal(false);
+          await loadData();
+        } else {
+          toast.error(data.error || "Failed to create product.");
+        }
+      } else {
+        const res = await fetch("/api/inventory", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            oldTitle: selectedProduct?.name,
+            title: productForm.title,
+            category: productForm.category,
+            targetGroup: productForm.targetGroup,
+            ageRange: productForm.ageRange || null,
+            safetyStockLimit: productForm.safetyStockLimit,
+            imageUrl: productForm.imageUrl,
+            variantsToAdd: productVariants.map(v => ({ ...v, warehouseId: productForm.warehouseId }))
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          toast.success(`Successfully updated product "${productForm.title}".`);
+          setShowProductModal(false);
+          await loadData();
+        } else {
+          toast.error(data.error || "Failed to update product.");
+        }
+      }
+    } catch (err) {
+      toast.error("Failed to connect to the product API endpoint.");
+    } finally {
+      setSavingProduct(false);
     }
   };
 
@@ -545,13 +770,19 @@ export default function StockInventoryPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
+            onClick={handleOpenAddProduct}
+            className="flex items-center gap-2 bg-indigo-650 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all cursor-pointer font-bold"
+          >
+            <Plus className="w-4 h-4" /> Add Product
+          </button>
+          <button 
             onClick={() => {
               const confirmOpen = window.confirm("WARNING: Bulk CSV imports are critical catalog updates and must be done under supervisor supervision. Do you want to proceed?");
               if (confirmOpen) {
                 setShowImportModal(true);
               }
             }}
-            className="flex items-center gap-2 bg-indigo-650 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all cursor-pointer"
+            className="flex items-center gap-2 bg-white hover:bg-gray-50 text-indigo-950 border border-gray-250 px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all cursor-pointer"
           >
             <Upload className="w-4 h-4" /> Import CSV
           </button>
@@ -872,16 +1103,25 @@ export default function StockInventoryPage() {
             <div className="space-y-6">
               {/* Product Card Info */}
               <div className="flex items-start justify-between border-b border-gray-100 pb-4">
-                <div className="space-y-1">
+                <div className="space-y-1 pr-2">
                   <h3 className="font-bold text-gray-950 text-sm">{selectedProduct.name}</h3>
                   <p className="text-xs text-gray-400">Category: {selectedProduct.category} | Age Group: {selectedProduct.targetGroup}{selectedProduct.ageRange ? ` (${selectedProduct.ageRange})` : ""} | SKU: {selectedProduct.baseSku} | Limit: {selectedProduct.threshold}</p>
                 </div>
-                <button 
-                  onClick={() => setSelectedProduct(null)}
-                  className="text-gray-400 hover:text-gray-650 p-1 rounded-full hover:bg-gray-50"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button
+                    onClick={() => handleOpenEditProduct(selectedProduct)}
+                    className="text-gray-500 hover:text-indigo-950 p-1 rounded-lg hover:bg-gray-100 border border-gray-200 bg-white transition-colors cursor-pointer animate-fade-in"
+                    title="Edit Product Details & Meta"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={() => setSelectedProduct(null)}
+                    className="text-gray-450 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Status Warning Banner */}
@@ -975,9 +1215,36 @@ export default function StockInventoryPage() {
                                 </button>
                               </div>
                             )}
+
+                            {/* Shopify Sync Indicator / Action */}
+                            {variant.shopifyVariantId && !variant.shopifyVariantId.startsWith("imported_") ? (
+                              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                                Synced
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => handlePushToShopify(variant.id, variant.sku)}
+                                disabled={syncingVariantId === variant.id}
+                                className="inline-flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200 transition-colors cursor-pointer"
+                                title="Push variant details to Shopify storefront catalog"
+                              >
+                                {syncingVariantId === variant.id ? (
+                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Upload className="w-3 h-3" />
+                                )}
+                                Push to Shopify
+                              </button>
+                            )}
                           </div>
-                          <p className="font-mono text-[10px] text-gray-400 flex items-center gap-1 mt-0.5">
+                          <p className="font-mono text-[10px] text-gray-400 flex items-center gap-1 mt-0.5 flex-wrap">
                             <Barcode className="w-3.5 h-3.5" /> {variant.sku}
+                            {variant.shopifyVariantId && !variant.shopifyVariantId.startsWith("imported_") && (
+                              <span className="text-[9px] text-gray-400 font-mono before:content-['|'] before:mx-1">
+                                ID: {variant.shopifyVariantId.split('/').pop()}
+                              </span>
+                            )}
                           </p>
                         </div>
 
@@ -1326,6 +1593,332 @@ export default function StockInventoryPage() {
                 Execute Bulk Import
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* MANUAL PRODUCT ADD/EDIT FORM MODAL */}
+      {showProductModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col max-h-[90vh]">
+            
+            {/* Modal Header */}
+            <div className="p-5 border-b border-gray-100 bg-slate-50/80 flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-gray-900 text-base flex items-center gap-2">
+                  <span>📦</span> {productModalMode === "ADD" ? "Create New Product Catalog Entry" : `Edit Product Catalog: ${selectedProduct?.name}`}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  {productModalMode === "ADD" 
+                    ? "Manually add a product and define multiple size/color stock variants."
+                    : "Update metadata details globally. Add new variants to this style."}
+                </p>
+              </div>
+              <button 
+                onClick={() => {
+                  setShowProductModal(false);
+                  setProductVariants([]);
+                }}
+                className="p-1 h-7 w-7 text-gray-400 hover:text-gray-900 border border-gray-200 hover:bg-gray-100 rounded-full flex items-center justify-center cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <form onSubmit={handleSaveProduct} className="flex-1 overflow-y-auto p-6 space-y-6">
+              
+              {/* Product Metadata Section */}
+              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-5 space-y-4">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Product Core Metadata</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Title / Name */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Product Title / Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={productForm.title}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g. Seyon Premium Hoodie"
+                      className="w-full bg-white border border-gray-250 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {/* Base SKU */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Base SKU Prefix *</label>
+                    <input
+                      type="text"
+                      required
+                      disabled={productModalMode === "EDIT"}
+                      value={productForm.baseSku}
+                      onChange={(e) => handleBaseSkuChange(e.target.value)}
+                      placeholder="e.g. SY-HD01"
+                      className="w-full bg-white disabled:bg-gray-100 border border-gray-250 rounded-lg p-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    />
+                    {productModalMode === "EDIT" && (
+                      <p className="text-[10px] text-amber-600">Base SKU prefix cannot be updated once variants are active.</p>
+                    )}
+                  </div>
+
+                  {/* Category */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Category *</label>
+                    <select
+                      value={productForm.category}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full bg-white border border-gray-255 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    >
+                      <option value="Top">Tops / Upperwear</option>
+                      <option value="Bottom">Bottoms / Lowerwear</option>
+                      <option value="Set">Set / Coordinate Outfit</option>
+                    </select>
+                  </div>
+
+                  {/* Target Demographic Group */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Target Demographic *</label>
+                    <select
+                      value={productForm.targetGroup}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, targetGroup: e.target.value }))}
+                      className="w-full bg-white border border-gray-255 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    >
+                      <option value="Newborn">Newborn (0-12M)</option>
+                      <option value="Infants">Infants (1-3Y)</option>
+                      <option value="Kids">Kids (4-12Y)</option>
+                      <option value="Teens">Teens (13-19Y)</option>
+                      <option value="Adults">Adults (20Y+)</option>
+                    </select>
+                  </div>
+
+                  {/* Age Range Specifics */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Specific Age Range (Optional)</label>
+                    <input
+                      type="text"
+                      value={productForm.ageRange}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, ageRange: e.target.value }))}
+                      placeholder="e.g. 6-12 Months, 10-12 Years"
+                      className="w-full bg-white border border-gray-250 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {/* Safety Stock Limit */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Safety Stock Alert Limit *</label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      value={productForm.safetyStockLimit}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, safetyStockLimit: Math.max(1, parseInt(e.target.value) || 5) }))}
+                      placeholder="5"
+                      className="w-full bg-white border border-gray-250 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {/* Image URLs */}
+                  <div className="space-y-1 md:col-span-2">
+                    <label className="text-xs font-semibold text-gray-600 block">Image URL (Comma-separated for multiple)</label>
+                    <input
+                      type="url"
+                      value={productForm.imageUrl}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, imageUrl: e.target.value }))}
+                      placeholder="https://images.unsplash.com/...jpg"
+                      className="w-full bg-white border border-gray-255 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Warehouse Inventory Seeding Settings */}
+              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-5 space-y-4">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Initial Stock Seeding Warehouse Context</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-gray-600 block">Select Target Warehouse Facility</label>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                      <select
+                        value={productForm.warehouseId}
+                        onChange={(e) => setProductForm(prev => ({ ...prev, warehouseId: e.target.value }))}
+                        className="bg-white border border-gray-255 rounded-lg py-1.5 px-3 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                      >
+                        {warehouses.map((wh) => (
+                          <option key={wh.id} value={wh.id}>
+                            {wh.name} ({wh.code})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <p className="text-[10px] text-gray-400">
+                      {productModalMode === "ADD" 
+                        ? "If initial stock quantities are entered in the table below, they will be seeded directly inside this warehouse."
+                        : "If initial stock quantities are entered for new variants below, they will be seeded inside this warehouse."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Variants Setup Section */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    {productModalMode === "ADD" ? "Product Variants & Combinations Matrix" : "Add New Variants to Style"}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={handleAddVariantRow}
+                    className="flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] px-2.5 py-1 rounded transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Variant Row
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto border border-gray-200 rounded-xl bg-white">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-gray-200 text-gray-550 font-bold">
+                        <th className="p-3">Size</th>
+                        <th className="p-3">Color</th>
+                        <th className="p-3">Generated SKU</th>
+                        <th className="p-3 text-right">Price ($)</th>
+                        <th className="p-3 text-center">Initial Stock</th>
+                        <th className="p-3">Custom Barcode (Optional)</th>
+                        <th className="p-3 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {productVariants.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="p-8 text-center text-gray-450 italic">
+                            {productModalMode === "ADD" 
+                              ? "No variants defined. Click 'Add Variant Row' to add combinations."
+                              : "No new variants staged. Define size/color combinations to append them."}
+                          </td>
+                        </tr>
+                      ) : (
+                        productVariants.map((v, index) => (
+                          <tr key={index} className="hover:bg-slate-50/50">
+                            {/* Size selection */}
+                            <td className="p-2">
+                              <select
+                                value={v.size}
+                                onChange={(e) => updateVariantValue(index, "size", e.target.value)}
+                                className="bg-white border border-gray-200 rounded-lg p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              >
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                              </select>
+                            </td>
+
+                            {/* Color */}
+                            <td className="p-2">
+                              <input
+                                type="text"
+                                required
+                                value={v.color}
+                                onChange={(e) => updateVariantValue(index, "color", e.target.value)}
+                                placeholder="e.g. Black, White"
+                                className="w-24 bg-white border border-gray-200 rounded-lg p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+
+                            {/* SKU */}
+                            <td className="p-2 font-mono">
+                              <input
+                                type="text"
+                                required
+                                value={v.sku}
+                                onChange={(e) => updateVariantValue(index, "sku", e.target.value)}
+                                placeholder="Auto Generated"
+                                className="w-40 bg-white border border-gray-200 rounded-lg p-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+
+                            {/* Price */}
+                            <td className="p-2 text-right">
+                              <input
+                                type="number"
+                                required
+                                step="0.01"
+                                min="0"
+                                value={v.price}
+                                onChange={(e) => updateVariantValue(index, "price", Math.max(0, parseFloat(e.target.value) || 0))}
+                                className="w-20 bg-white border border-gray-200 rounded-lg p-1.5 text-xs text-right font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+
+                            {/* Initial Stock */}
+                            <td className="p-2 text-center">
+                              <input
+                                type="number"
+                                min="0"
+                                value={v.initialStock}
+                                onChange={(e) => updateVariantValue(index, "initialStock", Math.max(0, parseInt(e.target.value) || 0))}
+                                className="w-16 bg-white border border-gray-200 rounded-lg p-1.5 text-xs text-center font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+
+                            {/* Barcode */}
+                            <td className="p-2">
+                              <input
+                                type="text"
+                                value={v.barcode}
+                                onChange={(e) => updateVariantValue(index, "barcode", e.target.value)}
+                                placeholder="Auto Barcode"
+                                className="w-32 bg-white border border-gray-200 rounded-lg p-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </td>
+
+                            {/* Remove row */}
+                            <td className="p-2 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveVariantRow(index)}
+                                className="p-1 h-6 w-6 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-full flex items-center justify-center mx-auto transition-colors cursor-pointer"
+                                title="Remove Variant Row"
+                              >
+                                ✕
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Form Actions Footer */}
+              <div className="pt-4 border-t border-slate-105 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProductModal(false);
+                    setProductVariants([]);
+                  }}
+                  className="px-4 py-2 bg-white border border-gray-255 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 text-xs transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProduct}
+                  className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {savingProduct && <RefreshCw className="w-3 h-3 animate-spin" />}
+                  {productModalMode === "ADD" ? "Create Product Style" : "Save Changes"}
+                </button>
+              </div>
+
+            </form>
           </div>
         </div>
       )}

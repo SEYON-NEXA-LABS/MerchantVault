@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 import {
   RefreshCw,
   CheckCircle2,
@@ -65,25 +66,41 @@ function ShopifySyncContent() {
     fetchSession();
   }, []);
 
-  const triggerSync = (moduleName: string) => {
+  const triggerSync = async (moduleName: string) => {
     if (syncing) return;
     setSyncing(moduleName);
     
-    setTimeout(() => {
-      const newId = `SYN-${Math.floor(Math.random() * 100) + 900}`;
-      const newLog: SyncLog = {
-        id: newId,
-        module: moduleName,
-        direction: moduleName === "Inventory Sync" ? "ERP → Shopify" : "Shopify → ERP",
-        records: Math.floor(Math.random() * 20) + 1,
-        status: Math.random() > 0.05 ? "Success" : "Warning",
-        duration: `${(Math.random() * 3 + 1).toFixed(1)}s`,
-        time: "Just now"
-      };
+    try {
+      const res = await fetch("/api/shopify/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ module: moduleName })
+      });
+      const data = await res.json();
       
-      setLogs(prev => [newLog, ...prev]);
+      if (data.success) {
+        toast.success(`Successfully completed sync for ${moduleName}!`);
+        if (data.log) {
+          setLogs(prev => [data.log, ...prev]);
+        }
+      } else {
+        toast.error(data.error || `Failed to execute sync for ${moduleName}.`);
+        const failLog: SyncLog = {
+          id: `SYN-${Math.floor(100 + Math.random() * 900)}`,
+          module: moduleName,
+          direction: moduleName === "Inventory Sync" ? "ERP → Shopify" : "Shopify → ERP",
+          records: 0,
+          status: "Failed",
+          duration: "0.5s",
+          time: "Just now"
+        };
+        setLogs(prev => [failLog, ...prev]);
+      }
+    } catch (err) {
+      toast.error("Failed to connect to the Shopify sync server endpoint.");
+    } finally {
       setSyncing(null);
-    }, 2000);
+    }
   };
 
   return (

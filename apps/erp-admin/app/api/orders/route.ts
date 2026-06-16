@@ -1,21 +1,67 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getContextCompanyId } from "@/lib/session";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const companyId = await getContextCompanyId();
     if (!companyId) {
       return NextResponse.json([]);
     }
 
-    const { data: orders, error: ordersErr } = await supabase
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type"); // "active" | "delivered" | "returns"
+
+    let query = supabase
       .from("OrderFulfillment")
-      .select("id, orderNumber, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
-      .eq("companyId", companyId)
-      .order("createdAt", { ascending: false });
+      .select("id, orderNumber, shopifyOrderId, customerId, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
+      .eq("companyId", companyId);
+
+    if (type === "active") {
+      query = query.in("deliveryStatus", ["PROCESSING", "SHIPPED"]);
+    } else if (type === "delivered") {
+      query = query.eq("deliveryStatus", "DELIVERED");
+    } else if (type === "returns") {
+      query = query.in("deliveryStatus", ["RTO_INITIATED", "RTO_RECEIVED"]);
+    }
+
+    const { data: orders, error: ordersErr } = await query.order("createdAt", { ascending: false });
 
     if (ordersErr) throw ordersErr;
+
+    // Fetch and join paymentStatus from Order table and customerEmail from Customer table
+    if (orders && orders.length > 0) {
+      const shopifyOrderIds = orders.map((o: any) => o.shopifyOrderId).filter(Boolean);
+      const customerIds = orders.map((o: any) => o.customerId).filter(Boolean);
+      
+      if (shopifyOrderIds.length > 0) {
+        const { data: orderPayments } = await supabase
+          .from("Order")
+          .select("shopifyOrderId, paymentStatus")
+          .in("shopifyOrderId", shopifyOrderIds);
+
+        if (orderPayments) {
+          const paymentMap = new Map(orderPayments.map((p: any) => [p.shopifyOrderId, p.paymentStatus]));
+          orders.forEach((o: any) => {
+            o.paymentStatus = paymentMap.get(o.shopifyOrderId) || "PENDING";
+          });
+        }
+      }
+
+      if (customerIds.length > 0) {
+        const { data: customers } = await supabase
+          .from("Customer")
+          .select("id, email")
+          .in("id", customerIds);
+
+        if (customers) {
+          const emailMap = new Map(customers.map((c: any) => [c.id, c.email]));
+          orders.forEach((o: any) => {
+            o.customerEmail = emailMap.get(o.customerId) || "";
+          });
+        }
+      }
+    }
 
     return NextResponse.json(orders || []);
   } catch (error: any) {
@@ -23,3 +69,5 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+

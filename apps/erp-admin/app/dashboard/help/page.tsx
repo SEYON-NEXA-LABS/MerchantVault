@@ -39,7 +39,8 @@ function HelpContent() {
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     "Getting Started": true,
     "Inventory & Barcodes": true,
-    "Orders & Logistics": true
+    "Orders & Logistics": true,
+    "Brand Customization & Storefront Channels": true
   });
   const [activeTopicId, setActiveTopicId] = useState("intro");
 
@@ -67,9 +68,9 @@ function HelpContent() {
             Seyon operates as a multi-tenant enterprise resource planning (ERP) platform. The server bridges inventory modifications directly into the database, synchronizes catalog updates, and processes real-time transaction webhooks.
           </p>
 
-          <div className="bg-indigo-50 border-l-4 border-indigo-650 p-4 rounded-r-lg">
+          <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg">
             <h4 className="text-sm font-bold text-indigo-950">Quick Start Checklist</h4>
-            <ul className="list-disc list-inside text-xs text-indigo-850 mt-2 space-y-1">
+            <ul className="list-disc list-inside text-xs text-indigo-800 mt-2 space-y-1">
               <li>Select your active **Warehouse Location** from the global footer selector.</li>
               <li>Verify that the **Shopify Sync Bridge** status bar reads "Connected".</li>
               <li>Ensure USB Keyboard-Emulation scanners are plugged into terminal ports.</li>
@@ -130,7 +131,7 @@ function HelpContent() {
 
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
             <h4 className="text-sm font-bold text-amber-950">Thermal Printer Calibration</h4>
-            <p className="text-xs text-amber-750 mt-1">
+            <p className="text-xs text-amber-800 mt-1">
               For best scanning results, calibrate your thermal printer to standard label sizes (e.g. Zebra or TSC) to ensure barcodes don't bleed off the edges. Always test-scan one barcode from the first printed batch before printing high-volume queues.
             </p>
           </div>
@@ -154,7 +155,7 @@ function HelpContent() {
               <h3 className="font-bold text-xs text-slate-950 flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Inward Scan (Receiving)
               </h3>
-              <p className="text-[11px] text-slate-650 leading-relaxed">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 Scan production batches arriving from suppliers to add them to your active warehouse stock. This logs an `INWARD` stock movement and updates total catalog levels.
               </p>
               <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
@@ -167,7 +168,7 @@ function HelpContent() {
               <h3 className="font-bold text-xs text-slate-950 flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span> Outward Scan (Adjustments)
               </h3>
-              <p className="text-[11px] text-slate-650 leading-relaxed">
+              <p className="text-[11px] text-slate-660 leading-relaxed">
                 Scan items to manually deduct inventory for sample dispatch, store displays, or writing off damaged garments. Logs an `OUTWARD` stock movement.
               </p>
               <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
@@ -184,6 +185,49 @@ function HelpContent() {
             <li>Set the **Mode Toggle** to either Inward or Outward.</li>
             <li>Place your cursor in the scan field. Begin scanning tags. The queue list will update automatically.</li>
             <li>Review the quantities. Click **Commit Batch Queue** to write changes to the database.</li>
+          </ol>
+        </div>
+      )
+    },
+    {
+      id: "stock-transfers",
+      title: "Inter-Warehouse Stock Transfers",
+      category: "Inventory & Barcodes",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Inter-Warehouse Stock Transfers</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon ERP allows you to coordinate, dispatch, and track physical inventory movements between different warehouse locations.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Transfer Lifecycle States</h3>
+          <div className="space-y-3.5 text-xs text-slate-700 mt-2">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-amber-700 block">1. PENDING</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                The transfer request is created. Stock remains at the source warehouse until dispatched.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-indigo-700 block">2. SENT (Shipped)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                The source warehouse operator clicks **Ship**. The system immediately deducts the quantity from the source warehouse stock and logs an `OUTWARD` stock movement.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-emerald-700 block">3. COMPLETED (Received)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                The destination warehouse operator clicks **Receive** upon arrival. The system adds the quantity to the destination warehouse stock and logs an `INWARD` stock movement, finalizing the cycle.
+              </span>
+            </div>
+          </div>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">How to Initiate a Transfer</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Open the **Order Fulfillment Board** page.</li>
+            <li>Scroll down to the **Inter-Warehouse Communications (Transfers Feed)** card.</li>
+            <li>Select your source location, target destination, desired variant SKU, and the transfer quantity.</li>
+            <li>Click **Initiate Transfer**. The request is now logged and will appear in the transfers list.</li>
           </ol>
         </div>
       )
@@ -240,7 +284,7 @@ function HelpContent() {
 
           <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg mt-4">
             <h4 className="text-sm font-bold text-indigo-950">Audio Feedback Integration</h4>
-            <p className="text-xs text-indigo-750 mt-1">
+            <p className="text-xs text-indigo-800 mt-1">
               Keep the audio feedback toggle active to get auditory verification as you scan. A high-frequency beep indicates a valid tag match; a low warning buzz alerts you that the scanned SKU does not belong to this audit segment.
             </p>
           </div>
@@ -268,7 +312,7 @@ function HelpContent() {
 
           <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mt-4">
             <h4 className="text-sm font-bold text-emerald-950">Real-Time Ingestion</h4>
-            <p className="text-xs text-emerald-750 mt-1">
+            <p className="text-xs text-emerald-800 mt-1">
               Thanks to direct-database listeners, order creations require zero webhook processing delays. You can trigger simulated Shopify orders from the dashboard directory header to validate courier routing.
             </p>
           </div>
@@ -299,6 +343,151 @@ function HelpContent() {
           <p className="text-xs text-slate-650 leading-relaxed">
             When packages are returned as RTO (Return to Origin), scan the AWB in the Logistics Returns tab. This updates the package status, moves items back to inventory, and registers adjustments.
           </p>
+        </div>
+      )
+    },
+    {
+      id: "branding-setup",
+      title: "Tenant & Brand Styling Setup",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Tenant & Brand Styling Setup</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon provides a **generic customizable branding engine** for SaaS tenants. You can control the visual experience of your back-office and your public storefront down to the pixel.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">How to Configure Brand Styles</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Log in as a **Superadmin** or **Tenantadmin** operator.</li>
+            <li>Go to the **Companies** panel under the dashboard directory.</li>
+            <li>Select the target **Company profile** to configure tenant-wide storefront styling defaults.</li>
+            <li>To configure brand-specific theme profiles, go to the **Brands** tab.</li>
+            <li>Use the styling inputs to modify:
+              <ul className="list-disc list-inside text-[11px] text-slate-500 pl-4 mt-1 space-y-1">
+                <li><strong>Primary Color</strong>: The main color used for primary CTA buttons, links, search outlines, and active status indicators.</li>
+                <li><strong>Accent Color</strong>: Accent highlights, ratings, and special visual callouts.</li>
+                <li><strong>Border Radius</strong>: Border corner curves (`0.375rem`, `0.5rem`, `0.625rem` etc.).</li>
+                <li><strong>Logo URL</strong>: High-resolution brand logo image displayed in storefront headers.</li>
+              </ul>
+            </li>
+            <li>Alternatively, use the **JSON Theme Configurator** for advanced variable mapping.</li>
+          </ol>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-indigo-950">Dynamic Contrast Calculations</h4>
+            <p className="text-xs text-indigo-800 mt-1">
+              The platform automatically calculates contrast values. If you input a dark primary color (e.g. Navy Blue or Black), the engine assigns a light text foreground (`#ffffff`) for CTA buttons. If you input a light color, it resolves a dark foreground text color to maintain perfect accessibility scores.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "storefront-channels",
+      title: "Storefront Sales Channels",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Public Storefront Sales Channels</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            The customer-facing digital sales channel is separated into dedicated fast-loading routes designed to optimize buyer conversion.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Active Sales Channel Routes</h3>
+          <div className="space-y-4 text-xs text-slate-700 mt-2">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-slate-900 block">1. Catalog Landing Page (`/`)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                Displays active brand selections, products grid, multi-dimensional search/filter queries, and dynamically loads company logo headers.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-slate-900 block">2. Product Details (`/products/[id]`)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                Features detailed specifications, sizing and color selection grids, user review stars, and a **zip-code courier speed checker** that queries local courier speeds in real-time.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-slate-900 block">3. Shopping Cart (`/cart`)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                Enables users to adjust quantities, override variant size/color selections, review pricing totals, and proceed directly to checkout.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-slate-900 block">4. Checkout Flow (`/checkout`)</span>
+              <span className="text-[11px] text-slate-500 block mt-1">
+                A secure checkout flow that collects contact details, computes delivery prices dynamically based on pin code distance metrics, supports COD or Card options, and ingests orders directly via webhook into the Seyon ERP registry.
+              </span>
+            </div>
+          </div>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Recommended Accessories (Upsell Widgets)</h3>
+          <p className="text-xs text-slate-650 leading-relaxed">
+            To drive higher Average Order Value (AOV), the checkout sidebar contains an **Add Accessories** block. Operators can view demo accessory recommendations (e.g. Card Holders or Wool Socks) that customers can add with one click. The sidebar automatically updates subtotal values and GST charges dynamically.
+          </p>
+        </div>
+      )
+    },
+    {
+      id: "tweakcn-themes",
+      title: "Importing TweakCN Custom Themes",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Importing TweakCN Themes</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon features out-of-the-box support for visual styling themes generated using the popular **TweakCN** shadcn/ui visual editor.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Importing Theme Configs</h3>
+          <p className="text-xs text-slate-650 leading-relaxed">
+            To apply custom stylesheets exported from TweakCN:
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Export the theme custom properties block from tweakcn.com.</li>
+            <li>Convert the bare HSL layout values into normal color properties by wrapping them in the `hsl()` helper syntax (e.g., `hsl(222.2 47.4% 11.2%)`).</li>
+            <li>Paste them directly into storefront or erp-admin `theme.css` files.</li>
+          </ul>
+
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4 font-sans">
+            <h4 className="text-sm font-bold text-amber-950">Active Layout Customizers</h4>
+            <p className="text-xs text-amber-800 mt-1">
+              Currently, both storefront and ERP-admin codebases are fully initialized with the **Je1lo** theme style parameters exported from the TweakCN community database (`cmozeqk6p000404la4exx0xe0`).
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "payment-gateways",
+      title: "Indian Payment Gateways Integration",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Indian Payment Gateways Integration</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon is engineered to support Indian digital transaction networks. During checkout, buyers can select payment options mapped directly to popular processing systems.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Supported Payment Options in India</h3>
+          <p className="text-xs text-slate-650 leading-relaxed">
+            Operators can link and process transactions using several leading gateway aggregators:
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-700 space-y-2.5 mt-2">
+            <li><strong>Razorpay</strong>: Best overall platform support in India. Supports UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, Netbanking across 50+ banks, and PayLater services.</li>
+            <li><strong>Cashfree Payments</strong>: Features fast payouts, high-speed UPI links, and automated COD verification tools.</li>
+            <li><strong>Instamojo</strong>: Ideal for startups and small-scale operations with immediate checkout onboarding support.</li>
+            <li><strong>Paytm Payment Gateway</strong>: Native integration with the Paytm wallet and UPI routing infrastructure.</li>
+            <li><strong>CCAvenue</strong>: Legacy enterprise processor supporting a vast array of regional banking options.</li>
+          </ul>
+
+          <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-emerald-950">Cash On Delivery (COD) Routing</h4>
+            <p className="text-xs text-emerald-800 mt-1">
+              For demo safety and order verification, COD orders are flagged with a `-COD` suffix and processed through a simulated risk verification ledger before automatic ingestion into active warehouse queues.
+            </p>
+          </div>
         </div>
       )
     }

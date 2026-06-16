@@ -58,7 +58,7 @@ export async function GET() {
           companyId: company.id,
           name,
           phone,
-          email: `${name.toLowerCase().replace(" ", "")}@mock.com`,
+          email: `${name.toLowerCase().replace(" ", "")}-${Math.floor(1000 + Math.random() * 9000)}@mock.com`,
           city: "Delhi",
           state: "Delhi",
           zip: "110001",

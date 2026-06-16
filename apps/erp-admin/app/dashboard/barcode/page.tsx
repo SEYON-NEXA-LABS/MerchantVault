@@ -245,14 +245,44 @@ export default function BarcodePage() {
     p.sku.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (loadingProducts || !selectedProduct) {
+  if (loadingProducts) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium">Loading product catalog...</p>
+      <div className="flex flex-col items-center justify-center py-32 gap-3 text-slate-400 bg-white border border-slate-200 rounded-2xl shadow-sm max-w-2xl mx-auto my-12">
+        <div className="w-10 h-10 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-semibold text-slate-605">Syncing and loading product catalog...</p>
       </div>
     );
   }
+
+  if (products.length === 0 || !selectedProduct) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-8 text-center max-w-lg mx-auto my-12 bg-white border border-slate-200 rounded-2xl shadow-lg relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-transparent to-transparent opacity-60 pointer-events-none" />
+        <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
+          <QrCode className="w-8 h-8" />
+        </div>
+        <h3 className="font-bold text-slate-900 text-lg tracking-tight">Catalog is Currently Empty</h3>
+        <p className="text-xs text-slate-500 max-w-sm leading-relaxed mt-2.5">
+          Your company has no registered product variants in the inventory system. Please seed/add product variants or sync with Shopify before generating retail barcode tags.
+        </p>
+        <div className="mt-6 flex gap-3">
+          <a
+            href="/dashboard/inventory"
+            className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition-colors shadow-sm hover:shadow"
+          >
+            Go to Inventory
+          </a>
+          <a
+            href="/dashboard/shopify-sync"
+            className="inline-flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-lg transition-colors shadow-sm"
+          >
+            Sync Shopify
+          </a>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
@@ -492,42 +522,42 @@ export default function BarcodePage() {
             </div>
           </div>
 
-        </div>
-
-        {/* Explanation of Serialized QR token */}
-        {qrPayloadType === "SERIALIZED" && (
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
-            <h3 className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
-              <span>🔍</span> Structured Serialized QR Token Explanation
-            </h3>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
-              When printing serialized tags, the QR payload is formatted as a structured token delimited by colons. 
-              This enables instantaneous scanning and validation on check-in/check-out.
-            </p>
-            <div className="p-3 bg-white border rounded-lg space-y-1.5 font-mono text-[10px]">
-              <div className="flex justify-between border-b pb-1">
-                <span className="text-gray-400">Token Format:</span>
-                <span className="font-bold text-indigo-700">company:warehouse:sku:serial</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">1. Company Slug:</span>
-                <span className="text-slate-800">syn</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">2. Warehouse:</span>
-                <span className="text-slate-800">{activeWhCode} (Active printed origin)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">3. SKU Code:</span>
-                <span className="text-slate-800">{selectedProduct.sku}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">4. Serial:</span>
-                <span className="text-slate-800">0001 (Unique unit index)</span>
+          {/* Explanation of Serialized QR token */}
+          {qrPayloadType === "SERIALIZED" && (
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm space-y-3">
+              <h3 className="font-bold text-gray-900 text-xs flex items-center gap-1.5">
+                <span>🔍</span> Structured Serialized QR Token Explanation
+              </h3>
+              <p className="text-[11px] text-gray-500 leading-relaxed">
+                When printing serialized tags, the QR payload is formatted as a structured token delimited by colons. 
+                This enables instantaneous scanning and validation on check-in/check-out.
+              </p>
+              <div className="p-3 bg-white border rounded-lg space-y-1.5 font-mono text-[10px]">
+                <div className="flex justify-between border-b pb-1">
+                  <span className="text-gray-400">Token Format:</span>
+                  <span className="font-bold text-indigo-700">company:warehouse:sku:serial</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">1. Company Slug:</span>
+                  <span className="text-slate-800">syn</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">2. Warehouse:</span>
+                  <span className="text-slate-800">{activeWhCode} (Active printed origin)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">3. SKU Code:</span>
+                  <span className="text-slate-800">{selectedProduct.sku}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">4. Serial:</span>
+                  <span className="text-slate-800">0001 (Unique unit index)</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+
+        </div>
 
         {/* Tag Preview */}
         <div className="lg:col-span-4">
