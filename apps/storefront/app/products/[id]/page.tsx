@@ -29,7 +29,8 @@ import {
   Sparkles,
   Zap,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  User
 } from "lucide-react";
 
 const getColorValue = (colorName: string) => {
@@ -87,7 +88,9 @@ function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: 
     ? config.images
     : config && config.imageUrl
       ? [config.imageUrl]
-      : [];
+      : prod.imageUrl
+        ? [prod.imageUrl]
+        : [];
 
   const PRODUCT_ICONS = [
     Shirt, ShoppingBag, Gem, Watch, Glasses, Footprints,

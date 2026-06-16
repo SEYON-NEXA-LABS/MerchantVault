@@ -13,6 +13,7 @@ const FALLBACK_PRODUCTS = [
     category: "Shirts",
     rating: 4.8,
     reviews: 24,
+    imageUrl: "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=800&auto=format&fit=crop&q=80",
     description: "Crafted from fine handwoven mulberry silk, this shirt balances ethnic luxury with modern casual cuts. Features breathable texture and natural shine."
   },
   {
@@ -26,6 +27,7 @@ const FALLBACK_PRODUCTS = [
     category: "Pants",
     rating: 4.6,
     reviews: 18,
+    imageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&auto=format&fit=crop&q=80",
     description: "Breathable Italian linen blend trousers featuring clean tailoring and custom adjustments. Pre-washed for maximum softness and drape."
   },
   {
@@ -39,6 +41,7 @@ const FALLBACK_PRODUCTS = [
     category: "Jackets",
     rating: 4.9,
     reviews: 32,
+    imageUrl: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop&q=80",
     description: "Traditional silhouette tailored with locally sourced organic Khadi cotton. Adorned with handcrafted coconut-shell buttons."
   },
   {
@@ -52,6 +55,7 @@ const FALLBACK_PRODUCTS = [
     category: "Ethnic",
     rating: 4.7,
     reviews: 15,
+    imageUrl: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&auto=format&fit=crop&q=80",
     description: "An elegant raw silk kurta designed for festive celebrations. Features minimalist gold-thread embroidery along the collar."
   },
   {
@@ -65,6 +69,7 @@ const FALLBACK_PRODUCTS = [
     category: "Jackets",
     rating: 4.9,
     reviews: 40,
+    imageUrl: "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=800&auto=format&fit=crop&q=80",
     description: "Heavyweight indigo dyed raw denim jacket built for longevity. Contrast gold stitching and heavy brass hardware throughout."
   },
   {
@@ -78,6 +83,7 @@ const FALLBACK_PRODUCTS = [
     category: "Tees",
     rating: 4.5,
     reviews: 58,
+    imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
     description: "Luxuriously soft long-staple Pima cotton t-shirt. The perfect everyday foundation featuring double-needle stitched hems."
   },
   {
@@ -91,6 +97,7 @@ const FALLBACK_PRODUCTS = [
     category: "Accessories",
     rating: 4.7,
     reviews: 14,
+    imageUrl: "https://images.unsplash.com/photo-1624222247344-550fb8ec5507?w=800&auto=format&fit=crop&q=80",
     description: "Genuine top-grain leather dress belt with a clean brushed steel buckle. Perfect for both casual and formal wear."
   },
   {
@@ -104,6 +111,7 @@ const FALLBACK_PRODUCTS = [
     category: "Accessories",
     rating: 4.4,
     reviews: 9,
+    imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&auto=format&fit=crop&q=80",
     description: "A classic 6-panel cap crafted from certified organic cotton twill. Features an adjustable fabric strap with brass hardware."
   },
   {
@@ -117,6 +125,7 @@ const FALLBACK_PRODUCTS = [
     category: "Ethnic",
     rating: 4.6,
     reviews: 22,
+    imageUrl: "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?w=800&auto=format&fit=crop&q=80",
     description: "A lightweight linen-silk blend kurta with a modern V-neck cut. Breathable and comfortable for all-day wear."
   },
   {
@@ -130,6 +139,7 @@ const FALLBACK_PRODUCTS = [
     category: "Pants",
     rating: 4.5,
     reviews: 11,
+    imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&auto=format&fit=crop&q=80",
     description: "Tailored khadi trousers featuring an elasticated drawstring waist. Pre-washed to prevent shrinkage."
   },
   {
@@ -143,6 +153,7 @@ const FALLBACK_PRODUCTS = [
     category: "Pants",
     rating: 4.8,
     reviews: 35,
+    imageUrl: "https://images.unsplash.com/photo-1517423568366-8b83523034fd?w=800&auto=format&fit=crop&q=80",
     description: "Heavy-duty cotton ripstop cargo pants with multiple utility pockets and reinforced knees. Built for rugged daily use."
   },
   {
@@ -156,6 +167,7 @@ const FALLBACK_PRODUCTS = [
     category: "Jackets",
     rating: 4.7,
     reviews: 17,
+    imageUrl: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
     description: "Water-resistant ripstop windbreaker featuring an adjustable hood, zippered pockets, and elasticized cuffs."
   },
   {
@@ -169,6 +181,7 @@ const FALLBACK_PRODUCTS = [
     category: "Plus Size",
     rating: 4.7,
     reviews: 10,
+    imageUrl: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&auto=format&fit=crop&q=80",
     description: "A relaxed, generous cut chambray button-down shirt designed specifically for comfort and plus-size frames."
   },
   {
@@ -182,6 +195,7 @@ const FALLBACK_PRODUCTS = [
     category: "Plus Size",
     rating: 4.6,
     reviews: 8,
+    imageUrl: "https://images.unsplash.com/photo-1479064555552-3ef4979f8908?w=800&auto=format&fit=crop&q=80",
     description: "Premium cotton twill chinos with integrated elastane stretch and an expandable comfort waistband."
   },
   {
@@ -195,6 +209,7 @@ const FALLBACK_PRODUCTS = [
     category: "Plus Size",
     rating: 4.8,
     reviews: 12,
+    imageUrl: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80",
     description: "Traditional handcrafted Khadi cotton kurta styled with a loose, premium drape for maximum comfort."
   }
 ];
