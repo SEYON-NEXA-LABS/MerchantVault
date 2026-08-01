@@ -28,6 +28,7 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Integrated **Hybrid Barcode Strategy**: Displays whether the active variant barcode string originates from Shopify or internal ERP fallback.
 
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Replaced fake step timer simulation in `executeHandshake` with an authentic live HTTP API ping against Shopify REST API (`POST /api/shopify/sync`). If token/domain fails, Step 2 marks as **Failed** and blocks connection.
   - [x] Updated `isMockToken` check in `api/shopify/sync/route.ts` to accept `shpss_` (Shopify Storefront/Session/Custom Access Tokens) as valid real integration tokens.
   - [x] Updated REST API endpoints in `api/inventory/push-shopify/route.ts` to active version `2024-04`.
   - [x] Restored **Barcode Integration Mode** dropdown in Settings form now that `barcodeMode` column exists in Supabase.

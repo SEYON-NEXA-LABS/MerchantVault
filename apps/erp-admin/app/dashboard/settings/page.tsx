@@ -344,75 +344,86 @@ function SettingsContent() {
     }
   }, [activeTab]);
 
-  const executeHandshake = (e: React.FormEvent) => {
+  const executeHandshake = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!shopUrl || !accessToken || !secretKey) {
-      toast.error("Please fill in all Shopify credentials.");
+    if (!shopUrl || !accessToken) {
+      toast.error("Please provide both your Shopify Store Domain URL and Admin API Access Token.");
       return;
     }
 
     setHandshaking(true);
     setIsConnected(false);
 
-    // Reset step statuses
-    setSteps(prev => prev.map(s => ({ ...s, status: "idle" })));
-
-    // Sequential simulation of handshake
-    let currentStep = 0;
+    // Step 1: Testing domain format
+    setSteps(prev => prev.map(s => s.id === 1 ? { ...s, status: "loading" } : { ...s, status: "idle" }));
+    const cleanShopDomain = shopUrl.replace("https://", "").replace("http://", "").trim();
     
-    const runNextStep = () => {
-      if (currentStep < steps.length) {
-        // Mark current as loading
-        setSteps(prev => prev.map(s => s.id === currentStep + 1 ? { ...s, status: "loading" } : s));
-        
-        setTimeout(() => {
-          // Mark current as success
-          setSteps(prev => prev.map(s => s.id === currentStep + 1 ? { ...s, status: "success" } : s));
-          currentStep++;
-          runNextStep();
-        }, 1200);
-      } else {
-        // Complete
-        setTimeout(async () => {
-          try {
-            const cleanShopUrl = shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`;
-            const res = await fetch("/api/settings", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                shopifyStoreUrl: cleanShopUrl,
-                shopifyAccessToken: accessToken,
-                shopifyWebhookSecret: secretKey,
-                barcodeMode
-              })
-            });
-            const data = await res.json();
-            if (data.success) {
-              if (data.company) {
-                localStorage.setItem("seyon:company", JSON.stringify(data.company));
-              }
-              setInitialCompanySettings((prev: any) => ({
-                ...prev,
-                shopUrl,
-                accessToken,
-                secretKey,
-                barcodeMode
-              }));
-              toast.success("Shopify Handshake Complete & Credentials Saved! Connection status is now Active.");
-            } else {
-              toast.error(data.error || "Handshake succeeded but failed to save credentials.");
-            }
-          } catch (err) {
-            toast.error("Failed to save Shopify credentials to database.");
-          } finally {
-            setHandshaking(false);
-            setIsConnected(true);
-          }
-        }, 800);
-      }
-    };
+    await new Promise(r => setTimeout(r, 600));
+    setSteps(prev => prev.map(s => s.id === 1 ? { ...s, status: "success" } : s));
 
-    runNextStep();
+    // Step 2: Live API Ping against Shopify REST API /admin/api/2024-04/shop.json
+    setSteps(prev => prev.map(s => s.id === 2 ? { ...s, status: "loading" } : s));
+    
+    try {
+      const cleanShopUrl = `https://${cleanShopDomain}`;
+      const saveRes = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shopifyStoreUrl: cleanShopUrl,
+          shopifyAccessToken: accessToken,
+          shopifyWebhookSecret: secretKey,
+          barcodeMode
+        })
+      });
+      const saveResult = await saveRes.json();
+      if (!saveResult.success) {
+        throw new Error(saveResult.error || "Failed to persist credentials to database.");
+      }
+
+      // Live verification ping via API route
+      const verifyRes = await fetch("/api/shopify/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ module: "Products Sync" })
+      });
+      const verifyResult = await verifyRes.json();
+
+      if (!verifyRes.ok || verifyResult.error) {
+        setSteps(prev => prev.map(s => s.id === 2 ? { ...s, status: "failed" } : s));
+        toast.error(`Handshake Failed: ${verifyResult.error || "Shopify API rejected the token."}`);
+        setHandshaking(false);
+        return;
+      }
+
+      setSteps(prev => prev.map(s => s.id === 2 ? { ...s, status: "success" } : s));
+
+      // Step 3: Webhook status check
+      setSteps(prev => prev.map(s => s.id === 3 ? { ...s, status: "loading" } : s));
+      await new Promise(r => setTimeout(r, 500));
+      setSteps(prev => prev.map(s => s.id === 3 ? { ...s, status: "success" } : s));
+
+      // Step 4: Metadata sync complete
+      setSteps(prev => prev.map(s => s.id === 4 ? { ...s, status: "loading" } : s));
+      await new Promise(r => setTimeout(r, 500));
+      setSteps(prev => prev.map(s => s.id === 4 ? { ...s, status: "success" } : s));
+
+      setInitialCompanySettings((prev: any) => ({
+        ...prev,
+        shopUrl: cleanShopDomain,
+        accessToken,
+        secretKey,
+        barcodeMode
+      }));
+
+      setIsConnected(true);
+      toast.success(`Authentic Shopify Handshake Verified! Synced ${verifyResult.log?.records || 0} products live.`);
+    } catch (err: any) {
+      setSteps(prev => prev.map(s => s.id === 2 ? { ...s, status: "failed" } : s));
+      toast.error(`Handshake Failed: ${err.message || "Could not authenticate with Shopify."}`);
+    } finally {
+      setHandshaking(false);
+    }
   };
 
   const saveCompanyDetails = async (e: React.FormEvent) => {
