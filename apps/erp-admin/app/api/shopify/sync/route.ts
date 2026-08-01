@@ -331,19 +331,23 @@ export async function POST(req: Request) {
         {
           method: "GET",
           headers: {
-            "X-Shopify-Access-Token": shopifyAccessToken,
+            "X-Shopify-Access-Token": activeToken,
             "Content-Type": "application/json"
           }
         }
       );
 
       if (!res.ok) {
-        throw new Error(`Shopify API customer pull failed: ${await res.text()}`);
-      }
-
-      const { customers } = await res.json();
-      if (Array.isArray(customers)) {
-        for (const cust of customers) {
+        const errText = await res.text();
+        if (module === "Customers Sync") {
+          throw new Error(`Shopify API customer pull failed: ${errText}`);
+        } else {
+          console.warn("Customers pull skipped due to scope restriction:", errText);
+        }
+      } else {
+        const { customers } = await res.json();
+        if (Array.isArray(customers)) {
+          for (const cust of customers) {
           const name = `${cust.first_name || ""} ${cust.last_name || ""}`.trim() || "Shopify Customer";
           const phone = cust.phone || `+91999999${cust.id.toString().slice(-4)}`;
           const email = cust.email || "";
@@ -384,6 +388,7 @@ export async function POST(req: Request) {
         }
       }
     }
+  }
 
     if (module === "Orders Sync" || module === "Full System Sync") {
       const res = await fetch(

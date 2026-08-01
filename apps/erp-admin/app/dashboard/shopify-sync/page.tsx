@@ -42,14 +42,12 @@ export default function ShopifySyncPage() {
 function ShopifySyncContent() {
   const [syncing, setSyncing] = useState<string | null>(null);
   const [company, setCompany] = useState<any>(null);
-  const [logs, setLogs] = useState<SyncLog[]>([
-    { id: "SYN-983", module: "Orders Sync", direction: "Shopify → ERP", records: 14, status: "Success", duration: "1.2s", time: "Just now" },
-    { id: "SYN-982", module: "Inventory Sync", direction: "ERP → Shopify", records: 124, status: "Success", duration: "4.8s", time: "12 mins ago" },
-    { id: "SYN-981", module: "Products Sync", direction: "Shopify → ERP", records: 3, status: "Warning", duration: "2.1s", time: "45 mins ago" },
-    { id: "SYN-980", module: "Customers Sync", direction: "Shopify → ERP", records: 28, status: "Success", duration: "1.5s", time: "2 hours ago" },
-    { id: "SYN-979", module: "Orders Sync", direction: "Shopify → ERP", records: 41, status: "Success", duration: "3.2s", time: "4 hours ago" },
-    { id: "SYN-978", module: "Inventory Sync", direction: "ERP → Shopify", records: 8, status: "Failed", duration: "0.8s", time: "6 hours ago" },
-  ]);
+  const [logs, setLogs] = useState<SyncLog[]>([]);
+  const [stats, setStats] = useState({
+    productsCount: 0,
+    ordersCount: 0,
+    customersCount: 0
+  });
 
   React.useEffect(() => {
     const fetchSession = async () => {
@@ -65,7 +63,27 @@ function ShopifySyncContent() {
         console.error("Failed to fetch session", err);
       }
     };
+
+    const fetchSyncStats = async () => {
+      try {
+        const res = await fetch("/api/dashboard");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.kpis) {
+            setStats({
+              productsCount: json.kpis.totalVariants || 0,
+              ordersCount: json.kpis.totalOrders || 0,
+              customersCount: json.kpis.totalOrders || 0
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch live sync stats", err);
+      }
+    };
+
     fetchSession();
+    fetchSyncStats();
   }, []);
 
   const triggerSync = async (moduleName: string) => {
@@ -183,34 +201,34 @@ function ShopifySyncContent() {
           {
             name: "Orders Sync",
             desc: "Shopify → ERP Core",
-            stats: "12,492 Syncs",
-            health: "99.8% Success",
+            stats: `${stats.ordersCount} Orders`,
+            health: "Active Sync",
             status: "Healthy",
-            time: "Last: Just now"
+            time: "Live Ledger"
           },
           {
             name: "Inventory Sync",
             desc: "ERP Core → Shopify",
-            stats: "82,109 Updates",
-            health: "98.4% Success",
+            stats: `${stats.productsCount} SKUs`,
+            health: "Auto Reconciled",
             status: "Healthy",
-            time: "Last: 12 mins ago"
+            time: "Live Ledger"
           },
           {
             name: "Products Sync",
             desc: "Shopify → ERP Core",
-            stats: "2,408 Products",
-            health: "100% Match",
-            status: "Warning",
-            time: "Last: 45 mins ago"
+            stats: `${stats.productsCount} Variants`,
+            health: "Catalog Match",
+            status: "Healthy",
+            time: "Live Ledger"
           },
           {
             name: "Customers Sync",
             desc: "Shopify → ERP Core",
-            stats: "8,301 Accounts",
-            health: "100% Success",
+            stats: `${stats.customersCount} Buyers`,
+            health: "Active Sync",
             status: "Healthy",
-            time: "Last: 2 hours ago"
+            time: "Live Ledger"
           }
         ].map((mod) => (
           <div key={mod.name} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4 hover:border-gray-300 transition-colors">
@@ -279,71 +297,37 @@ function ShopifySyncContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3.5 px-6 font-mono text-xs text-gray-900">{log.id}</td>
-                  <td className="py-3.5 px-6 font-semibold text-gray-900">{log.module}</td>
-                  <td className="py-3.5 px-6 text-gray-500 text-xs">{log.direction}</td>
-                  <td className="py-3.5 px-6 font-medium">{log.records} items</td>
-                  <td className="py-3.5 px-6">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      log.status === "Success" ? "bg-emerald-50 text-emerald-700" :
-                      log.status === "Warning" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
-                    }`}>
-                      {log.status === "Success" && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
-                      {log.status === "Warning" && <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
-                      {log.status === "Failed" && <AlertCircle className="w-3.5 h-3.5 text-red-500" />}
-                      {log.status}
-                    </span>
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-xs text-gray-400 font-mono">
+                    No sync operations recorded yet. Click "Trigger Sync" above to run an active pull.
                   </td>
-                  <td className="py-3.5 px-6 text-gray-500 font-mono text-xs">{log.duration}</td>
-                  <td className="py-3.5 px-6 text-gray-400 text-xs">{log.time}</td>
                 </tr>
-              ))}
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-3.5 px-6 font-mono text-xs text-gray-900">{log.id}</td>
+                    <td className="py-3.5 px-6 font-semibold text-gray-900">{log.module}</td>
+                    <td className="py-3.5 px-6 text-gray-500 text-xs">{log.direction}</td>
+                    <td className="py-3.5 px-6 font-medium">{log.records} items</td>
+                    <td className="py-3.5 px-6">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        log.status === "Success" ? "bg-emerald-50 text-emerald-700" :
+                        log.status === "Warning" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"
+                      }`}>
+                        {log.status === "Success" && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />}
+                        {log.status === "Warning" && <AlertCircle className="w-3.5 h-3.5 text-amber-500" />}
+                        {log.status === "Failed" && <AlertCircle className="w-3.5 h-3.5 text-red-500" />}
+                        {log.status}
+                      </span>
+                    </td>
+                    <td className="py-3.5 px-6 text-gray-500 font-mono text-xs">{log.duration}</td>
+                    <td className="py-3.5 px-6 text-gray-400 text-xs">{log.time}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Low Stock Alerts & Shopify Sync Status */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="space-y-0.5">
-            <h3 className="font-bold text-gray-950 text-sm flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-              Shopify Inventory Sync Alerts
-            </h3>
-            <p className="text-xs text-gray-500">Live feed of variants currently below thresholds and their status on the Shopify storefront.</p>
-          </div>
-          <span className="bg-amber-50 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-100">
-            3 Active Alerts
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { name: "Linen Summer Shirt - Soft Blue / S", sku: "SHT-LIN-04-SB-S", qty: 2, limit: 10, status: "OutOfStock Synced", color: "bg-red-50 text-red-700 border-red-100" },
-            { name: "syn Denim Jeans - Onyx Black / XL", sku: "JNS-SLM-02-OB-XL", qty: 3, limit: 5, status: "LowStock Synced", color: "bg-amber-50 text-amber-700 border-amber-100" },
-            { name: "Seyon Classic Cotton Tee - White / L", sku: "TSH-COT-01-W-L", qty: 12, limit: 20, status: "In Sync", color: "bg-emerald-50 text-emerald-700 border-emerald-100" }
-          ].map((item, idx) => (
-            <div key={idx} className="border border-gray-200 rounded-lg p-3.5 space-y-3 bg-slate-50/50 hover:border-gray-300 transition-colors">
-              <div className="flex justify-between items-start text-xs">
-                <div>
-                  <h4 className="font-bold text-gray-900 leading-tight">{item.name}</h4>
-                  <p className="text-[10px] text-gray-400 font-mono mt-0.5">SKU: {item.sku}</p>
-                </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${item.color}`}>
-                  {item.status}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-gray-200/60 text-xs">
-                <span className="text-gray-500">Stock level:</span>
-                <span className="font-bold text-gray-900">
-                  {item.qty} <span className="text-gray-400 font-normal">/ {item.limit} limit</span>
-                </span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -357,9 +341,8 @@ function ShopifySyncContent() {
           <div className="space-y-3">
             {[
               { topic: "orders/create", path: "/api/webhooks/shopify/orders-create", active: true },
-              { topic: "orders/updated", path: "/api/webhooks/shopify/orders-update", active: true },
-              { topic: "products/update", path: "/api/webhooks/shopify/products-update", active: true },
-              { topic: "inventory_levels/update", path: "/api/webhooks/shopify/inventory-update", active: true }
+              { topic: "checkouts/update", path: "/api/webhooks/shopify/checkouts-update", active: true },
+              { topic: "refunds/create", path: "/api/webhooks/shopify/refunds-create", active: true }
             ].map((hook) => (
               <div key={hook.topic} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                 <div className="space-y-0.5">
@@ -385,7 +368,7 @@ function ShopifySyncContent() {
               </div>
               <div className="flex justify-between border-b border-gray-100 pb-2">
                 <span className="text-gray-400">API Version</span>
-                <span className="font-mono">2026-04</span>
+                <span className="font-mono">2024-04</span>
               </div>
               <div className="flex justify-between border-b border-gray-100 pb-2">
                 <span className="text-gray-400">Products Access</span>

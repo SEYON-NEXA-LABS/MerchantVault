@@ -26,7 +26,13 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 
+- [x] **ERP Admin Shopify Sync Page (`apps/erp-admin/app/dashboard/shopify-sync/page.tsx`)**
+  - [x] Replaced all hardcoded mock counts with live database metrics (`/api/dashboard`) for Orders, Products/SKUs, and Customers.
+  - [x] Connected real live sync execution logs array to render actual sync job outputs triggered by user clicks.
+  - [x] Updated API Version spec display to active version `2024-04`.
+
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Handled 403 scope error gracefully in `api/shopify/sync/route.ts` when merchant has not approved `read_customers` scope on their Shopify custom app.
   - [x] Updated credential validation in `api/shopify/sync/route.ts` to allow sync when `shopifyClientId` is configured without requiring `shopifyAccessToken` beforehand.
   - [x] Updated `executeHandshake` validation check in `settings/page.tsx` so users can authenticate using **EITHER** Admin API Access Token **OR** App Client ID & Client Secret.
   - [x] Added dedicated **App Client ID** and **App Client Secret** input fields to the Settings form UI.
