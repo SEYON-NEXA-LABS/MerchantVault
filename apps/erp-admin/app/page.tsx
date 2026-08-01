@@ -157,6 +157,10 @@ export default function Home() {
         {/* Bottom Metadata */}
         <div className="flex justify-between items-center text-[10px] text-teal-700/60 font-bold uppercase tracking-wider z-10">
           <span>© 2026 Seyon Nexa Labs</span>
+            <span>BUILD:</span>
+            <code className="bg-stone-200 text-stone-800 px-1 py-0.5 rounded font-mono text-[9px] font-bold">
+              {process.env.NEXT_PUBLIC_GIT_COMMIT_HASH || "f80b57b"}
+            </code>
           <span>LATITUDE: 13.0827° N / LONGITUDE: 80.2707° E</span>
         </div>
 

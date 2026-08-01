@@ -22,6 +22,7 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
 
 - [x] **ERP Admin Dashboard Sidebar & Footer (`apps/erp-admin/app/dashboard/layout.tsx`)**
   - [x] Added DEV / PROD mode toggle pill in sidebar strictly wrapped in `process.env.NODE_ENV === 'development'`.
+  - [x] Integrated **Dynamic Git Commit Hash Injection** via `next.config.ts` (`process.env.NEXT_PUBLIC_GIT_COMMIT_HASH`), dynamically reading `git rev-parse --short HEAD` on every build/server start and displaying it in the footer status bar badge.
   - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 

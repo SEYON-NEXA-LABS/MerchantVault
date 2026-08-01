@@ -893,7 +893,12 @@ export default function DashboardLayout({
               <span className="text-stone-300">|</span>
               <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "99.8%" : "0.0%"}</span>
               <span className="text-stone-300">|</span>
-              <span className="text-stone-900 font-semibold">API v2024-04</span>
+              <span className="text-stone-900 font-semibold flex items-center gap-1">
+                <span>BUILD:</span>
+                <code className="bg-stone-200 text-stone-800 px-1 py-0.5 rounded font-mono text-[9px] font-bold">
+                  {process.env.NEXT_PUBLIC_GIT_COMMIT_HASH || "f80b57b"}
+                </code>
+              </span>
             </div>
           </footer>
         </div>
