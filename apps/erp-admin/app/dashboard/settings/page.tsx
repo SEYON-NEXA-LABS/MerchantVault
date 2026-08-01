@@ -352,8 +352,13 @@ function SettingsContent() {
 
   const executeHandshake = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!shopUrl || !accessToken) {
-      toast.error("Please provide both your Shopify Store Domain URL and Admin API Access Token.");
+    if (!shopUrl) {
+      toast.error("Please enter your Shopify Store Domain URL.");
+      return;
+    }
+
+    if (!accessToken && (!clientId || !clientSecret)) {
+      toast.error("Please provide either your Admin API Access Token OR both App Client ID & Client Secret.");
       return;
     }
 

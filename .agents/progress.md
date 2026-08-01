@@ -26,6 +26,7 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Updated `executeHandshake` validation check in `settings/page.tsx` so users can authenticate using **EITHER** Admin API Access Token **OR** App Client ID & Client Secret.
   - [x] Added dedicated **App Client ID** and **App Client Secret** input fields to the Settings form UI.
   - [x] Updated `POST /api/settings` and Supabase SQL schema script to persist `shopifyClientId` and `shopifyClientSecret` to the tenant's `Company` record.
   - [x] Implemented **Automated Client Credentials Token Exchange**: If a user pastes their App Client ID (`3feb678bbd3464dd6752e4bb0430ce39`) and API Secret into Settings, FabricVault automatically queries `POST https://{shop}.myshopify.com/admin/oauth/access_token` with `grant_type=client_credentials`, retrieves the valid `shpat_` token, and saves it into Supabase automatically.
