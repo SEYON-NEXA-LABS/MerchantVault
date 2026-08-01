@@ -25,19 +25,15 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 
-- [x] **ERP Admin Barcode Operations (`apps/erp-admin/app/dashboard/barcode/page.tsx`)**
-  - [x] Integrated **Hybrid Barcode Strategy**: Displays whether the active variant barcode string originates from Shopify or internal ERP fallback.
-
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Added dedicated **App Client ID** and **App Client Secret** input fields to the Settings form UI.
+  - [x] Updated `POST /api/settings` and Supabase SQL schema script to persist `shopifyClientId` and `shopifyClientSecret` to the tenant's `Company` record.
+  - [x] Implemented **Automated Client Credentials Token Exchange**: If a user pastes their App Client ID (`3feb678bbd3464dd6752e4bb0430ce39`) and API Secret into Settings, FabricVault automatically queries `POST https://{shop}.myshopify.com/admin/oauth/access_token` with `grant_type=client_credentials`, retrieves the valid `shpat_` token, and saves it into Supabase automatically.
   - [x] Replaced fake step timer simulation in `executeHandshake` with an authentic live HTTP API ping against Shopify REST API (`POST /api/shopify/sync`). If token/domain fails, Step 2 marks as **Failed** and blocks connection.
-  - [x] Updated `isMockToken` check in `api/shopify/sync/route.ts` to accept `shpss_` (Shopify Storefront/Session/Custom Access Tokens) as valid real integration tokens.
   - [x] Updated REST API endpoints in `api/inventory/push-shopify/route.ts` to active version `2024-04`.
   - [x] Restored **Barcode Integration Mode** dropdown in Settings form now that `barcodeMode` column exists in Supabase.
   - [x] Disabled browser password manager autofill on Shopify integration form inputs (`autoComplete="new-password"`, `name` attributes, `spellCheck={false}`).
-  - [x] Updated `executeHandshake` submit handler to save `shopifyStoreUrl`, `shopifyAccessToken`, `shopifyWebhookSecret`, and `barcodeMode` to database via POST `/api/settings`.
-  - [x] Fixed Settings page dirty check logic (`initialCompanySettings` includes `secretKey` & `barcodeMode`) so the form loads clean without false dirty indicators.
-  - [x] Updated placeholders for Webhook API Secret Key (`e.g. API Secret Key / Client Secret from Shopify App Settings`).
-  - [x] Added 100% Data Safety & Non-Destructive Protection Guarantee Banners across Settings and Shopify Sync pages.
+  - [x] Fixed Settings page dirty check logic so the form loads clean without false dirty indicators.
 
 ---
 

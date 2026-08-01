@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     // Build update payload from allowed fields
     const allowedFields = [
       "name", "shopifyStoreUrl", "shopifyAccessToken", "shopifyWebhookSecret",
+      "shopifyClientId", "shopifyClientSecret",
       "whatsappNumber", "whatsappApiKey", "timezone",
       "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode"
     ];

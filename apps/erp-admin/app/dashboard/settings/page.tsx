@@ -66,6 +66,8 @@ function SettingsContent() {
   
   // Shopify credentials form states
   const [shopUrl, setShopUrl] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -305,6 +307,8 @@ function SettingsContent() {
         if (shopUrlVal) {
           setIsConnected(true);
         }
+        setClientId(data.shopifyClientId || "");
+        setClientSecret(data.shopifyClientSecret || "");
         const tokenVal = data.shopifyAccessToken || "";
         setAccessToken(tokenVal);
         const secretKeyVal = data.shopifyWebhookSecret || "";
@@ -320,6 +324,8 @@ function SettingsContent() {
           gstin: data.gstin || "",
           lowStockMode: data.lowStockMode || "MANUAL",
           shopUrl: shopUrlVal,
+          clientId: data.shopifyClientId || "",
+          clientSecret: data.shopifyClientSecret || "",
           accessToken: tokenVal,
           secretKey: secretKeyVal,
           barcodeMode: barcodeModeVal
@@ -371,6 +377,8 @@ function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shopifyStoreUrl: cleanShopUrl,
+          shopifyClientId: clientId,
+          shopifyClientSecret: clientSecret,
           shopifyAccessToken: accessToken,
           shopifyWebhookSecret: secretKey,
           barcodeMode
@@ -717,13 +725,63 @@ function SettingsContent() {
                       />
                     </div>
 
+                    <div className="bg-indigo-50/50 border border-indigo-100 rounded-lg p-3 text-xs space-y-1">
+                      <p className="font-semibold text-indigo-950">Authentication Methods:</p>
+                      <p className="text-indigo-900 text-[11px] leading-relaxed">
+                        • <strong>Method A (Partner Dev App)</strong>: Provide <strong>App Client ID</strong> + <strong>Client Secret</strong>. FabricVault automatically exchanges them for an Admin API token.<br />
+                        • <strong>Method B (Store Custom App)</strong>: Paste your <strong>Admin API Access Token</strong> (starts with <code>shpat_</code>) directly below.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="font-semibold text-gray-600 flex items-center gap-1.5">
+                          <Key className="w-3.5 h-3.5 text-gray-400" /> App Client ID <span className="text-gray-400 font-normal">(Required for Method A)</span>
+                        </label>
+                        <input 
+                          type="text" 
+                          name="shopify_client_id"
+                          autoComplete="off"
+                          value={clientId} 
+                          disabled={handshaking}
+                          onChange={e => setClientId(e.target.value)} 
+                          placeholder="e.g. 3feb678bbd3464dd6752e..." 
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-semibold text-gray-600 flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5 text-gray-400" /> App Client Secret <span className="text-gray-400 font-normal">(Required for Method A)</span>
+                        </label>
+                        <div className="relative">
+                          <input 
+                            type={showPasswords.shopifyClientSecret ? "text" : "password"} 
+                            name="shopify_client_secret"
+                            autoComplete="new-password"
+                            value={clientSecret} 
+                            disabled={handshaking}
+                            onChange={e => setClientSecret(e.target.value)} 
+                            placeholder="Client Secret for auto-token exchange" 
+                            className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                          />
+                          <button
+                            type="button"
+                            onClick={() => togglePasswordVisibility("shopifyClientSecret")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-450 hover:text-gray-650 transition-colors"
+                          >
+                            {showPasswords.shopifyClientSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="space-y-1">
                       <label className="font-semibold text-gray-600 flex items-center gap-1.5">
-                        <Key className="w-3.5 h-3.5 text-gray-400" /> Admin API Access Token
+                        <Key className="w-3.5 h-3.5 text-gray-400" /> Admin API Access Token <span className="text-gray-400 font-normal">(Direct or Auto-Generated)</span>
                       </label>
                       <div className="relative">
                         <input 
-                          required 
                           type={showPasswords.shopifyToken ? "text" : "password"} 
                           name="shopify_admin_api_token"
                           autoComplete="new-password"
@@ -733,7 +791,7 @@ function SettingsContent() {
                           value={accessToken} 
                           disabled={handshaking}
                           onChange={e => setAccessToken(e.target.value)} 
-                          placeholder="shpat_..." 
+                          placeholder="shpat_... (Auto-populated if Client ID & Secret provided)" 
                           className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                         />
                         <button
@@ -752,7 +810,6 @@ function SettingsContent() {
                       </label>
                       <div className="relative">
                         <input 
-                          required 
                           type={showPasswords.shopifySecret ? "text" : "password"} 
                           name="shopify_webhook_secret_key"
                           autoComplete="new-password"
@@ -762,7 +819,7 @@ function SettingsContent() {
                           value={secretKey} 
                           disabled={handshaking}
                           onChange={e => setSecretKey(e.target.value)} 
-                          placeholder="e.g. API Secret Key / Client Secret from Shopify App Settings" 
+                          placeholder="Webhook Signing Secret from Shopify Settings -> Notifications" 
                           className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                         />
                         <button

@@ -214,13 +214,40 @@ export async function POST(req: Request) {
     let recordsCount = 0;
     const syncJobId = `SYN-${Math.floor(100 + Math.random() * 900)}`;
 
+    let activeToken = shopifyAccessToken;
+
+    // Auto Client Credentials Token Exchange: If token isn't shpat_ and secret/client_id exists
+    if (!activeToken.startsWith("shpat_") && company.shopifyWebhookSecret) {
+      try {
+        const tokenRes = await fetch(`https://${shopifyDomain}/admin/oauth/access_token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            client_id: activeToken,
+            client_secret: company.shopifyWebhookSecret
+          })
+        });
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          if (tokenData.access_token) {
+            activeToken = tokenData.access_token;
+            // Persist the newly acquired shpat_ token back to Supabase
+            await supabase.from("Company").update({ shopifyAccessToken: activeToken }).eq("id", companyId);
+          }
+        }
+      } catch (tokErr) {
+        console.error("Client credentials exchange error:", tokErr);
+      }
+    }
+
     if (module === "Products Sync" || module === "Full System Sync") {
       const res = await fetch(
         `https://${shopifyDomain}/admin/api/2024-04/products.json`,
         {
           method: "GET",
           headers: {
-            "X-Shopify-Access-Token": shopifyAccessToken,
+            "X-Shopify-Access-Token": activeToken,
             "Content-Type": "application/json"
           }
         }
