@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     // 1. Fetch Company Integration details
     const { data: company, error: compErr } = await supabase
       .from("Company")
-      .select("shopifyStoreUrl, shopifyAccessToken")
+      .select("shopifyStoreUrl, shopifyAccessToken, shopifyClientId, shopifyClientSecret, shopifyWebhookSecret")
       .eq("id", companyId)
       .single();
 
