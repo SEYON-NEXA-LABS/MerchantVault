@@ -86,7 +86,7 @@ export async function POST(req: Request) {
     
     // a. Check if Product with title already exists
     const searchRes = await fetch(
-      `https://${shopifyDomain}/admin/api/2026-04/products.json?title=${encodeURIComponent(variant.title)}`,
+      `https://${shopifyDomain}/admin/api/2024-04/products.json?title=${encodeURIComponent(variant.title)}`,
       {
         method: "GET",
         headers: {
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       } else {
         // Create new variant on the existing product
         const createVarRes = await fetch(
-          `https://${shopifyDomain}/admin/api/2026-04/products/${shopifyProductId}/variants.json`,
+          `https://${shopifyDomain}/admin/api/2024-04/products/${shopifyProductId}/variants.json`,
           {
             method: "POST",
             headers: {
@@ -146,7 +146,7 @@ export async function POST(req: Request) {
     } else {
       // Product does not exist on Shopify; create new product with the variant
       const createProdRes = await fetch(
-        `https://${shopifyDomain}/admin/api/2026-04/products.json`,
+        `https://${shopifyDomain}/admin/api/2024-04/products.json`,
         {
           method: "POST",
           headers: {

@@ -263,8 +263,8 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !data.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) 
-          ? data.shopifyStoreUrl.replace("https://", "") 
+        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345") 
+          ? data.shopifyStoreUrl.replace("https://", "").replace("http://", "") 
           : "";
         setShopUrl(shopUrlVal);
         if (shopUrlVal) {
@@ -298,8 +298,8 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !data.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) 
-          ? data.shopifyStoreUrl.replace("https://", "") 
+        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345") 
+          ? data.shopifyStoreUrl.replace("https://", "").replace("http://", "") 
           : "";
         setShopUrl(shopUrlVal);
         if (shopUrlVal) {

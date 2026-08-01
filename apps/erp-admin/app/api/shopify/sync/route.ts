@@ -39,7 +39,8 @@ export async function POST(req: Request) {
 
     const isMockToken = 
       shopifyAccessToken === "shpat_mockaccesstoken12345" || 
-      shopifyAccessToken.startsWith("shpat_mock");
+      shopifyAccessToken.startsWith("shpat_mock") ||
+      shopifyAccessToken.startsWith("shpss_mock");
 
     const timestamp = Date.now();
     const durationSec = (Math.random() * 2 + 1).toFixed(1);
