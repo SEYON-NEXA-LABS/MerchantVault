@@ -26,6 +26,7 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Updated credential validation in `api/shopify/sync/route.ts` to allow sync when `shopifyClientId` is configured without requiring `shopifyAccessToken` beforehand.
   - [x] Updated `executeHandshake` validation check in `settings/page.tsx` so users can authenticate using **EITHER** Admin API Access Token **OR** App Client ID & Client Secret.
   - [x] Added dedicated **App Client ID** and **App Client Secret** input fields to the Settings form UI.
   - [x] Updated `POST /api/settings` and Supabase SQL schema script to persist `shopifyClientId` and `shopifyClientSecret` to the tenant's `Company` record.

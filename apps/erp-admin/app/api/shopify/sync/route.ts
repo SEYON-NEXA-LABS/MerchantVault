@@ -32,10 +32,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Company integration profile not found" }, { status: 404 });
     }
 
-    const { shopifyStoreUrl, shopifyAccessToken } = company;
-    if (!shopifyStoreUrl || !shopifyAccessToken) {
+    const { shopifyStoreUrl, shopifyAccessToken, shopifyClientId } = company;
+    if (!shopifyStoreUrl || (!shopifyAccessToken && !shopifyClientId)) {
       return NextResponse.json({ error: "Shopify credentials are not configured in settings." }, { status: 400 });
     }
+
+    const effectiveToken = shopifyAccessToken || shopifyClientId || "";
 
     const isMockToken = 
       process.env.NODE_ENV === "development" && (
@@ -214,18 +216,19 @@ export async function POST(req: Request) {
     let recordsCount = 0;
     const syncJobId = `SYN-${Math.floor(100 + Math.random() * 900)}`;
 
-    let activeToken = shopifyAccessToken;
+    let activeToken = effectiveToken;
+    const secretKeyForExchange = company.shopifyClientSecret || company.shopifyWebhookSecret || "";
 
     // Auto Client Credentials Token Exchange: If token isn't shpat_ and secret/client_id exists
-    if (!activeToken.startsWith("shpat_") && company.shopifyWebhookSecret) {
+    if (!activeToken.startsWith("shpat_") && secretKeyForExchange) {
       try {
         const tokenRes = await fetch(`https://${shopifyDomain}/admin/oauth/access_token`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
             grant_type: "client_credentials",
-            client_id: activeToken,
-            client_secret: company.shopifyWebhookSecret
+            client_id: company.shopifyClientId || activeToken,
+            client_secret: secretKeyForExchange
           })
         });
         if (tokenRes.ok) {
