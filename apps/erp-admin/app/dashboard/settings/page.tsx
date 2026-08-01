@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Settings,
   Link2,
@@ -20,7 +21,10 @@ import {
   Check,
   Truck,
   Eye,
-  EyeOff
+  EyeOff,
+  ExternalLink,
+  ShieldCheck,
+  QrCode
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
@@ -65,6 +69,7 @@ function SettingsContent() {
   const [accessToken, setAccessToken] = useState("");
   const [secretKey, setSecretKey] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [barcodeMode, setBarcodeMode] = useState<"HYBRID" | "STRICT_SHOPIFY" | "INTERNAL_ONLY">("HYBRID");
 
   // Handshake execution states
   const [handshaking, setHandshaking] = useState(false);
@@ -77,6 +82,7 @@ function SettingsContent() {
 
   // Company details form states
   const [companyName, setCompanyName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [timezone, setTimezone] = useState("");
   const [defaultThreshold, setDefaultThreshold] = useState(5);
@@ -96,12 +102,14 @@ function SettingsContent() {
       gstin !== initialCompanySettings.gstin ||
       lowStockMode !== initialCompanySettings.lowStockMode ||
       shopUrl !== initialCompanySettings.shopUrl ||
-      accessToken !== initialCompanySettings.accessToken;
+      accessToken !== initialCompanySettings.accessToken ||
+      secretKey !== initialCompanySettings.secretKey ||
+      barcodeMode !== initialCompanySettings.barcodeMode;
 
     if (typeof window !== "undefined") {
       (window as any).__seyonIsDirty = isDirty;
     }
-  }, [companyName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, initialCompanySettings]);
+  }, [companyName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, secretKey, barcodeMode, initialCompanySettings]);
 
   useEffect(() => {
     return () => {
@@ -299,6 +307,10 @@ function SettingsContent() {
         }
         const tokenVal = data.shopifyAccessToken || "";
         setAccessToken(tokenVal);
+        const secretKeyVal = data.shopifyWebhookSecret || "";
+        setSecretKey(secretKeyVal);
+        const barcodeModeVal = data.barcodeMode || "HYBRID";
+        setBarcodeMode(barcodeModeVal);
 
         setInitialCompanySettings({
           name: data.name || "",
@@ -308,7 +320,9 @@ function SettingsContent() {
           gstin: data.gstin || "",
           lowStockMode: data.lowStockMode || "MANUAL",
           shopUrl: shopUrlVal,
-          accessToken: tokenVal
+          accessToken: tokenVal,
+          secretKey: secretKeyVal,
+          barcodeMode: barcodeModeVal
         });
       }
     } catch (err) {
@@ -359,10 +373,41 @@ function SettingsContent() {
         }, 1200);
       } else {
         // Complete
-        setTimeout(() => {
-          setHandshaking(false);
-          setIsConnected(true);
-          toast.success("Shopify Handshake Complete! Connection status is now Active.");
+        setTimeout(async () => {
+          try {
+            const cleanShopUrl = shopUrl.startsWith("http") ? shopUrl : `https://${shopUrl}`;
+            const res = await fetch("/api/settings", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                shopifyStoreUrl: cleanShopUrl,
+                shopifyAccessToken: accessToken,
+                shopifyWebhookSecret: secretKey,
+                barcodeMode
+              })
+            });
+            const data = await res.json();
+            if (data.success) {
+              if (data.company) {
+                localStorage.setItem("seyon:company", JSON.stringify(data.company));
+              }
+              setInitialCompanySettings((prev: any) => ({
+                ...prev,
+                shopUrl,
+                accessToken,
+                secretKey,
+                barcodeMode
+              }));
+              toast.success("Shopify Handshake Complete & Credentials Saved! Connection status is now Active.");
+            } else {
+              toast.error(data.error || "Handshake succeeded but failed to save credentials.");
+            }
+          } catch (err) {
+            toast.error("Failed to save Shopify credentials to database.");
+          } finally {
+            setHandshaking(false);
+            setIsConnected(true);
+          }
         }, 800);
       }
     };
@@ -378,6 +423,7 @@ function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: companyName,
+          logoUrl,
           currency,
           timezone: timezone.split(" ")[0], // Extract just the code e.g. "IST"
           taxId,
@@ -608,7 +654,38 @@ function SettingsContent() {
                     <p className="text-xs text-gray-500 mt-1">Configure credentials from your Shopify Custom Admin App.</p>
                   </div>
 
-                  <form onSubmit={executeHandshake} className="space-y-4 text-xs">
+                  {/* Data Safety & Non-Destructive Guarantee Banner */}
+                  <div className="bg-emerald-50 border-l-4 border-emerald-500 rounded-r-lg p-3.5 space-y-1.5 shadow-sm">
+                    <div className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                      <span className="font-bold text-emerald-950 text-xs uppercase tracking-wider">
+                        100% Data Safety & Non-Destructive Protection Guaranteed
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-emerald-900 leading-relaxed font-medium">
+                      <strong>Your Shopify store data is completely safe.</strong> The FabricVault ERP integration performs <em>safe GET queries and passive webhook ingestion</em>. It <strong>never deletes, mutates, or overwrites</strong> your existing Shopify products, active orders, customer listings, or store settings.
+                    </p>
+                  </div>
+
+                  {/* Quick Setup Help Banner */}
+                  <div className="bg-indigo-50/80 border border-indigo-100 rounded-lg p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-indigo-950 text-xs flex items-center gap-1.5">
+                        <HelpCircle className="w-4 h-4 text-indigo-600" /> Shopify Credentials Setup Guide
+                      </span>
+                      <Link 
+                        href="/dashboard/help?topic=shopify-setup"
+                        className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 underline underline-offset-2"
+                      >
+                        View Full SOP <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+                    <p className="text-[11px] text-indigo-900 leading-relaxed">
+                      Need help finding your credentials? Log into <strong>Shopify Admin &rarr; Settings &rarr; Apps & Sales Channels &rarr; Develop Apps</strong>. Create a Custom App with <code>read_products</code>, <code>write_products</code>, <code>read_inventory</code>, <code>write_inventory</code>, <code>read_orders</code>, and <code>write_orders</code> scopes. Copy your <strong>.myshopify.com</strong> domain and Admin API token below.
+                    </p>
+                  </div>
+
+                  <form onSubmit={executeHandshake} autoComplete="off" className="space-y-4 text-xs">
                     <div className="space-y-1">
                       <label className="font-semibold text-gray-600 flex items-center gap-1.5">
                         <Globe className="w-3.5 h-3.5 text-gray-400" /> Shopify Store Domain URL
@@ -616,6 +693,11 @@ function SettingsContent() {
                       <input 
                         required 
                         type="text" 
+                        name="shopify_store_domain_url"
+                        autoComplete="off"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
                         value={shopUrl} 
                         disabled={handshaking}
                         onChange={e => setShopUrl(e.target.value)} 
@@ -632,6 +714,11 @@ function SettingsContent() {
                         <input 
                           required 
                           type={showPasswords.shopifyToken ? "text" : "password"} 
+                          name="shopify_admin_api_token"
+                          autoComplete="new-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
                           value={accessToken} 
                           disabled={handshaking}
                           onChange={e => setAccessToken(e.target.value)} 
@@ -656,10 +743,15 @@ function SettingsContent() {
                         <input 
                           required 
                           type={showPasswords.shopifySecret ? "text" : "password"} 
+                          name="shopify_webhook_secret_key"
+                          autoComplete="new-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
                           value={secretKey} 
                           disabled={handshaking}
                           onChange={e => setSecretKey(e.target.value)} 
-                          placeholder="whsec_..." 
+                          placeholder="e.g. API Secret Key / Client Secret from Shopify App Settings" 
                           className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                         />
                         <button
@@ -670,6 +762,24 @@ function SettingsContent() {
                           {showPasswords.shopifySecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
+                    </div>
+
+                    <div className="space-y-1 pt-2">
+                      <label className="font-semibold text-gray-700 flex items-center gap-1.5">
+                        <QrCode className="w-3.5 h-3.5 text-indigo-600" /> Barcode Integration Mode
+                      </label>
+                      <select
+                        value={barcodeMode}
+                        onChange={(e) => setBarcodeMode(e.target.value as "HYBRID" | "STRICT_SHOPIFY" | "INTERNAL_ONLY")}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      >
+                        <option value="HYBRID">Hybrid Mode (Use Shopify barcode if present, generate internal ERP barcode if blank)</option>
+                        <option value="STRICT_SHOPIFY">Strict Shopify Barcodes Only (Require barcode from Shopify catalog)</option>
+                        <option value="INTERNAL_ONLY">Internal ERP Barcodes Only (Always generate custom internal barcode format)</option>
+                      </select>
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        Determines how physical hangtags and scanner verification match SKUs during picking & warehouse inventory checks.
+                      </p>
                     </div>
 
                     <div className="pt-3 border-t border-gray-100 flex items-center gap-3">

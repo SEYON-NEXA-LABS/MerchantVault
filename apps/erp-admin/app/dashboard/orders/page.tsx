@@ -533,24 +533,26 @@ export default function OrdersPage() {
             Verify picked item SKU barcodes, assign parcel courier configurations, and dispatch tracking IDs directly back to Shopify.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={simulateOrder}
-            disabled={simulating}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
-          >
-            <Sparkles className="w-4 h-4" />
-            {simulating ? "Simulating..." : "Simulate Shopify Order (3 units)"}
-          </button>
-          <button 
-            onClick={simulateRefund}
-            disabled={simulatingRefund}
-            className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${simulatingRefund ? "animate-spin" : ""}`} />
-            {simulatingRefund ? "Refunding..." : "Simulate Shopify Return"}
-          </button>
-        </div>
+        {process.env.NODE_ENV === "development" && (
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={simulateOrder}
+              disabled={simulating}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+            >
+              <Sparkles className="w-4 h-4" />
+              {simulating ? "Simulating..." : "Simulate Shopify Order (3 units)"}
+            </button>
+            <button 
+              onClick={simulateRefund}
+              disabled={simulatingRefund}
+              className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${simulatingRefund ? "animate-spin" : ""}`} />
+              {simulatingRefund ? "Refunding..." : "Simulate Shopify Return"}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Grid Workspace */}
@@ -699,7 +701,7 @@ export default function OrdersPage() {
                   </tr>
                 ) : filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">No orders found. Click "Simulate Shopify Order" to ingest mock order data.</td>
+                    <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">No orders found. Synchronize Shopify sales channel or create manual orders.</td>
                   </tr>
                 ) : (
                   paginatedOrders.map(ord => {

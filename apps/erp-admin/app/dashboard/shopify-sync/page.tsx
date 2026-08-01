@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   RefreshCw,
@@ -15,7 +16,8 @@ import {
   Clock,
   ArrowRight,
   Sparkles,
-  Link2
+  Link2,
+  ShieldCheck
 } from "lucide-react";
 import { RoleGuard } from "../../../components/RoleGuard";
 
@@ -137,6 +139,21 @@ function ShopifySyncContent() {
             <RefreshCw className={`w-4 h-4 ${syncing === "Full System Sync" ? "animate-spin" : ""}`} />
             {syncing === "Full System Sync" ? "Syncing All..." : "Sync All Modules"}
           </button>
+        </div>
+      </div>
+
+      {/* 100% Data Safety & Read Protection Guarantee */}
+      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+        <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg shrink-0 mt-0.5">
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="font-bold text-emerald-950 text-xs uppercase tracking-wider">
+            100% Non-Destructive Data Protection Guarantee
+          </h3>
+          <p className="text-xs text-emerald-900 leading-relaxed">
+            <strong>Your Shopify store database is completely untouched and safe.</strong> Syncing operates strictly as a <em>one-way read & passive webhook listener</em>. FabricVault ERP will <strong>never delete, overwrite, or modify</strong> your existing Shopify products, collections, customer records, or active store configuration.
+          </p>
         </div>
       </div>
 
@@ -382,9 +399,12 @@ function ShopifySyncContent() {
           </div>
           
           <div className="pt-4 border-t border-gray-100 mt-4">
-            <button className="w-full flex items-center justify-center gap-2 text-xs font-semibold bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 py-2 rounded-lg text-gray-700 transition-all">
+            <Link 
+              href="/dashboard/settings"
+              className="w-full flex items-center justify-center gap-2 text-xs font-semibold bg-gray-50 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 py-2 rounded-lg text-gray-700 transition-all cursor-pointer"
+            >
               <Settings2 className="w-3.5 h-3.5" /> Configure Credentials
-            </button>
+            </Link>
           </div>
         </div>
       </div>

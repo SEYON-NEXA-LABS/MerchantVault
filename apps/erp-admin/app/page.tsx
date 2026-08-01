@@ -273,25 +273,24 @@ export default function Home() {
           </form>
 
           {/* Developer Quick Login Options */}
-          {showDevMode && (
-            <div className="pt-6 border-t border-stone-200 space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="text-[10px] font-extrabold text-stone-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <Terminal className="w-3.5 h-3.5 text-stone-600 animate-pulse" /> Developer Quick Logins
-                </h3>
+          {process.env.NODE_ENV === "development" && showDevMode && (
+            <div className="pt-2 border-t border-stone-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">Demo Quick Logins</span>
+                <span className="text-[10px] bg-stone-100 text-stone-600 font-semibold px-2 py-0.5 rounded border border-stone-200">Dev Mode</span>
               </div>
               <div className="space-y-2">
                 {[
                   {
-                    role: "Superadmin (Owner)",
-                    user: "superadmin",
-                    pass: "super123",
+                    role: "Super Admin (Owner)",
+                    user: "owner",
+                    pass: "owner123",
                     comp: "syn",
-                    desc: "Platform setups & billing panels",
+                    desc: "Full access across all modules",
                     style: "border-stone-200 hover:border-stone-400 hover:bg-stone-50"
                   },
                   {
-                    role: "Tenant Admin (Manager)",
+                    role: "Store Manager",
                     user: "admin",
                     pass: "admin123",
                     comp: "syn",
@@ -326,7 +325,7 @@ export default function Home() {
             </div>
           )}
 
-          {showDevModeToggle && (
+          {process.env.NODE_ENV === "development" && showDevModeToggle && (
             <div className="text-center pt-2">
               <button 
                 onClick={() => setShowDevMode(!showDevMode)}

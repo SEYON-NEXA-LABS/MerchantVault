@@ -39,8 +39,7 @@ export async function POST(req: Request) {
 
     const isMockToken = 
       shopifyAccessToken === "shpat_mockaccesstoken12345" || 
-      shopifyAccessToken.startsWith("shpat_mock") ||
-      shopifyStoreUrl.includes("myshopify.com") === false;
+      shopifyAccessToken.startsWith("shpat_mock");
 
     const timestamp = Date.now();
     const durationSec = (Math.random() * 2 + 1).toFixed(1);
@@ -214,7 +213,7 @@ export async function POST(req: Request) {
 
     if (module === "Products Sync" || module === "Full System Sync") {
       const res = await fetch(
-        `https://${shopifyDomain}/admin/api/2026-04/products.json`,
+        `https://${shopifyDomain}/admin/api/2024-04/products.json`,
         {
           method: "GET",
           headers: {
@@ -264,6 +263,7 @@ export async function POST(req: Request) {
                   title,
                   price,
                   category,
+                  barcodeString,
                   thumbnailConfig,
                   updatedAt: new Date().toISOString()
                 })
@@ -294,7 +294,7 @@ export async function POST(req: Request) {
 
     if (module === "Customers Sync" || module === "Full System Sync") {
       const res = await fetch(
-        `https://${shopifyDomain}/admin/api/2026-04/customers.json`,
+        `https://${shopifyDomain}/admin/api/2024-04/customers.json`,
         {
           method: "GET",
           headers: {
@@ -354,7 +354,7 @@ export async function POST(req: Request) {
 
     if (module === "Orders Sync" || module === "Full System Sync") {
       const res = await fetch(
-        `https://${shopifyDomain}/admin/api/2026-04/orders.json?status=any`,
+        `https://${shopifyDomain}/admin/api/2024-04/orders.json?status=any`,
         {
           method: "GET",
           headers: {

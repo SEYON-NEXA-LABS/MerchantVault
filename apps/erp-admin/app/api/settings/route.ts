@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data: company, error: compErr } = await supabase
       .from("Company")
-      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, whatsappNumber, whatsappApiKey, onboardingStep, onboardingCompleted, timezone, currency, contactEmail, logoUrl, isActive, taxId, gstin, lowStockMode")
+      .select("*")
       .eq("id", companyId)
       .maybeSingle();
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     // Build update payload from allowed fields
     const allowedFields = [
-      "name", "shopifyStoreUrl", "shopifyAccessToken",
+      "name", "shopifyStoreUrl", "shopifyAccessToken", "shopifyWebhookSecret",
       "whatsappNumber", "whatsappApiKey", "timezone",
       "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode"
     ];

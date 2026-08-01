@@ -97,6 +97,7 @@ export default function DashboardLayout({
   const [isOffline, setIsOffline] = useState(false);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [devEnvironmentMode, setDevEnvironmentMode] = useState<"DEV" | "PROD">("DEV");
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -418,7 +419,7 @@ export default function DashboardLayout({
                 <ul className="space-y-0.5">
                   {[
                     { 
-                      name: "Stock Inventory", 
+                      name: "Stock & SKU Inventory", 
                       icon: Package, 
                       href: "/dashboard/inventory",
                       badge: lowStockAlerts.length > 0 ? `${lowStockAlerts.length} Low` : null
@@ -622,10 +623,51 @@ export default function DashboardLayout({
                 </li>
               </ul>
             </div>
+
+            {/* Development Environment Mode Switcher - Dev Only */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="mt-4 pt-4 border-t border-slate-200/80 px-1">
+                <div className="flex items-center justify-between bg-slate-100 p-1.5 rounded-lg border border-slate-200">
+                  <span className="text-[11px] font-bold text-slate-600 px-2 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${devEnvironmentMode === "DEV" ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
+                    Env Mode:
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setDevEnvironmentMode("DEV")}
+                      className={`text-[10px] font-bold px-2 py-1 rounded transition-all ${
+                        devEnvironmentMode === "DEV"
+                          ? "bg-amber-500 text-white shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      DEV
+                    </button>
+                    <button
+                      onClick={() => setDevEnvironmentMode("PROD")}
+                      className={`text-[10px] font-bold px-2 py-1 rounded transition-all ${
+                        devEnvironmentMode === "PROD"
+                          ? "bg-emerald-600 text-white shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      PROD
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </nav>
 
-          <div className="p-4 border-t border-gray-100 flex items-center text-xs text-gray-500 hover:text-gray-900 cursor-pointer">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Collapse
+          <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 hover:text-gray-900 cursor-pointer">
+            <div className="flex items-center">
+              <ChevronLeft className="w-4 h-4 mr-1" /> Collapse
+            </div>
+            {process.env.NODE_ENV === "development" && (
+              <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded">
+                {devEnvironmentMode}
+              </span>
+            )}
           </div>
         </aside>
 

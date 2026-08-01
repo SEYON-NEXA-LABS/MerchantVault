@@ -154,7 +154,7 @@ function CRMContent() {
     fetchCRMData();
   }, []);
 
-  const triggerMockRecovery = async (cartId: string, phone: string) => {
+  const triggerRecovery = async (cartId: string, phone: string) => {
     toast.promise(
       new Promise((resolve) => setTimeout(resolve, 1500)),
       {
@@ -598,7 +598,7 @@ function CRMContent() {
                       <td className="p-4 text-right">
                         {cart.recoveryStatus === "PENDING" ? (
                           <button
-                            onClick={() => triggerMockRecovery(cart.id, cart.customerPhone)}
+                            onClick={() => triggerRecovery(cart.id, cart.customerPhone)}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1.5 ml-auto cursor-pointer"
                           >
                             <MessageSquare className="w-3.5 h-3.5" /> Send Recovery WhatsApp

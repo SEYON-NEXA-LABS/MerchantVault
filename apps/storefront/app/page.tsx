@@ -610,11 +610,11 @@ export default function StorefrontPage() {
         }));
         setProducts(mapped);
       } else {
-        // If a company tenant context is active, show empty state instead of generic fallback
-        setProducts(companyId ? [] : FALLBACK_PRODUCTS);
+        // If a company tenant context is active or in production, show empty state instead of generic fallback
+        setProducts(companyId || process.env.NODE_ENV !== "development" ? [] : FALLBACK_PRODUCTS);
       }
     } catch (e) {
-      setProducts(companyId ? [] : FALLBACK_PRODUCTS);
+      setProducts(companyId || process.env.NODE_ENV !== "development" ? [] : FALLBACK_PRODUCTS);
     } finally {
       setLoading(false);
     }
@@ -906,7 +906,7 @@ export default function StorefrontPage() {
           >
             {syncStatus === "syncing" ? "Syncing..." : syncStatus === "synced" ? "Synced" : "Sync ERP Catalog"}
           </button>
-          {!companyIdMissing && (
+          {process.env.NODE_ENV === "development" && !companyIdMissing && (
             <button 
               onClick={() => setUseSampleData(prev => !prev)}
               style={{
@@ -929,7 +929,7 @@ export default function StorefrontPage() {
         </div>
       </div>
       
-      {!dismissBanner && (
+      {process.env.NODE_ENV === "development" && !dismissBanner && (
         <div style={{
           background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.1)",

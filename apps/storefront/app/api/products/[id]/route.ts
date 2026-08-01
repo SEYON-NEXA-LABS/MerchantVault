@@ -231,13 +231,15 @@ export async function GET(
       company = coData;
     }
 
-    // Check fallback products first
-    const fallback = FALLBACK_PRODUCTS.find(p => p.id === id);
-    if (fallback) {
-      return NextResponse.json({
-        product: fallback,
-        company
-      });
+    // Check fallback products first (only in development)
+    if (process.env.NODE_ENV === "development") {
+      const fallback = FALLBACK_PRODUCTS.find(p => p.id === id);
+      if (fallback) {
+        return NextResponse.json({
+          product: fallback,
+          company
+        });
+      }
     }
 
     if (!supabase) {

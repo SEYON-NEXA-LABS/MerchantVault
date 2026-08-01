@@ -614,6 +614,61 @@ function HelpContent() {
           </div>
         </div>
       )
+    },
+    {
+      id: "shopify-setup",
+      title: "Shopify API & Credentials Setup Guide",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Shopify Custom App & API Credentials Guide</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Follow this guide to generate and connect your custom Shopify Admin API credentials for real-time catalog syncing, inventory updates, and order ingestion.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Step 1: Create a Custom App in Shopify</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2">
+            <li>Log into your <strong>Shopify Store Admin</strong> (`https://your-store.myshopify.com/admin`).</li>
+            <li>Go to <strong>Settings &rarr; Apps and sales channels</strong>.</li>
+            <li>Click <strong>Develop apps</strong>, then click <strong>Create an app</strong>.</li>
+            <li>Name your app (e.g. <code>FabricVault ERP Sync</code>) and select your Developer Account.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Step 2: Configure Admin API Access Scopes</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Under <strong>Configuration &rarr; Admin API integration</strong>, enable the following required access scopes:
+          </p>
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs space-y-1 font-mono text-indigo-900">
+            <div>• read_products, write_products</div>
+            <div>• read_inventory, write_inventory</div>
+            <div>• read_orders, write_orders</div>
+            <div>• read_customers</div>
+            <div>• read_fulfillments, write_fulfillments</div>
+          </div>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Step 3: Copy Access Token & Credentials</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2">
+            <li>Click <strong>Install app</strong> at the top right of the Shopify Custom App screen.</li>
+            <li>Copy the generated <strong>Admin API access token</strong> (starts with <code>shpat_</code>). <em>Note: This token is displayed only once in Shopify.</em></li>
+            <li>Copy your <strong>API secret key</strong> (used for webhook HMAC validation).</li>
+            <li>Note down your store's internal domain name ending in <code>.myshopify.com</code> (e.g. <code>wolfcabin.myshopify.com</code>).</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Step 4: Save & Handshake in FabricVault ERP</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2">
+            <li>Go to <strong>Dashboard Settings &rarr; Shopify Integration</strong> in FabricVault ERP.</li>
+            <li>Paste your <strong>Store Domain URL</strong>, <strong>Admin API Access Token</strong>, and <strong>Webhook API Secret Key</strong>.</li>
+            <li>Click <strong>Connect & Initiate Handshake</strong>. The system will perform an automated handshake test and display <code>Bridge Connected</code>.</li>
+          </ol>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-indigo-950">Catalog Sync Operational Note</h4>
+            <p className="text-xs text-indigo-900 mt-1">
+              Once connected, products pulled from Shopify populate your active PostgreSQL database variants table. All barcode tags, purchase order receipts, and order pick list validations sync seamlessly against these live variants.
+            </p>
+          </div>
+        </div>
+      )
     }
   ];
 

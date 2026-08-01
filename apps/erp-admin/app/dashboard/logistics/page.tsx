@@ -812,7 +812,7 @@ export default function LogisticsPage() {
                     }}
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg flex items-center justify-center gap-1.5 mt-2"
                   >
-                    <Check className="w-4 h-4" /> Handover to Driver (Mock)
+                    <Check className="w-4 h-4" /> Handover to Driver
                   </Button>
                 )}
               </div>

@@ -25,6 +25,8 @@ interface ProductVariant {
   size: string;
   price: number;
   shopifyVariantId: string;
+  barcodeString?: string;
+  barcode?: string;
   category?: string;
   targetGroup?: string;
   ageRange?: string;
@@ -314,7 +316,7 @@ export default function BarcodePage() {
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search mock variants by SKU or name..."
+                placeholder="Search variants by SKU or name..."
                 value={searchQuery}
                 onFocus={() => setShowProductDropdown(true)}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -349,7 +351,16 @@ export default function BarcodePage() {
               <div>
                 <p className="text-gray-400 uppercase font-bold tracking-wider text-[9px]">Active Variant</p>
                 <h3 className="font-bold text-gray-900 text-base">{selectedProduct.name}</h3>
-                <p className="text-gray-500 font-mono mt-0.5">SKU: {selectedProduct.sku}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-gray-500 font-mono">SKU: {selectedProduct.sku}</p>
+                  <span className="text-gray-300">•</span>
+                  <p className="text-indigo-900 font-mono font-bold">Barcode: {selectedProduct.barcode || selectedProduct.sku}</p>
+                  {selectedProduct.barcode && !selectedProduct.barcode.startsWith("BAR-") ? (
+                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.5 rounded">Shopify Barcode</span>
+                  ) : (
+                    <span className="bg-slate-200 text-slate-700 text-[10px] font-semibold px-1.5 py-0.5 rounded">Internal ERP Barcode</span>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2">
                 <span className="bg-white border border-gray-200 px-2.5 py-1 rounded font-semibold text-gray-700">Size: {selectedProduct.size}</span>
