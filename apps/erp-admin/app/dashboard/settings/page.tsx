@@ -263,7 +263,7 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345") 
+        const shopUrlVal = data.shopifyStoreUrl 
           ? data.shopifyStoreUrl.replace("https://", "").replace("http://", "") 
           : "";
         setShopUrl(shopUrlVal);
@@ -298,7 +298,7 @@ function SettingsContent() {
         setTaxId(data.taxId || "");
         setGstin(data.gstin || "");
         setLowStockMode(data.lowStockMode || "MANUAL");
-        const shopUrlVal = (data.shopifyStoreUrl && data.shopifyAccessToken !== "shpat_mockaccesstoken12345") 
+        const shopUrlVal = data.shopifyStoreUrl 
           ? data.shopifyStoreUrl.replace("https://", "").replace("http://", "") 
           : "";
         setShopUrl(shopUrlVal);

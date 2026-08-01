@@ -295,7 +295,7 @@ export default function DashboardLayout({
       icon: RefreshCw, 
       href: "/dashboard/shopify-sync", 
       roles: ["SUPERADMIN", "TENANTADMIN"],
-      badge: company && (!company.shopifyStoreUrl || company.shopifyAccessToken === "shpat_mockaccesstoken12345" || company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com")) ? "Alert" : null
+      badge: company && (!company.shopifyStoreUrl || !company.shopifyAccessToken) ? "Alert" : null
     },
   ];
 
@@ -881,7 +881,7 @@ export default function DashboardLayout({
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: {company?.name ? company.name.toUpperCase() : "SEYON"} ({company?.code || "syn"})
               </span>
               <span className="text-stone-300">|</span>
-              <span>Shopify: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? company.shopifyStoreUrl.replace("https://", "") : "Unconfigured"}</span>
+              <span>Shopify: {company?.shopifyStoreUrl && company.shopifyAccessToken ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured"}</span>
               <span className="text-stone-300">|</span>
               <span className="flex items-center gap-1">
                 <span>📍 WH:</span>
@@ -889,11 +889,11 @@ export default function DashboardLayout({
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <span>Webhook: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
+              <span>Webhook: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
               <span className="text-stone-300">|</span>
-              <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? "99.8%" : "0.0%"}</span>
+              <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "99.8%" : "0.0%"}</span>
               <span className="text-stone-300">|</span>
-              <span className="text-stone-900 font-semibold">API v2026-04</span>
+              <span className="text-stone-900 font-semibold">API v2024-04</span>
             </div>
           </footer>
         </div>

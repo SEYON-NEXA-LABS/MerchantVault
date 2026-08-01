@@ -111,7 +111,7 @@ function ShopifySyncContent() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? (
+            {company?.shopifyStoreUrl && company?.shopifyAccessToken ? (
               <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-100">
                 <Link2 className="w-3 h-3" /> Connected
               </span>
@@ -122,7 +122,7 @@ function ShopifySyncContent() {
             )}
             <span className="text-gray-400 text-xs">•</span>
             <span className="text-xs text-gray-500 font-mono">
-              {company?.shopifyStoreUrl && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? company.shopifyStoreUrl.replace("https://", "") : "Unconfigured Store Domain"}
+              {company?.shopifyStoreUrl && company?.shopifyAccessToken ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured Store Domain"}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Sync Bridge</h1>

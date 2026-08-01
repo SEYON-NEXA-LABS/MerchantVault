@@ -20,8 +20,9 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
 - [x] **ERP Admin Login Page (`apps/erp-admin/app/page.tsx`)**
   - [x] Ensure quick-login demo profiles and dev mode toggle UI are strictly restricted to development mode.
 
-- [x] **ERP Admin Dashboard Sidebar (`apps/erp-admin/app/dashboard/layout.tsx`)**
+- [x] **ERP Admin Dashboard Sidebar & Footer (`apps/erp-admin/app/dashboard/layout.tsx`)**
   - [x] Added DEV / PROD mode toggle pill in sidebar strictly wrapped in `process.env.NODE_ENV === 'development'`.
+  - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
   - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
 
 - [x] **ERP Admin Barcode Operations (`apps/erp-admin/app/dashboard/barcode/page.tsx`)**
