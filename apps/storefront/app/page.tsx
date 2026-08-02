@@ -574,22 +574,34 @@ export default function StorefrontPage() {
 
   // Load products (DB query + Fallbacks)
   const fetchProducts = async (companyId?: string | null, brandCode?: string) => {
+    // 1. Early Return Guard: Stops execution immediately if companyId is null or missing
+    if (!companyId) {
+      const isDev = process.env.NODE_ENV === "development";
+      // Show fallbacks in development UI even without a company context, clean empty array in prod
+      setProducts(isDev ? FALLBACK_PRODUCTS : []);
+      setLoading(false);
+      return; 
+    }
+
     setLoading(true);
+    const isDev = process.env.NODE_ENV === "development";
+
     try {
-      let url = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
+      // 2. URL can now be simplified since companyId is guaranteed to exist here
+      let url = `/api/products?companyId=${companyId}`;
       if (brandCode) {
-        url += `${companyId ? "&" : "?"}brand=${brandCode}`;
+        url += `&brand=${brandCode}`;
       }
-      const res = await fetch(url);
-      const data = await res.json();
       
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("API call failed");
+      
+      const data = await res.json();
       const productList = data.products || (Array.isArray(data) ? data : []);
       const companyDetails = data.company || null;
       const brandList = data.brands || [];
-      
-      if (companyDetails) {
-        setCompany(companyDetails);
-      }
+
+      if (companyDetails) setCompany(companyDetails);
       setBrands(brandList);
 
       if (productList.length > 0) {
@@ -609,13 +621,18 @@ export default function StorefrontPage() {
           thumbnailConfig: v.thumbnailConfig,
           description: `Directly synced from Seyon ERP Database. Live stock tracking active with safety limit: ${v.safetyStockLimit || 5} units.`
         }));
-        setProducts(mapped);
+
+        // DEV: Actual Database Items + Fallback Items
+        // PROD: Only Actual Database Items
+        setProducts(isDev ? [...mapped, ...FALLBACK_PRODUCTS] : mapped);
       } else {
-        // If a company tenant context is active or in production, show empty state instead of generic fallback
-        setProducts(companyId || process.env.NODE_ENV !== "development" ? [] : FALLBACK_PRODUCTS);
+        // Database returned an empty list for this specific company
+        setProducts([]);
       }
     } catch (e) {
-      setProducts(companyId || process.env.NODE_ENV !== "development" ? [] : FALLBACK_PRODUCTS);
+      console.error("Fetch products failed:", e);
+      // Network/Server Error handling
+      setProducts([]);
     } finally {
       setLoading(false);
     }
