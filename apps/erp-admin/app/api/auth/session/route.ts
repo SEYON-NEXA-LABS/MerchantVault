@@ -21,7 +21,7 @@ export async function GET() {
       if (user.companyId && user.companyId !== "00000000-0000-0000-0000-000000000000") {
         const { data: coData } = await supabase
           .from("Company")
-          .select("id, name, code, brands, shopifyStoreUrl, shopifyAccessToken, shopifyShopDomain, syncActive")
+          .select("*")
           .eq("id", user.companyId)
           .maybeSingle();
         
@@ -39,7 +39,7 @@ export async function GET() {
         const code = user.companyCode || "syn";
         const { data: coData } = await supabase
           .from("Company")
-          .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, shopifyShopDomain, syncActive")
+          .select("*")
           .eq("code", code)
           .maybeSingle();
 
@@ -55,10 +55,21 @@ export async function GET() {
         }
       }
 
+      // Sanitize company object before sending to browser client (Omit raw secret tokens)
+      let safeCompany = null;
+      if (company) {
+        const { shopifyAccessToken, shopifyClientSecret, shopifyWebhookSecret, whatsappApiKey, ...rest } = company;
+        safeCompany = {
+          ...rest,
+          hasShopifyAccessToken: Boolean(shopifyAccessToken),
+          hasShopifySecretKey: Boolean(shopifyWebhookSecret)
+        };
+      }
+
       return NextResponse.json({ 
         authenticated: true, 
         user, 
-        company, 
+        company: safeCompany, 
         warehouses 
       });
     } catch (e) {

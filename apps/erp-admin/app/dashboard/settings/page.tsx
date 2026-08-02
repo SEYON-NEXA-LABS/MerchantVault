@@ -429,7 +429,12 @@ function SettingsContent() {
         barcodeMode
       }));
 
+      if (saveResult.company) {
+        const { shopifyAccessToken, shopifyClientSecret, shopifyWebhookSecret, whatsappApiKey, ...safeCo } = saveResult.company;
+        localStorage.setItem("seyon:company", JSON.stringify(safeCo));
+      }
       setIsConnected(true);
+      window.dispatchEvent(new Event("storage"));
       toast.success(`Authentic Shopify Handshake Verified! Synced ${verifyResult.log?.records || 0} products live.`);
     } catch (err: any) {
       setSteps(prev => prev.map(s => s.id === 2 ? { ...s, status: "failed" } : s));
@@ -981,17 +986,35 @@ function SettingsContent() {
                 </div>
               </div>
 
-              {/* Seyon Storefront Coming Soon section */}
+              {/* Seyon Storefront Channel Section */}
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-gray-900 text-sm">Seyon Storefront</h4>
-                  <span className="bg-amber-50 text-amber-800 border border-amber-100 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase animate-pulse">
-                    Coming Soon
-                  </span>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold text-gray-900 text-sm">Seyon Storefront Sales Channel</h4>
+                    <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full uppercase">
+                      Active Channel
+                    </span>
+                  </div>
+                  <a
+                    href={process.env.NODE_ENV === "development" ? `http://localhost:3001/?companyId=${initialCompanySettings?.id || ""}` : `https://fabricvault-storefront.vercel.app/?companyId=${initialCompanySettings?.id || ""}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
+                  >
+                    Launch Storefront Channel 🚀
+                  </a>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Consolidate your brand under a native custom-built shopping experience directly linked to your ERP data schema.
-                </p>
+
+                <div className="p-3.5 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs space-y-1">
+                  <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+                    <span>🔗</span> Dedicated Tenant Storefront Link:
+                  </div>
+                  <code className="block bg-white p-2 rounded border border-indigo-200 text-indigo-900 font-mono text-[11px] select-all break-all">
+                    {process.env.NODE_ENV === "development" 
+                      ? `http://localhost:3001/?companyCode=${initialCompanySettings?.code || "syn"}`
+                      : `https://fabricvault-storefront.vercel.app/?companyCode=${initialCompanySettings?.code || "syn"}`}
+                  </code>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-2">
                   <div className="p-4 rounded-xl border border-gray-200 bg-slate-50/30 space-y-2">
@@ -1014,10 +1037,10 @@ function SettingsContent() {
 
                   <div className="p-4 rounded-xl border border-gray-200 bg-slate-50/30 space-y-2">
                     <h5 className="font-bold text-gray-900 flex items-center gap-1.5">
-                      <span>🚀</span> No API Rate Limits
+                      <span>🌐</span> Multi-Tenant Isolation
                     </h5>
                     <p className="text-[11px] text-gray-500 leading-relaxed">
-                      Scale flash sales smoothly. Free from Shopify API rate-limit throttling (GraphQL bucket caps), enabling your store to process unlimited checkouts concurrently.
+                      Your store's branding, catalogs, orders, and barcodes run safely isolated under your company ID.
                     </p>
                   </div>
                 </div>

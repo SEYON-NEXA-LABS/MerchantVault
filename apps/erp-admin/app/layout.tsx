@@ -9,8 +9,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Seyon ERP",
-  description: "Seyon ERP - Inventory & Order Management",
+  title: "FabricVault ERP - Inventory & Order Management",
+  description: "Multi-Tenant Inventory & Order Management System",
 };
 
 export default function RootLayout({

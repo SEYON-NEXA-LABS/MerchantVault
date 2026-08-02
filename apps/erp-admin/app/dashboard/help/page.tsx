@@ -690,6 +690,58 @@ function HelpContent() {
               <span className="block">• <strong>Safe Upsert Only</strong>: Inventory synchronization strictly updates inventory quantities (`inventory_level`) or creates missing product SKUs.</span>
             </p>
           </div>
+
+          <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded-r-lg mt-3">
+            <h4 className="text-sm font-bold text-purple-950">Client-Side LocalStorage & Realtime Session Syncing</h4>
+            <p className="text-xs text-purple-900 mt-1 space-y-1.5 leading-relaxed">
+              <span className="block"><strong>How does FabricVault ERP utilize browser LocalStorage?</strong></span>
+              <span className="block">• <strong>Session & Tenant Caching</strong>: Key configuration records (e.g. <code>seyon:company</code>, <code>activeWarehouseId</code>, <code>seyon:user</code>) are cached in browser <code>localStorage</code> to guarantee instant page renders without waiting for network pings.</span>
+              <span className="block">• <strong>Realtime Storage Events</strong>: When tenant credentials or Shopify URLs are updated in <strong>Settings</strong>, the app fires a custom <code>window.dispatchEvent(new Event("storage"))</code> event.</span>
+              <span className="block">• <strong>Instant UI updates</strong>: The global navigation sidebar listens for storage events to immediately display dynamic links like <strong>Shopify Admin</strong> and active brand titles without requiring a manual page refresh.</span>
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "multi-tenant-storefront",
+      title: "Storefront Multi-Tenant Channel Setup",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Storefront Sales Channel Options</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon Storefront allows you to run multiple brand channels or standalone tenant stores while keeping catalogs, orders, and pricing completely isolated.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">How Your Storefront URL Is Delivered</h3>
+          <div className="space-y-3 text-xs text-slate-700 mt-2">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <span className="font-bold text-indigo-950 block">1. Dedicated Tenant Link (Default)</span>
+              <span className="text-[11px] text-slate-600 block mt-1">
+                Your company is assigned a unique storefront link containing your company code. You can copy this link anytime under <strong>Settings → Sales Channels</strong>.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <span className="font-bold text-indigo-950 block">2. Custom Brand Subdomain</span>
+              <span className="text-[11px] text-slate-600 block mt-1">
+                Run your storefront under your own brand subdomain (e.g. <code>brand.yourdomain.com</code>). Contact your platform administrator to link your DNS records.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <span className="font-bold text-indigo-950 block">3. Custom White-Label Domain</span>
+              <span className="text-[11px] text-slate-600 block mt-1">
+                Connect a fully custom domain (e.g. <code>www.yourbrand.com</code>) to deliver a seamless shopping experience for your buyers.
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-amber-950">Quick Launch Link</h4>
+            <p className="text-xs text-amber-800 mt-1">
+              Navigate to <strong>Settings → Sales Channels</strong> to test or launch your active storefront channel in one click.
+            </p>
+          </div>
         </div>
       )
     }

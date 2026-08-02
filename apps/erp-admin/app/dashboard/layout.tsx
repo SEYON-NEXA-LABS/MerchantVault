@@ -103,7 +103,7 @@ export default function DashboardLayout({
 
   const getStorefrontUrl = () => {
     const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    const base = isLocal ? "http://localhost:3001" : "https://fabricvault.vercel.app";
+    const base = isLocal ? "http://localhost:3001" : "https://fabricvault-storefront.vercel.app";
     if (company?.id) {
       return `${base}/?companyId=${company.id}`;
     }
@@ -155,6 +155,9 @@ export default function DashboardLayout({
             if (data.company) {
               setCompany(data.company);
               localStorage.setItem("seyon:company", JSON.stringify(data.company));
+              if (typeof window !== "undefined" && data.company.name) {
+                document.title = `${data.company.name} | FabricVault ERP`;
+              }
             }
 
             if (Array.isArray(data.warehouses)) {
@@ -192,6 +195,10 @@ export default function DashboardLayout({
     const handleStorageChange = () => {
       const savedWh = localStorage.getItem("activeWarehouseId");
       if (savedWh) setActiveWhId(savedWh);
+      const savedCo = localStorage.getItem("seyon:company");
+      if (savedCo) {
+        try { setCompany(JSON.parse(savedCo)); } catch (e) {}
+      }
     };
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
@@ -297,7 +304,7 @@ export default function DashboardLayout({
       icon: RefreshCw, 
       href: "/dashboard/shopify-sync", 
       roles: ["SUPERADMIN", "TENANTADMIN"],
-      badge: company && (!company.shopifyStoreUrl || !company.shopifyAccessToken) ? "Alert" : null
+      badge: company && (!company.shopifyStoreUrl || (!company.shopifyAccessToken && !company.hasShopifyAccessToken)) ? "Alert" : null
     },
   ];
 
@@ -347,13 +354,14 @@ export default function DashboardLayout({
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto hidden md:flex flex-shrink-0">
           <div className="p-4 flex items-center gap-3 border-b border-gray-100">
-            <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm">S</div>
+            <div className="w-8 h-8 bg-indigo-600 text-white rounded-md flex items-center justify-center font-bold text-lg shadow-sm">
+              {(company?.name || "ERP").charAt(0).toUpperCase()}
+            </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="font-bold text-sm uppercase tracking-wide">Seyon ERP</h1>
-                {process.env.NODE_ENV === "development" && (
-                  <span className="text-[8px] bg-amber-50 border border-amber-200 text-amber-600 font-extrabold px-1 rounded uppercase">Pre-Release</span>
-                )}
+                <h1 className="font-bold text-sm uppercase tracking-wide text-slate-900 truncate max-w-[130px]">
+                  {company?.name || "FabricVault ERP"}
+                </h1>
               </div>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">CRM + ERP</p>
             </div>
@@ -614,23 +622,23 @@ export default function DashboardLayout({
                     Visit Storefront
                   </a>
                 </li>
-                {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && (
-                  <li>
-                    <a
-                      href={
-                        (company.shopifyStoreUrl || company.shopifyShopDomain).startsWith("http")
-                          ? `${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`
-                          : `https://${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
-                      Shopify Admin
-                    </a>
-                  </li>
-                )}
+                <li>
+                  <a
+                    href={
+                      company?.shopifyStoreUrl || company?.shopifyShopDomain
+                        ? ((company.shopifyStoreUrl || company.shopifyShopDomain).startsWith("http")
+                            ? `${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`
+                            : `https://${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`)
+                        : "https://myshopify.com/admin"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                    Shopify Admin
+                  </a>
+                </li>
               </ul>
             </div>
 

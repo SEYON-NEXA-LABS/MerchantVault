@@ -2,8 +2,8 @@ import React from "react";
 import "./globals.css";
 
 export const metadata = {
-  title: "Seyon Storefront - Premium Shopping",
-  description: "Browse premium apparel products directly synced from Seyon ERP.",
+  title: "FabricVault Storefront",
+  description: "Browse premium apparel products directly synced from your ERP catalog.",
 };
 
 export default function RootLayout({

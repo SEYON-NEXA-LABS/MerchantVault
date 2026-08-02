@@ -130,7 +130,7 @@ function ShopifySyncContent() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            {company?.shopifyStoreUrl && company?.shopifyAccessToken ? (
+            {company?.shopifyStoreUrl && (company?.shopifyAccessToken || company?.hasShopifyAccessToken) ? (
               <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-100">
                 <Link2 className="w-3 h-3" /> Connected
               </span>
@@ -141,7 +141,7 @@ function ShopifySyncContent() {
             )}
             <span className="text-gray-400 text-xs">•</span>
             <span className="text-xs text-gray-500 font-mono">
-              {company?.shopifyStoreUrl && company?.shopifyAccessToken ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured Store Domain"}
+              {company?.shopifyStoreUrl ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured Store Domain"}
             </span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Sync Bridge</h1>
@@ -381,18 +381,24 @@ function ShopifySyncContent() {
           </p>
           <div className="space-y-3">
             {[
-              { topic: "orders/create", path: "/api/webhooks/shopify/orders-create", active: true },
-              { topic: "checkouts/update", path: "/api/webhooks/shopify/checkouts-update", active: true },
-              { topic: "refunds/create", path: "/api/webhooks/shopify/refunds-create", active: true }
+              { topic: "orders/create", path: "/api/webhooks/shopify/orders-create", active: company?.shopifyStoreUrl && (company?.shopifyAccessToken || company?.hasShopifyAccessToken) },
+              { topic: "checkouts/update", path: "/api/webhooks/shopify/checkouts-update", active: company?.shopifyStoreUrl && (company?.shopifyAccessToken || company?.hasShopifyAccessToken) },
+              { topic: "refunds/create", path: "/api/webhooks/shopify/refunds-create", active: company?.shopifyStoreUrl && (company?.shopifyAccessToken || company?.hasShopifyAccessToken) }
             ].map((hook) => (
               <div key={hook.topic} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg text-xs">
                 <div className="space-y-0.5">
                   <p className="font-mono font-semibold text-gray-900">{hook.topic}</p>
                   <p className="font-mono text-gray-400">{hook.path}</p>
                 </div>
-                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
-                </span>
+                {hook.active ? (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pending Setup
+                  </span>
+                )}
               </div>
             ))}
           </div>
