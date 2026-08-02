@@ -9,10 +9,22 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
 
 ### Progress Tracking
 
-- [x] **Storefront Page (`apps/storefront/app/page.tsx`)**
+- [x] **Storefront Layout & Production Cleansing (`apps/storefront/app/page.tsx`)**
+  - [x] Wrapped **`Pre-Release / Demo Mode`** banner & **`PRE-RELEASE`** navbar badge in `process.env.NODE_ENV === 'development'` so they render **ONLY in development** and are completely hidden in production.
+  - [x] Wrapped top dev header info bar in `process.env.NODE_ENV === 'development'` for a clean retail presentation in production builds.
+  - [x] Updated size pills styling to **bold font weight (`700`)**, crisp dark borders (`#d4d4d8`), and slightly enlarged font size (`0.7rem`).
+  - [x] Rendered out-of-stock sizes with subtle strikethrough styling (`line-through`, muted background, tooltip title).
+  - [x] When a user selects an out-of-stock size variant pill, the card button dynamically transforms from **Add** to **Sold Out** (disabled state), preventing invalid orders.
+  - [x] Grouped individual database variant records (`ProductVariant`) sharing the same parent title into **1 parent product card**.
+  - [x] Added dynamic **Bold Size Pills (`S | M | L | XL | 2XL | 3XL`)** on product cards allowing shoppers to select sizes before clicking **Add to Cart**.
   - [x] Restrict `FALLBACK_PRODUCTS` usage to `NODE_ENV === 'development'`.
-  - [x] Hide "Load Sample Data / Clear Sample Data" button in production.
-  - [x] Hide "Pre-Release / Demo Mode" banner in production.
+
+- [x] **ERP Admin Dashboard Sidebar & Footer (`apps/erp-admin/app/dashboard/layout.tsx`)**
+  - [x] Restricted **`Pre-Release`** sidebar header badge to `process.env.NODE_ENV === 'development'`.
+  - [x] Added DEV / PROD mode toggle pill in sidebar strictly wrapped in `process.env.NODE_ENV === 'development'`.
+  - [x] Updated **Public Channels** menu section in layout sidebar to dynamically format and render the tenant's exact Shopify Admin URL (`https://{tenant_domain}/admin`) and Native Storefront URL (`https://fabricvault.vercel.app/?companyId={tenant_id}`) without hardcoded fallback URLs.
+  - [x] Integrated **Dynamic Git Commit Hash Injection** via `next.config.ts` (`process.env.NEXT_PUBLIC_GIT_COMMIT_HASH`), dynamically reading `git rev-parse --short HEAD` on every build/server start and displaying it in the footer status bar badge.
+  - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
 
 - [x] **Storefront API (`apps/storefront/app/api/products/[id]/route.ts`)**
   - [x] Restrict fallback product lookup by ID (`mock-1`..`mock-15`) to development mode only. Return 404 in production if product is not in database.
@@ -20,11 +32,9 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
 - [x] **ERP Admin Login Page (`apps/erp-admin/app/page.tsx`)**
   - [x] Ensure quick-login demo profiles and dev mode toggle UI are strictly restricted to development mode.
 
-- [x] **ERP Admin Dashboard Sidebar & Footer (`apps/erp-admin/app/dashboard/layout.tsx`)**
-  - [x] Added DEV / PROD mode toggle pill in sidebar strictly wrapped in `process.env.NODE_ENV === 'development'`.
-  - [x] Integrated **Dynamic Git Commit Hash Injection** via `next.config.ts` (`process.env.NEXT_PUBLIC_GIT_COMMIT_HASH`), dynamically reading `git rev-parse --short HEAD` on every build/server start and displaying it in the footer status bar badge.
-  - [x] Removed all hardcoded token checks (`shpat_mockaccesstoken12345`) and fallback domain filters across layout footer status bar, sidebar badges, and sync board headers. All credentials now load dynamically from your PostgreSQL `Company` table.
-  - [x] Consolidated inventory links into a single, clean **Stock & SKU Inventory** link (`/dashboard/inventory`).
+- [x] **ERP Admin Barcode Operations (`apps/erp-admin/app/dashboard/barcode/page.tsx`)**
+  - [x] Integrated **Hybrid Barcode Strategy**: Displays whether the active variant barcode string originates from Shopify or internal ERP fallback.
+  - [x] Added `company` session state in `barcode/page.tsx` and updated `getShopifyUrl` helper to format product variant URLs dynamically using the tenant's configured store domain (`company.shopifyStoreUrl`).
 
 - [x] **ERP Admin Shopify Sync Page (`apps/erp-admin/app/dashboard/shopify-sync/page.tsx`)**
   - [x] Replaced all hardcoded mock counts with live database metrics (`/api/dashboard`) for Orders, Products/SKUs, and Customers.
@@ -32,6 +42,7 @@ Ensure all mock datasets, fallback product lists, demo state toggle buttons, tes
   - [x] Updated API Version spec display to active version `2024-04`.
 
 - [x] **ERP Admin Settings & API (`apps/erp-admin/app/...`)**
+  - [x] Added `shopifyStoreUrl` to session API route select query (`api/auth/session/route.ts`) to ensure store domain is always available client-side.
   - [x] Handled 403 scope error gracefully in `api/shopify/sync/route.ts` when merchant has not approved `read_customers` scope on their Shopify custom app.
   - [x] Updated credential validation in `api/shopify/sync/route.ts` to allow sync when `shopifyClientId` is configured without requiring `shopifyAccessToken` beforehand.
   - [x] Updated `executeHandshake` validation check in `settings/page.tsx` so users can authenticate using **EITHER** Admin API Access Token **OR** App Client ID & Client Secret.

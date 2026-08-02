@@ -826,7 +826,39 @@ export default function StorefrontPage() {
     ? (typeof activeBrandObj.themeConfig === "string" ? JSON.parse(activeBrandObj.themeConfig) : activeBrandObj.themeConfig)
     : (company?.themeConfig ? (typeof company.themeConfig === "string" ? JSON.parse(company.themeConfig) : company.themeConfig) : null);
 
-  const filteredProducts = (useSampleData ? FALLBACK_PRODUCTS : products).filter(p => {
+  const groupedProducts = React.useMemo(() => {
+    const rawList = useSampleData ? FALLBACK_PRODUCTS : products;
+    const groups: { [key: string]: any } = {};
+
+    rawList.forEach(p => {
+      // Normalize title by removing trailing size indicators if present (e.g. " - S", " / XL")
+      const baseTitle = p.title.replace(/[\s\-\/]+(S|M|L|XL|2XL|3XL|FREE)$/i, "").trim();
+      const groupKey = `${baseTitle}_${p.category || 'All'}`;
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = {
+          ...p,
+          title: baseTitle,
+          variants: [p],
+          sizes: [p.size || "M"],
+          selectedSize: p.size || "M",
+          totalStock: p.currentStockLevel ?? 0
+        };
+      } else {
+        groups[groupKey].variants.push(p);
+        if (p.size && !groups[groupKey].sizes.includes(p.size)) {
+          groups[groupKey].sizes.push(p.size);
+        }
+        groups[groupKey].totalStock += (p.currentStockLevel ?? 0);
+      }
+    });
+
+    return Object.values(groups);
+  }, [products, useSampleData]);
+
+  const [selectedProductSizes, setSelectedProductSizes] = useState<{ [key: string]: string }>({});
+
+  const filteredProducts = groupedProducts.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.sku.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
@@ -841,77 +873,59 @@ export default function StorefrontPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#ffffff", color: "#09090b", fontFamily: "'Outfit', sans-serif" }}>
       
-      {/* Dev Header Info Bar (Shadcn style with minimal borders) */}
-      <div style={{
-        backgroundColor: "#09090b",
-        color: "#f4f4f5",
-        padding: "0.5rem 1.25rem",
-        fontSize: "0.75rem",
-        fontWeight: "400",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: "0.5rem",
-        borderBottom: "1px solid #27272a"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          {company?.shopifyStoreUrl && company.shopifyAccessToken && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? (
-            <span style={{ backgroundColor: "#16a34a", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", fontSize: "0.65rem", fontWeight: "600" }}>
-              {company?.name ? `${company.name}: Connected` : "Connected"}
-            </span>
-          ) : (
-            <span style={{ backgroundColor: "#dc2626", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", fontSize: "0.65rem", fontWeight: "600" }}>
-              {company?.name ? `${company.name}: Not Connected` : "Not Connected"}
-            </span>
-          )}
-          <span style={{ color: "#a1a1aa", fontSize: "0.7rem", border: "1px solid #3f3f46", padding: "0.1rem 0.35rem", borderRadius: "0.25rem" }}>Seyon Bridge</span>
-          <a 
-            href={company?.shopifyStoreUrl ? `${company.shopifyStoreUrl}/admin` : "https://seyon-clothing.myshopify.com/admin"} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ color: "#ffffff", textDecoration: "underline", fontSize: "0.75rem" }}
-          >
-            Shopify Admin ↗
-          </a>
-          <span style={{ color: "#3f3f46" }}>|</span>
-          <a 
-            href={erpAdminUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{ color: "#ffffff", textDecoration: "underline", fontSize: "0.75rem" }}
-          >
-            ERP Admin Panel ↗
-          </a>
-          <span style={{ color: "#3f3f46" }}>|</span>
-          <span style={{ color: "#a1a1aa" }}>DB Connection: ACTIVE</span>
-        </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <button 
-            onClick={triggerLiveSync}
-            disabled={syncStatus === "syncing"}
-            style={{
-              backgroundColor: "#f4f4f5",
-              color: "#09090b",
-              border: "none",
-              borderRadius: "0.25rem",
-              padding: "0.2rem 0.6rem",
-              fontWeight: "500",
-              fontSize: "0.7rem",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.25rem"
-            }}
-          >
-            {syncStatus === "syncing" ? "Syncing..." : syncStatus === "synced" ? "Synced" : "Sync ERP Catalog"}
-          </button>
-          {process.env.NODE_ENV === "development" && !companyIdMissing && (
+      {/* Dev Header Info Bar (Visible in Development Mode Only) */}
+      {process.env.NODE_ENV === "development" && (
+        <div style={{
+          backgroundColor: "#09090b",
+          color: "#f4f4f5",
+          padding: "0.5rem 1.25rem",
+          fontSize: "0.75rem",
+          fontWeight: "400",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+          borderBottom: "1px solid #27272a"
+        }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+            {company?.shopifyStoreUrl && company.shopifyAccessToken && company.shopifyAccessToken !== "shpat_mockaccesstoken12345" && !company.shopifyStoreUrl.includes("seyon-clothing.myshopify.com") ? (
+              <span style={{ backgroundColor: "#16a34a", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", fontSize: "0.65rem", fontWeight: "600" }}>
+                {company?.name ? `${company.name}: Connected` : "Connected"}
+              </span>
+            ) : (
+              <span style={{ backgroundColor: "#dc2626", color: "#ffffff", padding: "0.15rem 0.4rem", borderRadius: "0.25rem", fontSize: "0.65rem", fontWeight: "600" }}>
+                {company?.name ? `${company.name}: Not Connected` : "Not Connected"}
+              </span>
+            )}
+            <span style={{ color: "#a1a1aa", fontSize: "0.7rem", border: "1px solid #3f3f46", padding: "0.1rem 0.35rem", borderRadius: "0.25rem" }}>Seyon Bridge</span>
+            <a 
+              href={company?.shopifyStoreUrl ? `${company.shopifyStoreUrl}/admin` : "https://seyon-clothing.myshopify.com/admin"} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ color: "#ffffff", textDecoration: "underline", fontSize: "0.75rem" }}
+            >
+              Shopify Admin ↗
+            </a>
+            <span style={{ color: "#3f3f46" }}>|</span>
+            <a 
+              href={erpAdminUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ color: "#ffffff", textDecoration: "underline", fontSize: "0.75rem" }}
+            >
+              ERP Admin Panel ↗
+            </a>
+            <span style={{ color: "#3f3f46" }}>|</span>
+            <span style={{ color: "#a1a1aa" }}>DB Connection: ACTIVE</span>
+          </div>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
             <button 
-              onClick={() => setUseSampleData(prev => !prev)}
+              onClick={triggerLiveSync}
+              disabled={syncStatus === "syncing"}
               style={{
-                backgroundColor: useSampleData ? "#dc2626" : "#09090b",
-                color: "#ffffff",
+                backgroundColor: "#f4f4f5",
+                color: "#09090b",
                 border: "none",
                 borderRadius: "0.25rem",
                 padding: "0.2rem 0.6rem",
@@ -923,11 +937,31 @@ export default function StorefrontPage() {
                 gap: "0.25rem"
               }}
             >
-              {useSampleData ? "Clear Sample Data" : "Load Sample Data"}
+              {syncStatus === "syncing" ? "Syncing..." : syncStatus === "synced" ? "Synced" : "Sync ERP Catalog"}
             </button>
-          )}
+            {!companyIdMissing && (
+              <button 
+                onClick={() => setUseSampleData(prev => !prev)}
+                style={{
+                  backgroundColor: useSampleData ? "#dc2626" : "#09090b",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "0.25rem",
+                  padding: "0.2rem 0.6rem",
+                  fontWeight: "500",
+                  fontSize: "0.7rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.25rem"
+                }}
+              >
+                {useSampleData ? "Clear Sample Data" : "Load Sample Data"}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       
       {process.env.NODE_ENV === "development" && !dismissBanner && (
         <div style={{
@@ -1021,9 +1055,11 @@ export default function StorefrontPage() {
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
               {activeBrandObj?.name || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON"))}
             </span>
-            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
-              PRE-RELEASE
-            </span>
+            {process.env.NODE_ENV === "development" && (
+              <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
+                PRE-RELEASE
+              </span>
+            )}
           </div>
         </div>
 
@@ -1286,38 +1322,80 @@ export default function StorefrontPage() {
                           </h4>
                         </Link>
 
-                        <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.75rem" }}>
-                          <span style={{ border: "1px solid #e4e4e7", color: "#71717a", fontSize: "0.65rem", padding: "0.1rem 0.35rem", borderRadius: "0.25rem", fontWeight: "500" }}>
-                            Size: {prod.size}
-                          </span>
-                          <span style={{ border: "1px solid #e4e4e7", color: "#71717a", fontSize: "0.65rem", padding: "0.1rem 0.35rem", borderRadius: "0.25rem", fontWeight: "500" }}>
-                            Color: {prod.color}
-                          </span>
+                        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.35rem", marginBottom: "0.75rem" }}>
+                          <span style={{ fontSize: "0.65rem", color: "#71717a", fontWeight: "600", marginRight: "0.1rem" }}>Size:</span>
+                          {(prod.sizes || [prod.size]).map((sz: string) => {
+                            const activeSize = selectedProductSizes[prod.id] || prod.sizes?.[0] || prod.size;
+                            const isSelected = activeSize === sz;
+                            const szVariant = prod.variants?.find((v: any) => v.size === sz);
+                            const szInStock = szVariant ? (szVariant.currentStockLevel > 0) : (prod.currentStockLevel > 0);
+                            
+                            return (
+                              <button
+                                key={sz}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedProductSizes(prev => ({ ...prev, [prod.id]: sz }));
+                                }}
+                                style={{
+                                  border: isSelected ? "1.5px solid var(--primary)" : "1px solid #d4d4d8",
+                                  backgroundColor: isSelected ? "var(--primary)" : !szInStock ? "#f4f4f5" : "#ffffff",
+                                  color: isSelected ? "var(--primary-foreground)" : !szInStock ? "#a1a1aa" : "#09090b",
+                                  fontSize: "0.7rem",
+                                  padding: "0.2rem 0.5rem",
+                                  borderRadius: "0.25rem",
+                                  fontWeight: "700",
+                                  letterSpacing: "0.02em",
+                                  cursor: "pointer",
+                                  textDecoration: !szInStock ? "line-through" : "none",
+                                  opacity: !szInStock ? 0.6 : 1,
+                                  transition: "all 0.15s ease"
+                                }}
+                                title={!szInStock ? `${sz} - Out of Stock` : `${sz} - In Stock`}
+                              >
+                                {sz}
+                              </button>
+                            );
+                          })}
                         </div>
 
                         <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "0.75rem", borderTop: "1px solid #f4f4f5" }}>
-                          <span style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{prod.price}</span>
-                          
-                          <button
-                            onClick={() => addToCart(prod, prod.size, prod.color)}
-                            disabled={!inStock}
-                            style={{
-                              backgroundColor: inStock ? "var(--primary)" : "#e4e4e7",
-                              color: inStock ? "var(--primary-foreground)" : "#a1a1aa",
-                              border: "none",
-                              borderRadius: "var(--radius)",
-                              padding: "0.45rem 0.75rem",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                              cursor: inStock ? "pointer" : "not-allowed",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.3rem",
-                              transition: "background-color 0.15s ease"
-                            }}
-                          >
-                            <ShoppingCart style={{ width: "0.85rem", height: "0.85rem" }} /> Add
-                          </button>
+                          {(() => {
+                            const chosenSize = selectedProductSizes[prod.id] || prod.sizes?.[0] || prod.size;
+                            const targetVariant = prod.variants?.find((v: any) => v.size === chosenSize) || prod;
+                            const targetInStock = targetVariant ? targetVariant.currentStockLevel > 0 : false;
+
+                            return (
+                              <>
+                                <span style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{targetVariant.price || prod.price}</span>
+                                
+                                <button
+                                  onClick={() => {
+                                    if (targetInStock) {
+                                      addToCart(targetVariant, chosenSize, targetVariant.color || prod.color);
+                                    }
+                                  }}
+                                  disabled={!targetInStock}
+                                  style={{
+                                    backgroundColor: targetInStock ? "var(--primary)" : "#e4e4e7",
+                                    color: targetInStock ? "var(--primary-foreground)" : "#a1a1aa",
+                                    border: "none",
+                                    borderRadius: "var(--radius)",
+                                    padding: "0.45rem 0.75rem",
+                                    fontSize: "0.75rem",
+                                    fontWeight: "500",
+                                    cursor: targetInStock ? "pointer" : "not-allowed",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "0.3rem",
+                                    transition: "background-color 0.15s ease"
+                                  }}
+                                >
+                                  <ShoppingCart style={{ width: "0.85rem", height: "0.85rem" }} /> {targetInStock ? "Add" : "Sold Out"}
+                                </button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -1338,11 +1416,11 @@ export default function StorefrontPage() {
       }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <p style={{ margin: 0, color: "#09090b", fontWeight: "600" }}>Seyon Storefront Demo Channel</p>
-            <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#a1a1aa" }}>Connected via direct PostgreSQL connection pool</p>
+            <p style={{ margin: 0, color: "#09090b", fontWeight: "600" }}>{company?.name || "Storefront"} Direct Channel</p>
+            <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#a1a1aa" }}>Connected via direct database pool</p>
           </div>
           <div>
-            <p style={{ margin: 0 }}>© {new Date().getFullYear()} Seyon ERP Suite. All rights reserved.</p>
+            <p style={{ margin: 0 }}>© {new Date().getFullYear()} {company?.name || "ERP Suite"}. All rights reserved.</p>
           </div>
         </div>
       </footer>

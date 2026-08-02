@@ -82,11 +82,27 @@ export default function BarcodePage() {
     fetchProducts();
   }, []);
 
-  // Active Warehouse states
+  // Active Company and Warehouse states
+  const [company, setCompany] = useState<any>(null);
   const [activeWhId, setActiveWhId] = useState("");
   const [warehouses, setWarehouses] = useState<any[]>([]);
 
   useEffect(() => {
+    const fetchCompanySession = async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.company) {
+            setCompany(data.company);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch session in barcode view", err);
+      }
+    };
+    fetchCompanySession();
+
     const savedWh = localStorage.getItem("activeWarehouseId");
     if (savedWh) setActiveWhId(savedWh);
 
@@ -131,7 +147,13 @@ export default function BarcodePage() {
   const [displayValue, setDisplayValue] = useState<boolean>(true);
   const [showPrice, setShowPrice] = useState<boolean>(true);
   const [showBrand, setShowBrand] = useState<boolean>(true);
-  const [customBrand, setCustomBrand] = useState<string>("SEYON");
+  const [customBrand, setCustomBrand] = useState<string>("");
+
+  useEffect(() => {
+    if (company?.name && !customBrand) {
+      setCustomBrand(company.name);
+    }
+  }, [company]);
 
   const handlePresetChange = (preset: "STANDARD" | "COMPACT" | "MICRO") => {
     setTagPreset(preset);
@@ -174,7 +196,8 @@ export default function BarcodePage() {
   // Get dynamic URL for Shopify lookup
   const getShopifyUrl = (variant: ProductVariant) => {
     const handle = variant.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    return `https://seyon-clothing.myshopify.com/products/${handle}?sku=${variant.sku}`;
+    const domain = company?.shopifyStoreUrl ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "store.myshopify.com";
+    return `https://${domain}/products/${handle}?sku=${variant.sku}`;
   };
 
   const getQrValue = (variant: ProductVariant) => {

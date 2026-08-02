@@ -102,13 +102,15 @@ export default function DashboardLayout({
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const getStorefrontUrl = () => {
-    if (mounted && typeof window !== "undefined") {
-      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      const base = isLocal ? "http://localhost:3001" : "https://fabricvault-storefront.vercel.app";
-      return company?.id ? `${base}/?companyId=${company.id}` : base;
+    const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+    const base = isLocal ? "http://localhost:3001" : "https://fabricvault.vercel.app";
+    if (company?.id) {
+      return `${base}/?companyId=${company.id}`;
     }
-    const base = "https://fabricvault-storefront.vercel.app";
-    return company?.id ? `${base}/?companyId=${company.id}` : base;
+    if (company?.code) {
+      return `${base}/?companyCode=${company.code}`;
+    }
+    return base;
   };
 
   useEffect(() => {
@@ -349,7 +351,9 @@ export default function DashboardLayout({
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="font-bold text-sm uppercase tracking-wide">Seyon ERP</h1>
-                <span className="text-[8px] bg-amber-50 border border-amber-200 text-amber-600 font-extrabold px-1 rounded uppercase">Pre-Release</span>
+                {process.env.NODE_ENV === "development" && (
+                  <span className="text-[8px] bg-amber-50 border border-amber-200 text-amber-600 font-extrabold px-1 rounded uppercase">Pre-Release</span>
+                )}
               </div>
               <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">CRM + ERP</p>
             </div>
@@ -595,9 +599,9 @@ export default function DashboardLayout({
               </div>
             )}
 
-            {/* Storefront Link Section - Visible to All Users */}
+            {/* Public Channels Section - Visible to All Users */}
             <div>
-              <h2 className="text-xs font-bold text-slate-400 mb-2 px-3 uppercase tracking-wider">Public Channel</h2>
+              <h2 className="text-xs font-bold text-slate-400 mb-2 px-3 uppercase tracking-wider">Public Channels</h2>
               <ul className="space-y-0.5">
                 <li>
                   <a
@@ -610,17 +614,23 @@ export default function DashboardLayout({
                     Visit Storefront
                   </a>
                 </li>
-                <li>
-                  <a
-                    href={company?.shopifyStoreUrl ? `${company.shopifyStoreUrl}/admin` : "https://seyon-clothing.myshopify.com/admin"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
-                    Shopify Admin
-                  </a>
-                </li>
+                {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && (
+                  <li>
+                    <a
+                      href={
+                        (company.shopifyStoreUrl || company.shopifyShopDomain).startsWith("http")
+                          ? `${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`
+                          : `https://${company.shopifyStoreUrl || company.shopifyShopDomain}/admin`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-3 py-1.5 text-sm rounded-md group font-medium text-slate-700 hover:text-indigo-900 hover:bg-indigo-50 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                      Shopify Admin
+                    </a>
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -881,7 +891,11 @@ export default function DashboardLayout({
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: {company?.name ? company.name.toUpperCase() : "SEYON"} ({company?.code || "syn"})
               </span>
               <span className="text-stone-300">|</span>
-              <span>Shopify: {company?.shopifyStoreUrl && company.shopifyAccessToken ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured"}</span>
+              <span>
+                Shopify: {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && company?.shopifyAccessToken 
+                  ? (company.shopifyStoreUrl || company.shopifyShopDomain).replace("https://", "").replace("http://", "") 
+                  : "Unconfigured"}
+              </span>
               <span className="text-stone-300">|</span>
               <span className="flex items-center gap-1">
                 <span>📍 WH:</span>
@@ -889,7 +903,7 @@ export default function DashboardLayout({
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <span>Webhook: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
+              <span>Webhook: {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && company?.shopifyAccessToken ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
               <span className="text-stone-300">|</span>
               <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "99.8%" : "0.0%"}</span>
               <span className="text-stone-300">|</span>

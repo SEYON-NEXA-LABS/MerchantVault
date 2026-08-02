@@ -231,7 +231,7 @@ export default function CheckoutPage() {
 
   const getLogoText = () => {
     if (company?.code === "wolfcabin") return "The Wolf Cabin";
-    return company?.name || "SEYON STOREFRONT";
+    return company?.name || "STOREFRONT";
   };
 
   if (step === "loading") {
@@ -239,7 +239,7 @@ export default function CheckoutPage() {
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: "var(--background)" }}>
         <RefreshCw className="w-8 h-8 animate-spin text-teal-600 mb-3" />
         <h3 style={{ fontSize: "1.1rem", fontWeight: "700" }}>Securing Order Session...</h3>
-        <p style={{ color: "#71717a", fontSize: "0.8rem", marginTop: "0.25rem" }}>Ingesting order into Seyon ERP registry.</p>
+        <p style={{ color: "#71717a", fontSize: "0.8rem", marginTop: "0.25rem" }}>Ingesting order into database registry.</p>
       </div>
     );
   }
