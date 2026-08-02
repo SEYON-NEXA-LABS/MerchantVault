@@ -16,7 +16,8 @@ import {
   RefreshCw,
   MapPin,
   Upload,
-  FileDown
+  FileDown,
+  Zap
 } from "lucide-react";
 import {
   Table,
@@ -1226,15 +1227,15 @@ export default function StockInventoryPage() {
                               <button
                                 onClick={() => handlePushToShopify(variant.id, variant.sku)}
                                 disabled={syncingVariantId === variant.id}
-                                className="inline-flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded border border-indigo-200 transition-colors cursor-pointer"
-                                title="Push variant details to Shopify storefront catalog"
+                                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 text-white disabled:opacity-50 text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-sm border border-indigo-400/30 transition-all cursor-pointer hover:shadow-indigo-500/20 active:scale-95"
+                                title="Push live inventory balance, barcode, and catalog details directly to Shopify"
                               >
                                 {syncingVariantId === variant.id ? (
                                   <RefreshCw className="w-3 h-3 animate-spin" />
                                 ) : (
-                                  <Upload className="w-3 h-3" />
+                                  <Zap className="w-3 h-3 text-amber-300 animate-pulse" />
                                 )}
-                                Push to Shopify
+                                Push to Shopify ⚡
                               </button>
                             )}
                           </div>

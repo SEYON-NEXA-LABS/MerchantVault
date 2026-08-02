@@ -17,7 +17,8 @@ import {
   ArrowRight,
   Sparkles,
   Link2,
-  ShieldCheck
+  ShieldCheck,
+  Zap
 } from "lucide-react";
 import { RoleGuard } from "../../../components/RoleGuard";
 
@@ -172,6 +173,46 @@ function ShopifySyncContent() {
           <p className="text-xs text-emerald-900 leading-relaxed">
             <strong>Your Shopify store database is completely untouched and safe.</strong> Syncing operates strictly as a <em>one-way read & passive webhook listener</em>. FabricVault ERP will <strong>never delete, overwrite, or modify</strong> your existing Shopify products, collections, customer records, or active store configuration.
           </p>
+        </div>
+      </div>
+
+      {/* Flashy Stock Balance Sync Memory Card */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl border border-indigo-500/20 group hover:shadow-2xl hover:border-indigo-500/40 transition-all duration-300">
+        {/* Glow Effects */}
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl pointer-events-none group-hover:bg-teal-500/30 transition-all"></div>
+        <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-gradient-to-br from-teal-400 to-indigo-500 rounded-xl text-slate-950 shadow-lg shadow-teal-500/20 shrink-0">
+              <Zap className="w-6 h-6 animate-pulse" />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-400/20 text-emerald-300 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                  Live Stock Ledger Active
+                </span>
+                <span className="text-slate-400 text-xs font-mono">• Automated Inventory Sync</span>
+              </div>
+              <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                Stock Balance Auto-Synced to Shopify ⚡
+              </h2>
+              <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                When warehouse physical stock changes or POs are received, stock counts are automatically reconciled and pushed to Shopify. You can also trigger an instant force push anytime from <strong className="text-teal-300">Inventory Management</strong> → <strong className="text-teal-300">Push to Shopify</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 text-center">
+              <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider block">Sync Latency</span>
+              <span className="text-sm font-black text-teal-300 font-mono">&lt; 1.5s Realtime</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 text-center">
+              <span className="text-[10px] text-slate-300 uppercase font-bold tracking-wider block">Direction</span>
+              <span className="text-sm font-black text-indigo-300 font-mono">ERP ⇄ Shopify</span>
+            </div>
+          </div>
         </div>
       </div>
 

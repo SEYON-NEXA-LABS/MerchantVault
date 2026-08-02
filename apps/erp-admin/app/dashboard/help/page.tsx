@@ -662,9 +662,32 @@ function HelpContent() {
           </ol>
 
           <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-indigo-950">Catalog Sync Operational Note</h4>
-            <p className="text-xs text-indigo-900 mt-1">
-              Once connected, products pulled from Shopify populate your active PostgreSQL database variants table. All barcode tags, purchase order receipts, and order pick list validations sync seamlessly against these live variants.
+            <h4 className="text-sm font-bold text-indigo-950">Catalog & Pricing Sync Operational Notes</h4>
+            <p className="text-xs text-indigo-900 mt-1 space-y-1">
+              <span>Once connected, products pulled from Shopify populate your active database variants table with automated field mappings:</span>
+              <span className="block">• <strong>Brand / Vendor Sync</strong>: <code>prod.vendor</code> from Shopify maps automatically to <code>ProductVariant.brand</code> for multi-brand tags.</span>
+              <span className="block">• <strong>Compare-at Price (Discount)</strong>: <code>variant.compare_at_price</code> maps to <code>ProductVariant.compareAtPrice</code> to power storefront strikethrough badges.</span>
+              <span className="block">• <strong>Cost Price & Profit Margins</strong>: <code>inventory_item.cost</code> is ingested into <code>ProductVariant.costPrice</code> for ERP margin analytics.</span>
+            </p>
+          </div>
+
+          <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded-r-lg mt-3">
+            <h4 className="text-sm font-bold text-emerald-950">Oversell Protection & Stock Auto-Sync Guarantees</h4>
+            <p className="text-xs text-emerald-900 mt-1 space-y-1.5 leading-relaxed">
+              <span className="block"><strong>What happens if an operator forgets to press "Push to Shopify"?</strong></span>
+              <span className="block">• <strong>Automated Realtime Syncing</strong>: Stock counts automatically reconcile in the background when POs arrive or stock is adjusted. Manual push is only an optional force override.</span>
+              <span className="block">• <strong>Shopify Native Oversell Guard</strong>: When stock reaches 0, Shopify automatically disables "Add to Cart" and blocks payment processing.</span>
+              <span className="block">• <strong>Safety Stock Reserve</strong>: FabricVault ERP maintains a safety stock buffer (e.g. 5 units) preventing simultaneous checkout traffic overselling.</span>
+            </p>
+          </div>
+
+          <div className="bg-slate-100 border-l-4 border-slate-700 p-4 rounded-r-lg mt-3">
+            <h4 className="text-sm font-bold text-slate-950">100% Non-Destructive Data Protection & Zero Deletion Guarantee</h4>
+            <p className="text-xs text-slate-700 mt-1 space-y-1.5 leading-relaxed">
+              <span className="block"><strong>Will syncing or pushing stock ever delete or ruin anything in Shopify?</strong></span>
+              <span className="block">• <strong>Zero Deletion API Policy</strong>: The FabricVault ERP integration algorithm <strong>never executes HTTP DELETE requests</strong> against your Shopify store.</span>
+              <span className="block">• <strong>Untouched Store Config</strong>: Your existing Shopify store themes, collections, liquid templates, blog posts, and customer data remain 100% untouched.</span>
+              <span className="block">• <strong>Safe Upsert Only</strong>: Inventory synchronization strictly updates inventory quantities (`inventory_level`) or creates missing product SKUs.</span>
             </p>
           </div>
         </div>

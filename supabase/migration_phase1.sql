@@ -61,3 +61,12 @@ CREATE INDEX IF NOT EXISTS "idx_order_customer" ON "Order"("customerId");
 CREATE INDEX IF NOT EXISTS "idx_order_number" ON "Order"("orderNumber");
 CREATE INDEX IF NOT EXISTS "idx_order_item_order" ON "OrderItem"("orderId");
 CREATE INDEX IF NOT EXISTS "idx_order_item_variant" ON "OrderItem"("variantId");
+
+-- Lightweight Brand Support
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "brands" JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "brand" TEXT;
+CREATE INDEX IF NOT EXISTS "idx_product_variant_brand" ON "ProductVariant"("brand");
+
+-- Variant Price Enhancements (Compare At Price & Cost Price)
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "compareAtPrice" DOUBLE PRECISION;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "costPrice" DOUBLE PRECISION;

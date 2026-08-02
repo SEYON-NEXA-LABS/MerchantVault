@@ -72,7 +72,7 @@ export default function CartPage() {
 
   const getLogoText = () => {
     if (company?.code === "wolfcabin") return "The Wolf Cabin";
-    return company?.name || "SEYON STOREFRONT";
+    return company?.name || "STOREFRONT";
   };
 
   return (

@@ -248,7 +248,7 @@ export async function GET(
 
     const { data: variant, error } = await supabase
       .from("ProductVariant")
-      .select("id, sku, title, size, color, price, currentStockLevel, category, safetyStockLimit, thumbnailConfig, brandId, companyId")
+      .select("id, sku, title, size, color, price, compareAtPrice, currentStockLevel, category, safetyStockLimit, thumbnailConfig, brandId, companyId")
       .eq("id", id)
       .maybeSingle();
 
@@ -283,6 +283,7 @@ export async function GET(
       size: variant.size || "M",
       color: variant.color || "Indigo Blue",
       price: variant.price || 1999,
+      compareAtPrice: variant.compareAtPrice || (variant.price ? Math.round(variant.price * 1.25) : 2499),
       currentStockLevel: variant.currentStockLevel ?? 0,
       category: variant.category || "All",
       rating: 4.7,

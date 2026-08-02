@@ -21,7 +21,7 @@ export async function GET() {
       if (user.companyId && user.companyId !== "00000000-0000-0000-0000-000000000000") {
         const { data: coData } = await supabase
           .from("Company")
-          .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, shopifyShopDomain, syncActive")
+          .select("id, name, code, brands, shopifyStoreUrl, shopifyAccessToken, shopifyShopDomain, syncActive")
           .eq("id", user.companyId)
           .maybeSingle();
         

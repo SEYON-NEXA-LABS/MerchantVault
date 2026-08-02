@@ -601,6 +601,7 @@ export default function StorefrontPage() {
           size: v.size || "M",
           color: v.color || "Indigo Blue",
           price: v.price || 1999,
+          compareAtPrice: v.compareAtPrice || (v.price ? Math.round(v.price * 1.25) : 2499),
           currentStockLevel: v.currentStockLevel ?? 0,
           category: v.category || "All",
           rating: 4.7,
@@ -1367,7 +1368,14 @@ export default function StorefrontPage() {
 
                             return (
                               <>
-                                <span style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{targetVariant.price || prod.price}</span>
+                                <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
+                                  <span style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{targetVariant.price || prod.price}</span>
+                                  {(targetVariant.compareAtPrice || prod.compareAtPrice) > (targetVariant.price || prod.price) && (
+                                    <span style={{ fontSize: "0.8rem", color: "#a1a1aa", textDecoration: "line-through" }}>
+                                      ₹{targetVariant.compareAtPrice || prod.compareAtPrice}
+                                    </span>
+                                  )}
+                                </div>
                                 
                                 <button
                                   onClick={() => {
@@ -1550,7 +1558,11 @@ export default function StorefrontPage() {
                       Select Color
                     </span>
                     <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
-                      {Array.from(new Set([selectedProduct.color || "Indigo Blue", "Off-White", "Sage Green", "Charcoal Black", "Mustard Yellow", "Rust Orange", "Crimson Rose"])).map(cl => {
+                      {Array.from(new Set<string>(
+                        selectedProduct.variants && selectedProduct.variants.length > 0
+                          ? selectedProduct.variants.map((v: any) => String(v.color)).filter(Boolean)
+                          : [selectedProduct.color || "Default"]
+                      )).map((cl: string) => {
                         const isSelected = quickViewColor === cl;
                         const bgVal = getColorValue(cl);
                         const isDark = isDarkColor(cl);

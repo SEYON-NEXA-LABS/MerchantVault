@@ -267,6 +267,7 @@ export async function POST(req: Request) {
           const category = prod.product_type || "Top";
           const images = prod.images || [];
           const imageUrl = images[0]?.src || "";
+          const vendorBrand = prod.vendor || null;
           
           for (const variant of (prod.variants || [])) {
             const shopifyVariantId = `gid://shopify/ProductVariant/${variant.id}`;
@@ -274,6 +275,7 @@ export async function POST(req: Request) {
             const size = variant.option1 || "Free";
             const color = variant.option2 || "Default";
             const price = parseFloat(variant.price) || 0.0;
+            const compareAtPrice = variant.compare_at_price ? parseFloat(variant.compare_at_price) : null;
             const barcodeString = variant.barcode || `BAR-${variant.id}`;
 
             const thumbnailConfig = imageUrl
@@ -295,6 +297,8 @@ export async function POST(req: Request) {
                   shopifyVariantId,
                   title,
                   price,
+                  compareAtPrice,
+                  brand: vendorBrand,
                   category,
                   barcodeString,
                   thumbnailConfig,
@@ -311,12 +315,14 @@ export async function POST(req: Request) {
                   title,
                   size,
                   color,
-                  barcodeString,
                   price,
+                  compareAtPrice,
+                  brand: vendorBrand,
                   category,
-                  targetGroup: "Adults",
+                  barcodeString,
                   thumbnailConfig,
-                  currentStockLevel: 0
+                  safetyStockLimit: 5,
+                  currentStockLevel: variant.inventory_quantity || 0
                 });
             }
             recordsCount++;

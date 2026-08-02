@@ -654,13 +654,34 @@ export default function ProductDetailPage() {
 
             <div style={{ 
               display: "flex", 
-              alignItems: "baseline", 
+              alignItems: "center", 
+              flexWrap: "wrap",
               gap: "0.75rem", 
               paddingBottom: "1.25rem", 
               borderBottom: "1px solid #e4e4e7",
               marginBottom: "1.25rem"
             }}>
               <span style={{ fontSize: "1.75rem", fontWeight: "700", color: "#09090b" }}>₹{product.price}</span>
+              
+              {product.compareAtPrice && product.compareAtPrice > product.price && (
+                <>
+                  <span style={{ fontSize: "1.1rem", color: "#a1a1aa", textDecoration: "line-through" }}>
+                    ₹{product.compareAtPrice}
+                  </span>
+                  <span style={{
+                    backgroundColor: "#fef2f2",
+                    color: "#dc2626",
+                    padding: "0.2rem 0.5rem",
+                    borderRadius: "0.25rem",
+                    fontSize: "0.7rem",
+                    fontWeight: "700",
+                    border: "1px solid #fee2e2"
+                  }}>
+                    SAVE {Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)}%
+                  </span>
+                </>
+              )}
+
               <span style={{
                 backgroundColor: !inStock ? "#fef2f2" : isLowStock ? "#fffbeb" : "#f0fdf4",
                 color: !inStock ? "#dc2626" : isLowStock ? "#d97706" : "#16a34a",
