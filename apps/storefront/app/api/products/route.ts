@@ -9,15 +9,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
+    const slug = searchParams.get("slug") || searchParams.get("code");
     const companyId = searchParams.get("companyId");
     const brandParam = searchParams.get("brand");
 
     let companyQuery = supabase
       .from("Company")
-      .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, themeConfig");
+      .select("id, name, code, shopifyStoreUrl, themeConfig");
 
-    if (companyId) {
-      companyQuery = companyQuery.eq("id", companyId);
+    if (slug) {
+      companyQuery = companyQuery.or(`code.eq.${slug},id.eq.${slug}`);
+    } else if (companyId) {
+      companyQuery = companyQuery.or(`id.eq.${companyId},code.eq.${companyId}`);
     } else {
       companyQuery = companyQuery.eq("code", "syn");
     }
@@ -49,10 +52,6 @@ export async function GET(request: Request) {
 
     if (company && company.id) {
       productsQuery = productsQuery.eq("companyId", company.id);
-    }
-
-    if (brandId) {
-      productsQuery = productsQuery.eq("brandId", brandId);
     }
 
     const { data: products, error } = await productsQuery.order("createdAt", { ascending: false });

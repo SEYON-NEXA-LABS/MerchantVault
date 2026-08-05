@@ -105,3 +105,17 @@ body {
 .step-dot.completed {
   background-color: var(--accent);
 }
+
+/* QuickView Modal Responsive Styles */
+.quickview-modal-content {
+  display: flex;
+  flex-direction: row;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .quickview-modal-content {
+    flex-direction: column;
+  }
+}

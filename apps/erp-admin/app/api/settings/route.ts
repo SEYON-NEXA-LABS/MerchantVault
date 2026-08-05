@@ -40,7 +40,8 @@ export async function POST(request: Request) {
       "name", "shopifyStoreUrl", "shopifyAccessToken", "shopifyWebhookSecret",
       "shopifyClientId", "shopifyClientSecret",
       "whatsappNumber", "whatsappApiKey", "timezone",
-      "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode"
+      "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode",
+      "razorpayEnabled", "razorpayKeyId", "razorpayKeySecret", "themeConfig"
     ];
 
     const updateData: { [key: string]: any } = {};

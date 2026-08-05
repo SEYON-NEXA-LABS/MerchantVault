@@ -144,7 +144,7 @@ function ShopifySyncContent() {
               {company?.shopifyStoreUrl ? company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : "Unconfigured Store Domain"}
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Sync Bridge</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Shopify Integration & Sync</h1>
           <p className="text-sm text-gray-500">
             Monitor real-time Webhook activity, manual sync triggers, and data matching health.
           </p>

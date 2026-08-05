@@ -573,24 +573,14 @@ export default function StorefrontPage() {
   }, []);
 
   // Load products (DB query + Fallbacks)
-  const fetchProducts = async (companyId?: string | null, brandCode?: string) => {
-    // 1. Early Return Guard: Stops execution immediately if companyId is null or missing
-    if (!companyId) {
-      const isDev = process.env.NODE_ENV === "development";
-      // Show fallbacks in development UI even without a company context, clean empty array in prod
-      setProducts(isDev ? FALLBACK_PRODUCTS : []);
-      setLoading(false);
-      return; 
-    }
-
+  const fetchProducts = async (companyId?: string | null) => {
     setLoading(true);
     const isDev = process.env.NODE_ENV === "development";
 
     try {
-      // 2. URL can now be simplified since companyId is guaranteed to exist here
-      let url = `/api/products?companyId=${companyId}`;
-      if (brandCode) {
-        url += `&brand=${brandCode}`;
+      let url = `/api/products`;
+      if (companyId) {
+        url += `?companyId=${encodeURIComponent(companyId)}`;
       }
       
       const res = await fetch(url);
@@ -619,6 +609,7 @@ export default function StorefrontPage() {
           rating: 4.7,
           reviews: 12,
           thumbnailConfig: v.thumbnailConfig,
+          brandId: v.brandId,
           description: `Directly synced from Seyon ERP Database. Live stock tracking active with safety limit: ${v.safetyStockLimit || 5} units.`
         }));
 
@@ -643,15 +634,15 @@ export default function StorefrontPage() {
     let brandVal: string = "";
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const urlCompanyId = params.get("companyId");
+      const urlSlug = params.get("slug") || params.get("code") || params.get("companyId");
       const urlBrand = params.get("brand");
-      if (urlCompanyId) {
-        companyIdVal = urlCompanyId;
-        localStorage.setItem("seyon:storefront:companyId", urlCompanyId);
+      if (urlSlug) {
+        companyIdVal = urlSlug;
+        localStorage.setItem("seyon:storefront:companyId", urlSlug);
         setCompanyIdMissing(false);
       } else {
         companyIdVal = localStorage.getItem("seyon:storefront:companyId");
-        setCompanyIdMissing(true);
+        setCompanyIdMissing(!companyIdVal);
       }
       if (urlBrand !== null) {
         brandVal = urlBrand;
@@ -663,7 +654,7 @@ export default function StorefrontPage() {
       }
     }
 
-    fetchProducts(companyIdVal, brandVal);
+    fetchProducts(companyIdVal);
 
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("seyon:storefront:cart");
@@ -826,7 +817,7 @@ export default function StorefrontPage() {
       } else {
         clearInterval(interval);
         const savedCoId = typeof window !== "undefined" ? localStorage.getItem("seyon:storefront:companyId") : null;
-        fetchProducts(savedCoId, selectedBrand);
+        fetchProducts(savedCoId);
         setSyncStatus("synced");
         setTimeout(() => {
           setSyncStatus("idle");
@@ -880,7 +871,15 @@ export default function StorefrontPage() {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           p.sku.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    
+    let matchesBrand = true;
+    if (selectedBrand && brands.length > 0) {
+      const activeBrandObj = brands.find(b => b.code === selectedBrand.toLowerCase());
+      if (activeBrandObj) {
+        matchesBrand = p.brandId === activeBrandObj.id || p.variants?.some((v: any) => v.brandId === activeBrandObj.id);
+      }
+    }
+    return matchesSearch && matchesCategory && matchesBrand;
   });
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
@@ -1102,7 +1101,7 @@ export default function StorefrontPage() {
                   }
                   window.history.pushState({}, "", url.toString());
                 }
-                fetchProducts(savedCoId, newBrand);
+                fetchProducts(savedCoId);
               }}
               style={{
                 padding: "0.3rem 1.5rem 0.3rem 0.5rem",
@@ -1249,8 +1248,23 @@ export default function StorefrontPage() {
 
             {/* Product Cards Grid */}
             {filteredProducts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "5rem 2rem", border: "1px dashed #e4e4e7", borderRadius: "0.5rem", backgroundColor: "#ffffff" }}>
-                <p style={{ color: "#71717a", fontSize: "0.9rem" }}>No matching apparel items found.</p>
+              <div style={{
+                textAlign: "center",
+                padding: "3.5rem 1.5rem",
+                border: "1px dashed #e4e4e7",
+                borderRadius: "0.5rem",
+                backgroundColor: "#ffffff",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.75rem"
+              }}>
+                <ShoppingBag style={{ width: "2rem", height: "2rem", color: "#a1a1aa" }} />
+                <div>
+                  <h4 style={{ fontSize: "0.95rem", fontWeight: "600", color: "#27272a", margin: 0 }}>No Products Available</h4>
+                  <p style={{ color: "#71717a", fontSize: "0.85rem", margin: "0.25rem 0 0 0" }}>No matching apparel items found for your selection.</p>
+                </div>
               </div>
             ) : (
               <div style={{
@@ -1474,10 +1488,13 @@ export default function StorefrontPage() {
               borderRadius: "0.5rem",
               width: "100%",
               maxWidth: "600px",
+              maxHeight: "90vh",
               boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
               overflow: "hidden",
               position: "relative",
-              border: "1px solid #e4e4e7"
+              border: "1px solid #e4e4e7",
+              display: "flex",
+              flexDirection: "column"
             }}
           >
             <button 

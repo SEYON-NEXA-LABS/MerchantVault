@@ -368,6 +368,8 @@ export async function POST(request: Request) {
       .eq("shopifyOrderId", shopifyOrderId)
       .maybeSingle();
 
+    const orderSource = body.orderSource || (shopifyOrderId.startsWith("storefront-") ? "STOREFRONT" : "SHOPIFY");
+
     let order;
     if (existingOrder) {
       const { data, error } = await supabaseAdmin
@@ -376,6 +378,7 @@ export async function POST(request: Request) {
           orderNumber,
           totalPrice,
           paymentStatus: body.financial_status === "paid" ? "PAID" : "PENDING",
+          orderSource,
           rawPayload: body,
           updatedAt: new Date().toISOString()
         })
@@ -396,6 +399,7 @@ export async function POST(request: Request) {
           fulfillmentStatus: "UNFULFILLED",
           totalPrice,
           currency,
+          orderSource,
           rawPayload: body
         })
         .select()
@@ -503,6 +507,7 @@ export async function POST(request: Request) {
           shippingState,
           shippingZip,
           shippingCountry,
+          orderSource,
           updatedAt: new Date().toISOString()
         })
         .eq("id", existingFulfillment.id)
@@ -527,6 +532,7 @@ export async function POST(request: Request) {
           shippingZip,
           shippingCountry,
           totalWeightKg: 0.35,
+          orderSource,
           deliveryStatus: "PROCESSING",
           warehouseId: warehouse ? warehouse.id : null
         })

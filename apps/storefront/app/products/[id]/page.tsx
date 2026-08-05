@@ -489,8 +489,34 @@ export default function ProductDetailPage() {
   const sizes = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
   const colors = Array.from(new Set([product.color || "Indigo Blue", "Off-White", "Sage Green", "Charcoal Black", "Mustard Yellow", "Rust Orange", "Crimson Rose"]));
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.title,
+    "image": product.imageUrl || [],
+    "description": product.description || `Buy ${product.title} online. Premium apparel crafted for durability and comfort.`,
+    "sku": product.sku,
+    "offers": {
+      "@type": "Offer",
+      "url": typeof window !== "undefined" ? window.location.href : "",
+      "priceCurrency": "INR",
+      "price": product.price,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": company?.name || "FABRIC VAULT"
+      }
+    }
+  };
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#ffffff", color: "#09090b", fontFamily: "'Outfit', sans-serif" }}>
+      {/* Product JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       {/* Header */}
       <header style={{
         position: "sticky",
@@ -934,7 +960,7 @@ export default function ProductDetailPage() {
             <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#a1a1aa" }}>Connected via direct PostgreSQL connection pool</p>
           </div>
           <div>
-            <p style={{ margin: 0 }}>© {new Date().getFullYear()} Seyon ERP Suite. All rights reserved.</p>
+            <p style={{ margin: 0 }}>© {new Date().getFullYear()} FabricVault by SEYON NEXA LABS. All rights reserved.</p>
           </div>
         </div>
       </footer>

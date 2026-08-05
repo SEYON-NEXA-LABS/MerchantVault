@@ -24,7 +24,12 @@ import {
   EyeOff,
   ExternalLink,
   ShieldCheck,
-  QrCode
+  QrCode,
+  CreditCard,
+  Copy,
+  Share2,
+  Palette,
+  Type
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
@@ -57,12 +62,26 @@ export default function SettingsPage() {
 }
 
 function SettingsContent() {
-  const [activeTab, setActiveTab] = useState<"company" | "bridging" | "warehouses" | "logistics">("company");
+  const [activeTab, setActiveTab] = useState<"company" | "bridging" | "warehouses" | "logistics" | "payments" | "theme">("company");
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
 
   const togglePasswordVisibility = (key: string) => {
     setShowPasswords(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  // Storefront Theme Customization States
+  const [themePrimary, setThemePrimary] = useState("#0d9488");
+  const [themeAccent, setThemeAccent] = useState("#fbbf24");
+  const [themeRadius, setThemeRadius] = useState("0.375rem");
+  const [themeFontFamily, setThemeFontFamily] = useState("Inter, sans-serif");
+  const [themeAnnouncementText, setThemeAnnouncementText] = useState("⚡ Free Express Delivery on orders over ₹1,999!");
+  const [savingTheme, setSavingTheme] = useState(false);
+
+  // Razorpay credentials states
+  const [razorpayEnabled, setRazorpayEnabled] = useState(false);
+  const [razorpayKeyId, setRazorpayKeyId] = useState("");
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState("");
+  const [savingRazorpay, setSavingRazorpay] = useState(false);
   
   // Shopify credentials form states
   const [shopUrl, setShopUrl] = useState("");
@@ -84,6 +103,7 @@ function SettingsContent() {
 
   // Company details form states
   const [companyName, setCompanyName] = useState("");
+  const [companyCode, setCompanyCode] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [timezone, setTimezone] = useState("");
@@ -295,6 +315,7 @@ function SettingsContent() {
       if (!data.error) {
         localStorage.setItem("seyon:company", JSON.stringify(data));
         setCompanyName(data.name || "");
+        setCompanyCode(data.code || "syn");
         setCurrency(data.currency || "INR");
         setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
         setTaxId(data.taxId || "");
@@ -315,6 +336,22 @@ function SettingsContent() {
         setSecretKey(secretKeyVal);
         const barcodeModeVal = data.barcodeMode || "HYBRID";
         setBarcodeMode(barcodeModeVal);
+        setRazorpayEnabled(data.razorpayEnabled || false);
+        setRazorpayKeyId(data.razorpayKeyId || "");
+        setRazorpayKeySecret(data.razorpayKeySecret || "");
+
+        if (data.themeConfig) {
+          try {
+            const parsedTheme = typeof data.themeConfig === "string" ? JSON.parse(data.themeConfig) : data.themeConfig;
+            if (parsedTheme.primary) setThemePrimary(parsedTheme.primary);
+            if (parsedTheme.accent) setThemeAccent(parsedTheme.accent);
+            if (parsedTheme.radius) setThemeRadius(parsedTheme.radius);
+            if (parsedTheme.fontFamily) setThemeFontFamily(parsedTheme.fontFamily);
+            if (parsedTheme.announcementText) setThemeAnnouncementText(parsedTheme.announcementText);
+          } catch (err) {
+            console.error("Failed to parse themeConfig JSON", err);
+          }
+        }
 
         setInitialCompanySettings({
           name: data.name || "",
@@ -610,6 +647,49 @@ function SettingsContent() {
             Configure your textile tenant profiles, security access details, warehouses, and connect Shopify integrations.
           </p>
         </div>
+
+        {/* Public Storefront URL Share Widget */}
+        {(() => {
+          const baseUrl = (process.env.NEXT_PUBLIC_STOREFRONT_URL || "").replace(/\/$/, "") || (typeof window !== "undefined"
+            ? (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+                ? `${window.location.protocol}//${window.location.hostname}:3001`
+                : "https://fabricvault-storefront.vercel.app")
+            : "https://fabricvault-storefront.vercel.app");
+          const storefrontUrl = `${baseUrl}/?slug=${companyCode || "syn"}`;
+
+          return (
+            <div className="flex items-center gap-2 bg-indigo-50/80 border border-indigo-100 rounded-xl p-3 shadow-2xs">
+              <Globe className="w-5 h-5 text-indigo-650 shrink-0" />
+              <div className="text-xs">
+                <span className="font-bold text-indigo-950 block">Public Storefront URL</span>
+                <code className="text-[11px] font-mono text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200/60 block mt-0.5">
+                  {storefrontUrl}
+                </code>
+              </div>
+              <div className="flex items-center gap-1 ml-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(storefrontUrl);
+                    toast.success("Storefront URL copied to clipboard!");
+                  }}
+                  className="p-1.5 bg-white hover:bg-indigo-100 text-indigo-700 rounded-lg border border-indigo-200 transition-colors cursor-pointer"
+                  title="Copy Storefront URL"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+                <a
+                  href={storefrontUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex items-center gap-1 font-semibold text-xs px-2.5 shadow-2xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" /> Visit
+                </a>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Settings Navigation Tabs (Shadcn/Radix Style) */}
@@ -654,6 +734,26 @@ function SettingsContent() {
         >
           <Truck className="w-4 h-4 text-gray-500" /> Courier Integrations
         </button>
+        <button
+          onClick={() => setActiveTab("payments")}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50 gap-2 ${
+            activeTab === "payments"
+              ? "bg-white text-gray-900 shadow-sm font-bold border border-gray-200/50"
+              : "text-gray-550 hover:text-gray-900 hover:bg-gray-55/50"
+          }`}
+        >
+          <CreditCard className="w-4 h-4 text-gray-500" /> Payment Gateways
+        </button>
+        <button
+          onClick={() => setActiveTab("theme")}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50 gap-2 ${
+            activeTab === "theme"
+              ? "bg-white text-gray-900 shadow-sm font-bold border border-gray-200/50"
+              : "text-gray-550 hover:text-gray-900 hover:bg-gray-55/50"
+          }`}
+        >
+          <Palette className="w-4 h-4 text-gray-500" /> Storefront Theme
+        </button>
       </div>
 
       {/* Dynamic Settings Pane */}
@@ -663,7 +763,7 @@ function SettingsContent() {
               {/* Header */}
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-gray-950 text-base">Seyon Bridge</h3>
+                  <h3 className="font-bold text-gray-950 text-base">Shopify Integration</h3>
                   <span className="bg-indigo-50 text-indigo-750 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-100">
                     Channel Bridging
                   </span>
@@ -1671,6 +1771,335 @@ function SettingsContent() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === "payments" && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-gray-950 text-base">Payment Gateways</h3>
+                  <span className="bg-indigo-50 text-indigo-750 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-100">
+                    Online Checkout & UPI
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Configure payment gateways used for real-time transactions on your storefront checkout.</p>
+              </div>
+
+              {/* Razorpay Card */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-6">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-indigo-650" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-950 text-sm">Razorpay Payment Gateway</h4>
+                      <p className="text-xs text-gray-500">Supports UPI (GPay, PhonePe, Paytm), Credit/Debit Cards, NetBanking & Wallets</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${razorpayEnabled ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-gray-100 text-gray-600 border border-gray-200"}`}>
+                      {razorpayEnabled ? "Active" : "Disabled"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setRazorpayEnabled(!razorpayEnabled)}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${razorpayEnabled ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${razorpayEnabled ? 'translate-x-5' : 'translate-x-0'}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setSavingRazorpay(true);
+                    try {
+                      const res = await fetch("/api/settings", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          razorpayEnabled,
+                          razorpayKeyId,
+                          razorpayKeySecret
+                        })
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        toast.success("Razorpay gateway settings saved successfully!");
+                      } else {
+                        toast.error(data.error || "Failed to save Razorpay settings.");
+                      }
+                    } catch (err) {
+                      toast.error("Failed to connect to server.");
+                    } finally {
+                      setSavingRazorpay(false);
+                    }
+                  }}
+                  className="space-y-4 text-xs"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-gray-700 flex items-center gap-1.5">
+                        Razorpay Key ID <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={razorpayKeyId}
+                        onChange={(e) => setRazorpayKeyId(e.target.value)}
+                        placeholder="rzp_test_..."
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      />
+                      <p className="text-[11px] text-gray-500">Public Key ID from your Razorpay Dashboard (API Keys section).</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-gray-700 flex items-center gap-1.5">
+                        Razorpay Key Secret <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPasswords["razorpayKeySecret"] ? "text" : "password"}
+                          value={razorpayKeySecret}
+                          onChange={(e) => setRazorpayKeySecret(e.target.value)}
+                          placeholder="••••••••••••••••••••••••"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 pr-9"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => togglePasswordVisibility("razorpayKeySecret")}
+                          className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600"
+                        >
+                          {showPasswords["razorpayKeySecret"] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-500">Secret Key used server-side for verifying payment signatures securely.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2 border-t border-gray-100">
+                    <button
+                      type="submit"
+                      disabled={savingRazorpay}
+                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition-all flex items-center gap-2"
+                    >
+                      {savingRazorpay && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                      Save Gateway Credentials
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Storefront Theme Customization Tab */}
+          {activeTab === "theme" && (
+            <div className="space-y-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-2xs space-y-6">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <Palette className="w-5 h-5 text-indigo-650" /> Storefront Theme & Branding Customizer
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Customize your client storefront color theme, typography font, corner radius, and hero announcement banner.
+                  </p>
+                </div>
+
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setSavingTheme(true);
+                    try {
+                      const themeObj = {
+                        primary: themePrimary,
+                        accent: themeAccent,
+                        radius: themeRadius,
+                        fontFamily: themeFontFamily,
+                        announcementText: themeAnnouncementText
+                      };
+                      const res = await fetch("/api/settings", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ themeConfig: themeObj })
+                      });
+                      const data = await res.json();
+                      if (data.error) {
+                        toast.error(data.error);
+                      } else {
+                        toast.success("Storefront Theme saved successfully!");
+                      }
+                    } catch (err) {
+                      toast.error("Failed to save Storefront theme");
+                    } finally {
+                      setSavingTheme(false);
+                    }
+                  }}
+                  className="space-y-6"
+                >
+                  {/* Preset Color Palettes */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                      Quick Preset Theme Palettes
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      {[
+                        { name: "Emerald Teal", primary: "#0d9488", accent: "#fbbf24", desc: "Default D2C Teal & Gold" },
+                        { name: "Streetwear Dark", primary: "#09090b", accent: "#8b5cf6", desc: "Midnight & Electric Violet" },
+                        { name: "Royal Indigo", primary: "#4f46e5", accent: "#f59e0b", desc: "Indigo Blue & Amber" },
+                        { name: "Blush Rose", primary: "#e11d48", accent: "#d97706", desc: "Rose Gold & Sand" },
+                        { name: "Forest Sage", primary: "#15803d", accent: "#84cc16", desc: "Forest Green & Lime" }
+                      ].map((preset) => (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => {
+                            setThemePrimary(preset.primary);
+                            setThemeAccent(preset.accent);
+                          }}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            themePrimary === preset.primary && themeAccent === preset.accent
+                              ? "border-indigo-600 bg-indigo-50/50 shadow-sm ring-2 ring-indigo-500/20"
+                              : "border-gray-200 hover:border-gray-300 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <span className="w-4 h-4 rounded-full border border-black/10" style={{ backgroundColor: preset.primary }} />
+                            <span className="w-4 h-4 rounded-full border border-black/10" style={{ backgroundColor: preset.accent }} />
+                          </div>
+                          <span className="font-bold text-xs text-gray-900 block">{preset.name}</span>
+                          <span className="text-[10px] text-gray-500 block truncate">{preset.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Typography Font & Corner Radius Selection */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                        <Type className="w-4 h-4 text-gray-500" /> Storefront Font Family
+                      </label>
+                      <select
+                        value={themeFontFamily}
+                        onChange={(e) => setThemeFontFamily(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      >
+                        <option value="Inter, sans-serif">Inter (Modern & Clean)</option>
+                        <option value="Outfit, sans-serif">Outfit (Geometric D2C Brand)</option>
+                        <option value="Playfair Display, serif">Playfair Display (Luxury Serif)</option>
+                        <option value="Plus Jakarta Sans, sans-serif">Plus Jakarta Sans (Tech & Clean)</option>
+                        <option value="Cinzel, serif">Cinzel (Heritage Apparel)</option>
+                      </select>
+                      <p className="text-[11px] text-gray-500">Selected font family is automatically loaded from Google Fonts on your Storefront.</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700">UI Corner Radius</label>
+                      <select
+                        value={themeRadius}
+                        onChange={(e) => setThemeRadius(e.target.value)}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      >
+                        <option value="0px">Sharp (0px)</option>
+                        <option value="0.375rem">Subtle (6px Default)</option>
+                        <option value="0.75rem">Rounded (12px)</option>
+                        <option value="1.5rem">Pill (24px Soft)</option>
+                      </select>
+                      <p className="text-[11px] text-gray-500">Controls corner roundness for buttons, cards, and modal popups.</p>
+                    </div>
+                  </div>
+
+                  {/* Primary & Accent Color Pickers */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700">Primary Brand Accent Color</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={themePrimary}
+                          onChange={(e) => setThemePrimary(e.target.value)}
+                          className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                        />
+                        <input
+                          type="text"
+                          value={themePrimary}
+                          onChange={(e) => setThemePrimary(e.target.value)}
+                          className="flex-1 bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-mono text-gray-800 focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700">Secondary Accent / Badge Color</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={themeAccent}
+                          onChange={(e) => setThemeAccent(e.target.value)}
+                          className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5"
+                        />
+                        <input
+                          type="text"
+                          value={themeAccent}
+                          onChange={(e) => setThemeAccent(e.target.value)}
+                          className="flex-1 bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-mono text-gray-800 focus:outline-none uppercase"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top Announcement Bar Text */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-gray-700">Top Announcement Banner Text</label>
+                    <input
+                      type="text"
+                      value={themeAnnouncementText}
+                      onChange={(e) => setThemeAnnouncementText(e.target.value)}
+                      placeholder="e.g. ⚡ Free Express Delivery on orders over ₹1,999!"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    />
+                  </div>
+
+                  {/* Real-time Theme Live Preview Card */}
+                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/70 space-y-3">
+                    <span className="text-xs font-bold text-gray-600 uppercase tracking-wider block">Live UI Theme Preview</span>
+                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-2xs space-y-3" style={{ borderRadius: themeRadius }}>
+                      <div className="text-xs font-bold text-white px-3 py-1 rounded text-center" style={{ backgroundColor: themePrimary, borderRadius: themeRadius, fontFamily: themeFontFamily }}>
+                        {themeAnnouncementText || "Top Announcement Bar"}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-gray-900" style={{ fontFamily: themeFontFamily }}>Brand Title Preview</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: themeAccent, color: "#1c1917", borderRadius: themeRadius }}>
+                          ★ Popular Accent
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="w-full py-2 text-xs font-bold text-white shadow-xs transition-opacity hover:opacity-90 cursor-pointer"
+                        style={{ backgroundColor: themePrimary, borderRadius: themeRadius, fontFamily: themeFontFamily }}
+                      >
+                        Sample Storefront Add to Cart Button
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-2 border-t border-gray-100">
+                    <button
+                      type="submit"
+                      disabled={savingTheme}
+                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      {savingTheme && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+                      Save Storefront Theme Settings
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
 

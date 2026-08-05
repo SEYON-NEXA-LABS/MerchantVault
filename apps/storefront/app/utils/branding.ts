@@ -39,6 +39,26 @@ export function applyBrandingStyles(company: any, activeBrand: any) {
     if (theme.radius) {
       root.style.setProperty("--radius", theme.radius);
     }
+    if (theme.fontFamily) {
+      root.style.setProperty("--font-sans", theme.fontFamily);
+      document.body.style.fontFamily = theme.fontFamily;
+      
+      // Inject Google Font if standard Google font name
+      const fontName = theme.fontFamily.split(",")[0].replace(/['"]/g, "").trim();
+      const existingLink = document.getElementById("dynamic-theme-font");
+      if (fontName && fontName !== "system-ui") {
+        const linkUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@400;500;600;700;800&display=swap`;
+        if (existingLink) {
+          (existingLink as HTMLLinkElement).href = linkUrl;
+        } else {
+          const link = document.createElement("link");
+          link.id = "dynamic-theme-font";
+          link.rel = "stylesheet";
+          link.href = linkUrl;
+          document.head.appendChild(link);
+        }
+      }
+    }
   } else {
     // Reset to defaults if no theme is found
     root.style.setProperty("--primary", "#0d9488");
@@ -46,5 +66,6 @@ export function applyBrandingStyles(company: any, activeBrand: any) {
     root.style.setProperty("--accent", "#fbbf24");
     root.style.setProperty("--accent-foreground", "#1c1917");
     root.style.setProperty("--radius", "0.375rem");
+    document.body.style.fontFamily = "";
   }
 }

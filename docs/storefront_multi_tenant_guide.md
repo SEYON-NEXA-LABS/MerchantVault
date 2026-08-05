@@ -8,21 +8,22 @@ This document explains how to configure and deploy the **Storefront application 
 
 There are **three supported strategies** for routing customer storefront traffic to the correct tenant company context:
 
-### Strategy 1: URL Query Parameters (Development & Testing)
-Pass the tenant ID or unique company code directly in the URL:
+### Strategy 1: URL Query Parameters & Slugs (Development, Testing & Direct Links)
+Pass the tenant readable slug or unique company code directly in the URL:
 
-- **Company A (The Wolf Cabin)**: `http://localhost:3001/?companyCode=wolfcabin`
-- **Company B (FabricVault Default)**: `http://localhost:3001/?companyId=00000000-0000-0000-0000-000000000000`
+- **Company A (The Wolf Cabin)**: `https://fabricvault-storefront.vercel.app/?slug=wolfcabin`
+- **Company B (Seyon Default)**: `https://fabricvault-storefront.vercel.app/?slug=syn`
+- **Legacy UUID Fallback**: `https://fabricvault-storefront.vercel.app/?companyId=00000000-0000-0000-0000-000000000000`
 
-> **Behavior**: Upon initial visit, the Storefront saves `companyId` in browser `localStorage`. All catalog requests, pricing, themes, and order submissions are filtered strictly for that tenant.
+> **Behavior**: Upon initial visit, the Storefront saves the tenant slug in browser `localStorage`. All catalog requests, pricing, themes, payment gateway settings, and order submissions are filtered strictly for that tenant.
 
 ---
 
 ### Strategy 2: Subdomain Multi-Tenancy (SaaS Model)
 Map tenant subdomains to the same Storefront deployment:
 
-- `wolfcabin.fabricvault.app` ➔ Resolves tenant `wolfcabin`
-- `denimco.fabricvault.app` ➔ Resolves tenant `denimco`
+- `wolfcabin.fabricvault-storefront.vercel.app` ➔ Resolves tenant `wolfcabin`
+- `denimco.fabricvault-storefront.vercel.app` ➔ Resolves tenant `denimco`
 
 #### Next.js Middleware (`apps/storefront/middleware.ts`):
 ```ts
@@ -35,7 +36,7 @@ export function middleware(req: NextRequest) {
 
   if (subdomain && subdomain !== 'localhost' && subdomain !== 'www') {
     const url = req.nextUrl.clone();
-    url.searchParams.set('companyCode', subdomain);
+    url.searchParams.set('slug', subdomain);
     return NextResponse.rewrite(url);
   }
 
@@ -45,12 +46,30 @@ export function middleware(req: NextRequest) {
 
 ---
 
-### Strategy 3: Custom Domains (White-Label Retail)
-Map client custom CNAME records (e.g., `shop.wolfcabin.com`) directly to your Vercel deployment:
+### Strategy 3: Custom Domains & Domain Forwarding (Tenant-Purchased Domains)
 
-1. Add `shop.wolfcabin.com` to Vercel Domains list.
-2. Store `customDomain: "shop.wolfcabin.com"` in the PostgreSQL `Company` table.
-3. The Storefront API inspects the `Host` header to resolve `companyId` automatically.
+> 📖 **Complete SOP**: For detailed step-by-step instructions on setting up DNS records, domain forwarding, and CNAME records for client tenants, see **[domain_routing_sop.md](domain_routing_sop.md)**.
+
+If a tenant purchases their own domain (e.g. `www.wolfcabin.com` or `shop.wolfcabin.com`), they have **3 seamless options** to connect to your Storefront:
+
+#### Option A: Domain Forwarding / Redirect with Path (Easiest)
+In their domain registrar (GoDaddy, Namecheap, Cloudflare, BigRock):
+1. Navigate to **Domain Settings &rarr; Forwarding / Redirect**.
+2. Set Destination URL to your Storefront URL with their slug:  
+   `https://fabricvault-storefront.vercel.app/?slug=wolfcabin`
+3. Select **301 Permanent Redirect** or **Masked Forwarding**.
+
+#### Option B: CNAME Subdomain Alias (e.g., `shop.wolfcabin.com`)
+1. Tenant creates a `CNAME` record pointing to your Storefront deployment:
+   ```text
+   Type: CNAME
+   Host: shop (or store)
+   Value: cname.vercel-dns.com (or fabricvault-storefront.vercel.app)
+   ```
+2. In Next.js Middleware ([apps/storefront/middleware.ts](../apps/storefront/middleware.ts)), the system automatically extracts `shop.wolfcabin.com` or inspects `slug` mapping.
+
+#### Option C: Subdomain Routing (e.g., `wolfcabin.fabricvault-storefront.vercel.app`)
+Add a wildcard CNAME `*.fabricvault-storefront.vercel.app` in Vercel. Any subdomain automatically maps to `?slug={subdomain}` via Next.js Middleware.
 
 ---
 
@@ -59,7 +78,9 @@ Map client custom CNAME records (e.g., `shop.wolfcabin.com`) directly to your Ve
 | Feature Component | How Multi-Tenancy Is Enforced |
 | :--- | :--- |
 | **Branding & Logos** | Loads dynamic company name, logo image, and theme colors. |
-| **Product Catalog** | Product queries are scoped with `.eq("companyId", companyId)`. |
+| **Product Catalog** | Product queries are scoped via `ProductVariant.companyId`. |
+| **Payment Gateways** | Independent Razorpay API keys (`razorpayKeyId`, `razorpayKeySecret`) configured per tenant in ERP Admin Settings. |
+| **Order Origin Tracking** | Orders are tagged with `orderSource: "STOREFRONT"` vs `"SHOPIFY"`. |
 | **Brands & Collections** | Sub-brands are filtered via `Brand.companyId`. |
 | **Checkout & Webhooks** | Orders created are tagged with `companyId` in the ERP database. |
 | **Oversell Protection** | Stock balance checks & safety buffers apply per tenant warehouse pool. |

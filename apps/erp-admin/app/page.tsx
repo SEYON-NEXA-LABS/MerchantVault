@@ -117,39 +117,51 @@ export default function Home() {
             <h2 className="text-5xl font-black text-stone-950 tracking-tight leading-[1.1] font-serif">
               The operating system for modern <span className="underline decoration-[#fbbf24] decoration-wavy decoration-2">apparel brands</span>.
             </h2>
-            <p className="text-stone-600 text-base leading-relaxed">
-              Seyon coordinates your entire retail workflow into a single unified fabric—linking inventory, vendor procurement, carrier logistics, and 0% commission Shopify storefronts seamlessly.
+            <p className="text-stone-600 text-sm leading-relaxed">
+              FABRIC VAULT by SEYON NEXA LABS acts as the single source of truth for your physical stock—unifying <strong>Your Own 0% Commission Storefront</strong>, <strong>Shopify Live Sync</strong>, <strong>POS Counter Sales</strong>, and <strong>Multi-Warehouse Fulfillment</strong> in real-time.
             </p>
           </div>
 
-          {/* Core Feature Pillars */}
-          <div className="grid grid-cols-3 gap-6 pt-6">
-            <div className="space-y-3 p-5 rounded-2xl border border-teal-100 bg-white/70 hover:bg-white transition-all shadow-md flex flex-col justify-between min-h-[170px]">
-              <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-stone-950 flex items-center justify-center text-[#fbbf24] text-xs font-black shadow-inner">01</div>
-                <h4 className="text-sm font-extrabold text-stone-950 tracking-tight">Direct Bridge Sync</h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Real-time webhook pipeline syncing order states and product edits under 500ms. Guarantees absolute inventory parity with Shopify without transaction fees.
-                </p>
+          {/* Dual Channel & Operations Pillars */}
+          <div className="grid grid-cols-2 gap-3.5 pt-2">
+            <div className="space-y-1.5 p-3.5 rounded-2xl border border-teal-200/80 bg-white/90 hover:bg-white transition-all shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-stone-950 flex items-center justify-center text-[#fbbf24] text-[10px] font-black">01</div>
+                <h4 className="text-xs font-extrabold text-stone-950 tracking-tight">Our Custom Storefront</h4>
               </div>
+              <p className="text-[11px] text-stone-600 leading-normal">
+                0% commission Next.js storefront. Custom domain (`storedomain.com`), theme palettes, Google Fonts, and Razorpay payment gateway integration.
+              </p>
             </div>
-            <div className="space-y-3 p-5 rounded-2xl border border-teal-100 bg-white/70 hover:bg-white transition-all shadow-md flex flex-col justify-between min-h-[170px]">
-              <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-stone-950 flex items-center justify-center text-[#fbbf24] text-xs font-black shadow-inner">02</div>
-                <h4 className="text-sm font-extrabold text-stone-950 tracking-tight">Logistics Hub</h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Generate courier manifests, verify COD orders, and ship via Shiprocket or Delhivery. Automate AWB assignment and client tracking updates.
-                </p>
+
+            <div className="space-y-1.5 p-3.5 rounded-2xl border border-teal-200/80 bg-white/90 hover:bg-white transition-all shadow-md">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-stone-950 flex items-center justify-center text-[#fbbf24] text-[10px] font-black">02</div>
+                <h4 className="text-xs font-extrabold text-stone-950 tracking-tight">Shopify Live Sync</h4>
               </div>
+              <p className="text-[11px] text-stone-600 leading-normal">
+                Real-time bi-directional webhook sync. Keep selling on Shopify while FABRIC VAULT reconciles orders (`OrderSource: SHOPIFY`) & stock instantly.
+              </p>
             </div>
-            <div className="space-y-3 p-5 rounded-2xl border border-teal-100 bg-white/70 hover:bg-white transition-all shadow-md flex flex-col justify-between min-h-[170px]">
-              <div className="space-y-2.5">
-                <div className="w-9 h-9 rounded-xl bg-stone-950 flex items-center justify-center text-[#fbbf24] text-xs font-black shadow-inner">03</div>
-                <h4 className="text-sm font-extrabold text-stone-950 tracking-tight">Custom Storefronts</h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  White-labeled storefronts dynamically matching layout, colors, and collections to client catalogs. Configurable via environment variables.
-                </p>
+
+            <div className="space-y-1.5 p-3.5 rounded-2xl border border-teal-100 bg-white/70 hover:bg-white transition-all shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-stone-950 flex items-center justify-center text-[#fbbf24] text-[10px] font-black">03</div>
+                <h4 className="text-xs font-extrabold text-stone-950 tracking-tight">POS Counter Terminal</h4>
               </div>
+              <p className="text-[11px] text-stone-500 leading-normal">
+                Fast barcode billing (`/admin/pos`) with location-bound stock pool deduction (`📍 activeWarehouseId`), split payments, and thermal receipts.
+              </p>
+            </div>
+
+            <div className="space-y-1.5 p-3.5 rounded-2xl border border-teal-100 bg-white/70 hover:bg-white transition-all shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-stone-950 flex items-center justify-center text-[#fbbf24] text-[10px] font-black">04</div>
+                <h4 className="text-xs font-extrabold text-stone-950 tracking-tight">CSV / JSON Bulk Import</h4>
+              </div>
+              <p className="text-[11px] text-stone-500 leading-normal">
+                Onboard thousands of SKU variants and product styles in seconds using standard CSV spreadsheets or JSON files with sample templates.
+              </p>
             </div>
           </div>
         </div>
@@ -199,7 +211,7 @@ export default function Home() {
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-stone-950 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-bold text-white">✓</div>
             </div>
             <div>
-              <h1 className="text-2xl font-black text-stone-950 tracking-tight">Seyon ERP</h1>
+              <h1 className="text-2xl font-black text-stone-950 tracking-tight">FabricVault ERP</h1>
               <p className="text-[10px] text-stone-500 uppercase tracking-widest font-extrabold mt-0.5">Apparel ERP & Logistics OS</p>
             </div>
             <div className="h-0.5 w-12 bg-stone-300 mx-auto lg:mx-0 rounded-full" />

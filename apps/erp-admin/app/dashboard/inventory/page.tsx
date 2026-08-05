@@ -146,48 +146,138 @@ export default function StockInventoryPage() {
     setShowMatrixModal(true);
   };
 
-  // CSV Import Logic
+  // CSV / JSON Import Logic
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImportFileName(file.name);
+    const isJson = file.name.endsWith(".json");
+
     const reader = new FileReader();
     reader.onload = async (event) => {
       const text = event.target?.result as string;
       if (text) {
-        const parsed = parseCSV(text);
-        
-        toast.info("Analyzing CSV file content for discrepancies...");
+        let parsed: any[] = [];
         try {
-          const targetWarehouseId = selectedWarehouseId === "All" ? warehouses[0]?.id : selectedWarehouseId;
-          const res = await fetch("/api/inventory/import", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              items: parsed,
-              warehouseId: targetWarehouseId,
-              dryRun: true
-            })
-          });
-          const data = await res.json();
-          if (data.success && Array.isArray(data.items)) {
-            setParsedRows(data.items);
-            const existsCount = data.items.filter((item: any) => item.status === "EXISTS").length;
-            if (existsCount > 0) {
-              toast.warning(`Found ${existsCount} existing variants. They will be skipped during import.`);
-            } else {
-              toast.success("CSV analyzed successfully. All products are new!");
-            }
+          if (isJson) {
+            const rawJson = JSON.parse(text);
+            parsed = Array.isArray(rawJson) ? rawJson : (rawJson.products || rawJson.items || []);
           } else {
-            toast.error(data.error || "Failed to analyze CSV data.");
+            parsed = parseCSV(text);
           }
         } catch (err) {
-          toast.error("Failed to connect to the analysis endpoint.");
+          toast.error("Failed to parse file structure. Please ensure valid CSV or JSON format.");
+          return;
         }
+
+        if (parsed.length === 0) {
+          toast.error("File is empty or contains no product rows.");
+          return;
+        }
+
+        setParsedRows(parsed);
+        toast.success(`Loaded ${parsed.length} product rows from ${file.name}. Review preview below!`);
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleImportCSV = async () => {
+    if (parsedRows.length === 0) {
+      toast.error("No valid product data to import!");
+      return;
+    }
+
+    let activeCompanyId = "";
+    if (typeof window !== "undefined") {
+      const storedCo = localStorage.getItem("seyon:company");
+      if (storedCo) {
+        try {
+          const parsedCo = JSON.parse(storedCo);
+          activeCompanyId = parsedCo.id || "";
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    if (!activeCompanyId) {
+      toast.error("Company context missing. Please refresh.");
+      return;
+    }
+
+    setImporting(true);
+    try {
+      const targetWarehouseId = selectedWarehouseId === "All" ? warehouses[0]?.id : selectedWarehouseId;
+      const res = await fetch("/api/products/bulk-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyId: activeCompanyId,
+          warehouseId: targetWarehouseId,
+          products: parsedRows
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Bulk import failed");
+      }
+
+      toast.success(`Successfully imported ${data.summary.variantsSaved} product variants across ${data.summary.productsProcessed} styles!`);
+      setShowImportModal(false);
+      setParsedRows([]);
+      setImportFileName("");
+      
+      // Refresh inventory catalog view
+      await loadData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process bulk import");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const downloadSampleTemplate = (type: "csv" | "json") => {
+    if (type === "csv") {
+      const csvContent = `title,sku,price,color,size,stock,brand,description\nHandloom Cotton Saree,HCS-BLK-M,2499,Black,M,50,Seyon Handlooms,100% Pure Organic Handloom Linen Saree\nHandloom Cotton Saree,HCS-BLK-L,2499,Black,L,35,Seyon Handlooms,100% Pure Organic Handloom Linen Saree\nClassic Linen Shirt,CLS-WHT-XL,1899,White,XL,40,Wolf Cabin,Premium Linen Casual Shirt`;
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fabricvault_bulk_import_template.csv";
+      a.click();
+    } else {
+      const jsonContent = JSON.stringify([
+        {
+          title: "Handloom Cotton Saree",
+          sku: "HCS-BLK-M",
+          price: 2499,
+          color: "Black",
+          size: "M",
+          stock: 50,
+          brand: "Seyon Handlooms",
+          description: "100% Pure Organic Handloom Linen Saree"
+        },
+        {
+          title: "Classic Linen Shirt",
+          sku: "CLS-WHT-XL",
+          price: 1899,
+          color: "White",
+          size: "XL",
+          stock: 40,
+          brand: "Wolf Cabin",
+          description: "Premium Linen Casual Shirt"
+        }
+      ], null, 2);
+      const blob = new Blob([jsonContent], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fabricvault_bulk_import_template.json";
+      a.click();
+    }
   };
 
   const parseCSV = (text: string) => {
@@ -837,10 +927,10 @@ export default function StockInventoryPage() {
       </div>
 
       {/* Main Stock Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+      {/* Main Inventory Layout - Full Width Table */}
+      <div className="w-full">
         {/* Inventory Catalog List */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm lg:col-span-2 overflow-hidden flex flex-col">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
           
           {/* Warehouse Selector & Filters Bar */}
           <div className="p-5 border-b border-gray-100 space-y-4 bg-slate-50/30">
@@ -1098,29 +1188,32 @@ export default function StockInventoryPage() {
           </div>
         </div>
 
-        {/* Selected Product Detail Panel & Size-wise Breakdowns */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-6 h-fit">
-          {selectedProduct ? (
+      </div>
+
+      {/* Selected Product Detail Panel as Modal Overlay */}
+      {selectedProduct && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto">
             <div className="space-y-6">
               {/* Product Card Info */}
               <div className="flex items-start justify-between border-b border-gray-100 pb-4">
                 <div className="space-y-1 pr-2">
-                  <h3 className="font-bold text-gray-950 text-sm">{selectedProduct.name}</h3>
+                  <h3 className="font-bold text-gray-950 text-base">{selectedProduct.name}</h3>
                   <p className="text-xs text-gray-400">Category: {selectedProduct.category} | Age Group: {selectedProduct.targetGroup}{selectedProduct.ageRange ? ` (${selectedProduct.ageRange})` : ""} | SKU: {selectedProduct.baseSku} | Limit: {selectedProduct.threshold}</p>
                 </div>
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <button
                     onClick={() => handleOpenEditProduct(selectedProduct)}
-                    className="text-gray-500 hover:text-indigo-950 p-1 rounded-lg hover:bg-gray-100 border border-gray-200 bg-white transition-colors cursor-pointer animate-fade-in"
+                    className="text-gray-500 hover:text-indigo-950 p-1.5 rounded-lg hover:bg-gray-100 border border-gray-200 bg-white transition-colors cursor-pointer"
                     title="Edit Product Details & Meta"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <Edit2 className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => setSelectedProduct(null)}
                     className="text-gray-450 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -1148,110 +1241,87 @@ export default function StockInventoryPage() {
                       onClick={handleOpenMatrixModal}
                       className="text-[10px] text-indigo-750 bg-indigo-50 hover:bg-indigo-100 font-bold px-2 py-1 rounded transition-all cursor-pointer"
                     >
-                      Bulk Matrix Adjust
+                      Matrix Multi-Edit
                     </button>
                   )}
                 </div>
-                
-                <div className="space-y-2">
+
+                <div className="divide-y divide-gray-100 border border-gray-100 rounded-lg">
                   {selectedProduct.variants.map((variant) => {
                     const isEditing = editVariantSku === variant.sku;
-
                     return (
-                      <div 
-                        key={variant.sku} 
-                        className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                      >
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold text-gray-900 bg-white border border-gray-200 px-1.5 py-0.5 rounded text-[10px]">
-                              Size {variant.size}
-                            </span>
-                            <span className="font-medium text-gray-700">{variant.color}</span>
-                            {editPriceSku === variant.sku ? (
-                              <div className="flex items-center gap-1 bg-white border border-gray-200 rounded px-1 py-0.5">
-                                <span className="text-gray-400 font-semibold text-[10px]">$</span>
-                                <input
-                                  type="number"
-                                  step="0.01"
-                                  min="0"
-                                  value={editPrice}
-                                  onChange={(e) => setEditPrice(Math.max(0, parseFloat(e.target.value) || 0))}
-                                  className="w-14 py-0 border-0 focus:outline-none focus:ring-0 text-[10px] font-mono font-bold text-indigo-950 p-0"
-                                />
-                                <button
-                                  onClick={() => saveVariantPrice(variant.id, variant.sku)}
-                                  disabled={savingPrice}
-                                  className="text-emerald-600 hover:text-emerald-700 disabled:opacity-50 p-0.5"
-                                  title="Save Price"
-                                >
-                                  {savingPrice ? (
-                                    <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                                  ) : (
-                                    <Check className="w-2.5 h-2.5" />
-                                  )}
-                                </button>
-                                <button
-                                  onClick={() => setEditPriceSku(null)}
-                                  className="text-gray-400 hover:text-gray-600 p-0.5"
-                                  title="Cancel"
-                                >
-                                  <X className="w-2.5 h-2.5" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1">
-                                <span className="text-indigo-950 font-bold bg-indigo-50/50 px-1.5 py-0.5 rounded text-[10px] border border-indigo-100/80">
-                                  ${variant.price.toFixed(2)}
-                                </span>
-                                <button
+                      <div key={variant.id} className="p-3 flex items-center justify-between hover:bg-slate-50/50 transition-colors text-xs">
+                        <div className="flex items-center gap-3">
+                          <ProductThumbnail 
+                            thumbnailConfig={variant.thumbnailConfig || selectedProduct.thumbnailConfig} 
+                            skuTitle={`${selectedProduct.name} - ${variant.size}`}
+                            skuColor={selectedProduct.skuColor}
+                            size="sm"
+                          />
+                          <div>
+                            <span className="font-mono text-[11px] font-medium text-gray-700 block">{variant.sku}</span>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-gray-400">Size: <strong className="text-gray-700 font-semibold">{variant.size}</strong></span>
+                              <span className="text-gray-300">•</span>
+                              <span className="text-gray-400">Color: <strong className="text-gray-700 font-semibold">{variant.color}</strong></span>
+                              <span className="text-gray-300">•</span>
+                              {editPriceSku === variant.sku ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-gray-400">₹</span>
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    value={editPrice}
+                                    onChange={(e) => setEditPrice(parseFloat(e.target.value) || 0)}
+                                    className="w-16 text-center py-0.5 border border-gray-300 rounded text-xs bg-white"
+                                  />
+                                  <button
+                                    onClick={() => saveVariantPrice(variant.id, variant.sku)}
+                                    disabled={savingPrice}
+                                    className="p-0.5 text-emerald-600 hover:text-emerald-700"
+                                  >
+                                    <Check className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditPriceSku(null)}
+                                    className="p-0.5 text-gray-400 hover:text-gray-600"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span 
+                                  className="text-indigo-600 font-medium cursor-pointer hover:underline"
                                   onClick={() => {
                                     setEditPriceSku(variant.sku);
                                     setEditPrice(variant.price);
                                   }}
-                                  className="text-gray-400 hover:text-indigo-950 p-0.5 rounded hover:bg-gray-150 transition-colors"
-                                  title="Edit Price"
+                                  title="Click to edit price"
                                 >
-                                  <Edit2 className="w-2.5 h-2.5" />
-                                </button>
-                              </div>
-                            )}
-
-                            {/* Shopify Sync Indicator / Action */}
-                            {variant.shopifyVariantId && !variant.shopifyVariantId.startsWith("imported_") ? (
-                              <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-100">
-                                <Check className="w-3 h-3 stroke-[3]" />
-                                Synced
-                              </span>
-                            ) : (
-                              <button
-                                onClick={() => handlePushToShopify(variant.id, variant.sku)}
-                                disabled={syncingVariantId === variant.id}
-                                className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 text-white disabled:opacity-50 text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-sm border border-indigo-400/30 transition-all cursor-pointer hover:shadow-indigo-500/20 active:scale-95"
-                                title="Push live inventory balance, barcode, and catalog details directly to Shopify"
-                              >
-                                {syncingVariantId === variant.id ? (
-                                  <RefreshCw className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <Zap className="w-3 h-3 text-amber-300 animate-pulse" />
-                                )}
-                                Push to Shopify ⚡
-                              </button>
-                            )}
+                                  ₹{variant.price}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <p className="font-mono text-[10px] text-gray-400 flex items-center gap-1 mt-0.5 flex-wrap">
-                            <Barcode className="w-3.5 h-3.5" /> {variant.sku}
-                            {variant.shopifyVariantId && !variant.shopifyVariantId.startsWith("imported_") && (
-                              <span className="text-[9px] text-gray-400 font-mono before:content-['|'] before:mx-1">
-                                ID: {variant.shopifyVariantId.split('/').pop()}
-                              </span>
-                            )}
-                          </p>
                         </div>
 
-                        <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handlePushToShopify(variant.id, variant.sku)}
+                            disabled={syncingVariantId === variant.id}
+                            className="text-[10px] text-gray-600 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded px-2 py-1 flex items-center gap-1 transition-colors cursor-pointer"
+                            title="Sync single variant to Shopify Storefront"
+                          >
+                            {syncingVariantId === variant.id ? (
+                              <RefreshCw className="w-3 h-3 animate-spin text-indigo-600" />
+                            ) : (
+                              <Zap className="w-3 h-3 text-amber-500" />
+                            )}
+                            Sync
+                          </button>
+
                           {isEditing ? (
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1">
                               <button 
                                 onClick={() => setEditQty(Math.max(0, editQty - 1))}
                                 className="p-1 border border-gray-200 rounded bg-white hover:bg-gray-100"
@@ -1309,20 +1379,9 @@ export default function StockInventoryPage() {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="text-center py-16 text-gray-400 space-y-3">
-              <Package className="w-10 h-10 mx-auto text-gray-300 stroke-[1.5]" />
-              <div>
-                <p className="text-sm font-semibold text-gray-500">No Product Selected</p>
-                <p className="text-xs text-gray-400 max-w-[200px] mx-auto mt-1">
-                  Click any product in the inventory ledger to display its full size & color breakdown.
-                </p>
-              </div>
-            </div>
-          )}
+          </div>
         </div>
-        
-      </div>
+      )}
 
       {/* BULK STOCK MATRIX ADJUSTMENT MODAL */}
       {showMatrixModal && selectedProduct && (

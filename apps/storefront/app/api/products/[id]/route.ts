@@ -260,7 +260,7 @@ export async function GET(
     if (variant.companyId) {
       const { data: coData } = await supabase
         .from("Company")
-        .select("id, name, code, shopifyStoreUrl, shopifyAccessToken, themeConfig")
+        .select("id, name, code, shopifyStoreUrl, themeConfig")
         .eq("id", variant.companyId)
         .maybeSingle();
       company = coData;

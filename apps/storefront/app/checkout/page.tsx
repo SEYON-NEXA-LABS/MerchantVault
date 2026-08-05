@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, CreditCard, RefreshCw } from "lucide-react";
+import Script from "next/script";
+import { ArrowLeft, CheckCircle2, ShieldCheck, Truck, CreditCard, RefreshCw, QrCode } from "lucide-react";
 
 import { applyBrandingStyles } from "../utils/branding";
 
@@ -31,6 +32,8 @@ const RECOMMENDED_ITEMS = [
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState<any[]>([]);
+  const [razorpayConfig, setRazorpayConfig] = useState<{ enabled: boolean; keyId: string }>({ enabled: false, keyId: "" });
+  const [processingRazorpay, setProcessingRazorpay] = useState(false);
 
   const addRecommendedItem = (item: any) => {
     const existing = cart.find(
@@ -45,7 +48,7 @@ export default function CheckoutPage() {
           : it
       );
     } else {
-      newCart = [...cart, { product: item, quantity: 1, selectedSize: item.size, selectedColor: item.color }];
+      newCart = [...cart, { product: item, selectedSize: item.size, selectedColor: item.color, quantity: 1 }];
     }
     
     setCart(newCart);
@@ -74,6 +77,19 @@ export default function CheckoutPage() {
   const [selectedCourier, setSelectedCourier] = useState<string>("delhivery");
   const [orderName, setOrderName] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
+
+  useEffect(() => {
+    // Fetch payment gateway configuration
+    fetch("/api/payment-config")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.enabled) {
+          setRazorpayConfig(data);
+          setForm(prev => ({ ...prev, paymentMethod: "RAZORPAY" }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -170,6 +186,79 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    if (form.paymentMethod === "RAZORPAY" && razorpayConfig.enabled) {
+      setProcessingRazorpay(true);
+      try {
+        const orderRes = await fetch("/api/razorpay/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: grandTotal })
+        });
+        const orderData = await orderRes.json();
+        if (!orderData.success) {
+          alert(orderData.error || "Could not initialize Razorpay payment");
+          setProcessingRazorpay(false);
+          return;
+        }
+
+        const options = {
+          key: orderData.keyId || razorpayConfig.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: company?.name || "Seyon Storefront",
+          description: "Order Checkout Payment",
+          order_id: orderData.orderId,
+          prefill: {
+            name: form.name,
+            email: form.email,
+            contact: form.phone
+          },
+          theme: {
+            color: "#0d9488"
+          },
+          handler: async function (response: any) {
+            try {
+              const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                })
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                submitOrderToDatabase("PAID");
+              } else {
+                alert("Payment verification failed: " + (verifyData.error || "Unknown error"));
+                setProcessingRazorpay(false);
+              }
+            } catch (err: any) {
+              alert("Payment verification error: " + err.message);
+              setProcessingRazorpay(false);
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setProcessingRazorpay(false);
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      } catch (err: any) {
+        alert("Failed to connect to Razorpay: " + err.message);
+        setProcessingRazorpay(false);
+      }
+      return;
+    }
+
+    submitOrderToDatabase("PENDING");
+  };
+
+  const submitOrderToDatabase = async (paymentStatus: string = "PENDING") => {
     setStep("loading");
 
     const shopifyOrderId = `storefront-${Math.floor(Math.random() * 900000) + 100000}`;
@@ -188,6 +277,7 @@ export default function CheckoutPage() {
       customerPhone: form.phone,
       customerEmail: form.email,
       totalPrice: cartTotal,
+      financial_status: paymentStatus === "PAID" ? "paid" : "pending",
       currency: "INR",
       shippingAddressLine1: form.addressLine1,
       shippingAddressLine2: form.addressLine2,
@@ -215,7 +305,6 @@ export default function CheckoutPage() {
         setOrderName(generatedOrderName);
         setTrackingNumber(trackingCode);
         setStep("success");
-        // Clear local cart
         localStorage.removeItem("seyon:storefront:cart");
       } else {
         throw new Error(data.error || "Order ingestion failed");
@@ -226,6 +315,8 @@ export default function CheckoutPage() {
       setTrackingNumber(trackingCode);
       setStep("success");
       localStorage.removeItem("seyon:storefront:cart");
+    } finally {
+      setProcessingRazorpay(false);
     }
   };
 
@@ -482,7 +573,34 @@ export default function CheckoutPage() {
                 Payment Option
               </h3>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: razorpayConfig.enabled ? "1fr 1fr 1fr" : "1fr 1fr", gap: "1rem" }}>
+                {razorpayConfig.enabled && (
+                  <label style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "1rem",
+                    border: `1.5px solid ${form.paymentMethod === 'RAZORPAY' ? 'var(--primary)' : 'var(--border)'}`,
+                    borderRadius: "0.375rem",
+                    cursor: "pointer",
+                    backgroundColor: form.paymentMethod === 'RAZORPAY' ? 'rgba(13, 148, 136, 0.03)' : '#ffffff'
+                  }}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="RAZORPAY"
+                      checked={form.paymentMethod === "RAZORPAY"}
+                      onChange={() => handleInputChange("paymentMethod", "RAZORPAY")}
+                      className="hidden"
+                      style={{ display: "none" }}
+                    />
+                    <QrCode style={{ width: "1.5rem", height: "1.5rem", color: form.paymentMethod === 'RAZORPAY' ? 'var(--primary)' : '#71717a' }} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: "700" }}>UPI / Razorpay</span>
+                    <span style={{ fontSize: "0.7rem", color: "#71717a", textAlign: "center" }}>GPay, PhonePe, Cards, NetBanking</span>
+                  </label>
+                )}
+
                 <label style={{
                   display: "flex",
                   flexDirection: "column",
@@ -667,6 +785,7 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
     </div>
   );
 }

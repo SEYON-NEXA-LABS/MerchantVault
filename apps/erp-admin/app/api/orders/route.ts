@@ -11,11 +11,16 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type"); // "active" | "delivered" | "returns"
+    const source = searchParams.get("source"); // "STOREFRONT" | "SHOPIFY" | "ALL"
 
     let query = supabase
       .from("OrderFulfillment")
-      .select("id, orderNumber, shopifyOrderId, customerId, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
+      .select("id, orderNumber, shopifyOrderId, customerId, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, orderSource, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
       .eq("companyId", companyId);
+
+    if (source && source !== "ALL") {
+      query = query.eq("orderSource", source);
+    }
 
     if (type === "active") {
       query = query.in("deliveryStatus", ["PROCESSING", "SHIPPED"]);

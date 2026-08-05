@@ -45,6 +45,7 @@ interface Order {
   shippingCost?: number | null;
   customerShippingFee?: number | null;
   paymentStatus?: string;
+  orderSource?: "STOREFRONT" | "SHOPIFY" | "POS" | "MANUAL";
   customerId?: string | null;
   customerEmail?: string;
 }
@@ -86,6 +87,7 @@ export default function OrdersPage() {
   const [codFilter, setCodFilter] = useState("All");
   const [courierFilter, setCourierFilter] = useState("All");
   const [riskFilter, setRiskFilter] = useState("All");
+  const [sourceFilter, setSourceFilter] = useState("All");
   
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -470,6 +472,11 @@ export default function OrdersPage() {
     return [];
   };
 
+  // Reset page when filters or tab change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, codFilter, courierFilter, riskFilter, sourceFilter, activeTab]);
+
   const filteredOrders = getOrdersForActiveTab().filter(ord => {
     const matchesSearch = 
       ord.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -505,8 +512,11 @@ export default function OrdersPage() {
       const riskScore = (ord.rtoRiskScore || calculatedRisk).toUpperCase();
       matchesRisk = riskScore === riskFilter.toUpperCase();
     }
+
+    const effectiveSource = ord.orderSource || (ord.shopifyOrderId?.startsWith("storefront-") ? "STOREFRONT" : "SHOPIFY");
+    const matchesSource = sourceFilter === "All" || effectiveSource.toUpperCase() === sourceFilter.toUpperCase();
     
-    return matchesSearch && matchesCod && matchesCourier && matchesRisk;
+    return matchesSearch && matchesCod && matchesCourier && matchesRisk && matchesSource;
   });
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -632,7 +642,20 @@ export default function OrdersPage() {
             </div>
 
             {/* Dropdown Filters Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Source</label>
+                <select
+                  value={sourceFilter}
+                  onChange={(e) => setSourceFilter(e.target.value)}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none w-full font-semibold text-gray-700"
+                >
+                  <option value="All">All Channels (Storefront & Shopify)</option>
+                  <option value="STOREFRONT">Storefront Only</option>
+                  <option value="SHOPIFY">Shopify Only</option>
+                </select>
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">COD Verification</label>
                 <select
@@ -686,8 +709,9 @@ export default function OrdersPage() {
             <table className="w-full text-left border-collapse text-sm">
               <thead>
                 <tr className="bg-gray-50/70 border-b border-gray-200 text-gray-500 font-medium text-xs uppercase tracking-wider">
-                  <th className="py-3.5 px-5">Order details</th>
-                  <th className="py-3.5 px-5">Customer info</th>
+                  <th className="py-3.5 px-5">Order Details</th>
+                  <th className="py-3.5 px-5">Order Source</th>
+                  <th className="py-3.5 px-5">Customer Info</th>
                   <th className="py-3.5 px-5">Weight</th>
                   <th className="py-3.5 px-5">AWB / Courier</th>
                   <th className="py-3.5 px-5">Status</th>
@@ -697,15 +721,16 @@ export default function OrdersPage() {
               <tbody className="divide-y divide-gray-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">Loading orders...</td>
+                    <td colSpan={7} className="py-8 text-center text-gray-400 text-xs">Loading orders...</td>
                   </tr>
                 ) : filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-400 text-xs">No orders found. Synchronize Shopify sales channel or create manual orders.</td>
+                    <td colSpan={7} className="py-8 text-center text-gray-400 text-xs">No orders found. Synchronize Shopify sales channel or create manual orders.</td>
                   </tr>
                 ) : (
                   paginatedOrders.map(ord => {
                     const active = selectedOrder?.id === ord.id;
+                    const sourceVal = ord.orderSource || (ord.shopifyOrderId?.startsWith('storefront-') ? 'STOREFRONT' : 'SHOPIFY');
                     return (
                       <tr 
                         key={ord.id}
@@ -719,7 +744,8 @@ export default function OrdersPage() {
                       >
                         <td className="py-3.5 px-5">
                           <p className="font-bold text-gray-900">{ord.orderNumber}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>                           <div className="mt-1 flex flex-wrap gap-1.5">
+                          <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
+                          <div className="mt-1 flex flex-wrap gap-1.5">
                             {(() => {
                               const address = ord.shippingAddressLine1 || "";
                               const isShortAddress = address.length < 15;
@@ -752,6 +778,15 @@ export default function OrdersPage() {
                               {ord.paymentStatus === "PAID" ? "PREPAID" : `COD: ${ord.codVerificationStatus || "PENDING"}`}
                             </span>
                           </div>
+                        </td>
+                        <td className="py-3.5 px-5">
+                          <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border tracking-wider ${
+                            sourceVal === 'STOREFRONT'
+                              ? 'bg-teal-50 text-teal-700 border-teal-200'
+                              : 'bg-purple-50 text-purple-700 border-purple-200'
+                          }`}>
+                            {sourceVal}
+                          </span>
                         </td>
                         <td className="py-3.5 px-5">
                           <p className="font-semibold text-gray-800">{ord.customerName}</p>

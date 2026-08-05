@@ -38,6 +38,8 @@ import {
   QrCode,
   Printer,
   Scan,
+  ArrowDownLeft,
+  ArrowUpRight,
   History,
   Mail,
   ShoppingBag,
@@ -299,8 +301,9 @@ export default function DashboardLayout({
 
   const sidebarTopMenu = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPERADMIN", "TENANTADMIN", "STAFF"] },
+    { name: "POS Counter Sales", icon: ShoppingBag, href: "/dashboard/pos", roles: ["SUPERADMIN", "TENANTADMIN", "STAFF"] },
     { 
-      name: "Seyon Bridge", 
+      name: "Shopify Integration", 
       icon: RefreshCw, 
       href: "/dashboard/shopify-sync", 
       roles: ["SUPERADMIN", "TENANTADMIN"],
@@ -477,8 +480,10 @@ export default function DashboardLayout({
                 <h2 className="text-xs font-bold text-slate-400 mb-2 px-3 uppercase tracking-wider">Barcode Operations</h2>
                 <ul className="space-y-0.5">
                   {[
-                    { name: "Print & Generate", icon: Printer, href: "/dashboard/barcode" },
-                    { name: "Inward & Outward", icon: Scan, href: "/dashboard/inward-outward" },
+                    { name: "Inward Receiving", icon: ArrowDownLeft, href: "/dashboard/inward" },
+                    { name: "Outward Dispatch", icon: ArrowUpRight, href: "/dashboard/outward" },
+                    { name: "Print & Generate Barcodes", icon: Printer, href: "/dashboard/barcode" },
+                    { name: "Combined Movement Log", icon: Scan, href: "/dashboard/inward-outward" },
                     { name: "Inventory Audits", icon: ClipboardList, href: "/dashboard/inventory/audits" },
                   ].map((item) => {
                     const active = isActive(item.href);

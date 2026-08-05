@@ -1,5 +1,6 @@
 -- Create Enum Types
 CREATE TYPE "MovementType" AS ENUM ('INWARD', 'OUTWARD', 'ADJUSTMENT');
+CREATE TYPE "OrderSource" AS ENUM ('STOREFRONT', 'SHOPIFY', 'POS', 'MANUAL');
 CREATE TYPE "SyncState" AS ENUM ('PENDING', 'SUCCESS', 'FAILED');
 CREATE TYPE "RecoveryState" AS ENUM ('PENDING', 'WHATSAPP_SENT', 'RECOVERED');
 CREATE TYPE "ShippingStatus" AS ENUM ('PROCESSING', 'SHIPPED', 'DELIVERED', 'RTO_INITIATED', 'RTO_RECEIVED');
@@ -22,6 +23,9 @@ CREATE TABLE "Company" (
     "contactEmail" TEXT,
     "logoUrl" TEXT,
     "isActive" BOOLEAN DEFAULT TRUE NOT NULL,
+    "razorpayEnabled" BOOLEAN DEFAULT FALSE NOT NULL,
+    "razorpayKeyId" TEXT,
+    "razorpayKeySecret" TEXT,
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -123,6 +127,7 @@ CREATE TABLE "OrderFulfillment" (
     "awbNumber" TEXT,
     "courierPartner" TEXT,
     "deliveryStatus" "ShippingStatus" DEFAULT 'PROCESSING' NOT NULL,
+    "orderSource" "OrderSource" DEFAULT 'STOREFRONT' NOT NULL,
     "warehouseId" UUID REFERENCES "Warehouse"("id") ON DELETE SET NULL,
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
