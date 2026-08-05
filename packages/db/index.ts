@@ -8,16 +8,18 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn("Warning: Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) are not defined.");
 }
 
-// Bypasses RLS for server-side operations
-export const supabaseAdmin = supabaseUrl && supabaseServiceKey && supabaseServiceKey !== "your_supabase_service_role_key_here"
-  ? createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    })
-  : (supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null as any);
+const fallbackUrl = "https://placeholder.supabase.co";
+const fallbackKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder";
 
-// Use the admin client (bypassing RLS) by default on the server, fallback to the anon client
+const activeUrl = (supabaseUrl && supabaseUrl.startsWith("http")) ? supabaseUrl : fallbackUrl;
+const activeServiceKey = (supabaseServiceKey && supabaseServiceKey !== "your_supabase_service_role_key_here") ? supabaseServiceKey : (supabaseAnonKey || fallbackKey);
+
+export const supabaseAdmin = createClient(activeUrl, activeServiceKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
+
 export const supabase = supabaseAdmin;
 

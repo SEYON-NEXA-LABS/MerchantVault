@@ -1,209 +1,163 @@
-# Tenant Custom Domain & Subdomain Routing SOP
+# MerchantVault — Custom Domain & Deployment SOP
 
-This document provides a step-by-step Standard Operating Procedure (SOP) for configuring **Custom Domains** and **Subdomain Routing** for client tenants on **FABRIC VAULT Storefront**.
+This document provides a step-by-step Standard Operating Procedure (SOP) for deploying **MerchantVault ERP & D2C Storefront OS** on **Vercel** and **Hostinger VPS (PM2 / NGINX)**, and explains how multi-tenant resolution works across query parameters, subdomains, and custom domains.
 
 ---
 
-## 1. Overview & Architecture
+## 1. Architecture & Multi-Tenant Resolution Engine
 
-FABRIC VAULT uses Next.js Edge Middleware ([apps/storefront/middleware.ts](../apps/storefront/middleware.ts)) to dynamically resolve incoming request hostnames to tenant slugs (`?slug=tenant_code`).
+**MerchantVault** runs as a **single, unified Next.js 16 application** on **Port 3000**. The engine supports **3 flexible tenant resolution modes**:
 
 ```text
-                                       ┌───────────────────────────────────────┐
-  Custom Domain (shop.wolfcabin.com) ─►│ Next.js Edge Middleware               │
-  Subdomain (wolfcabin.fabricvault)  ─►│ (apps/storefront/middleware.ts)     │
-  Direct Link (?slug=wolfcabin)      ─►│ Rewrites request to ?slug=wolfcabin │
-                                       └──────────────────┬────────────────────┘
-                                                          │
-                                                          ▼
-                                       ┌───────────────────────────────────────┐
-                                       │ FABRIC VAULT Storefront Engine        │
-                                       │ Loads tenant branding, catalog & keys │
-                                       └───────────────────────────────────────┘
+  Customer Traffic Modes:
+  1. Direct URL Link       (http://localhost:3000/?slug=wolfcabin)    ──┐
+  2. Subdomain Alias       (https://wolfcabin.merchantvault.com)      ──┼─► [Edge Router: middleware.ts]
+  3. Custom Domain         (https://wolfcabin.com)                    ──┘         │
+                                                                                │ Rewrites to ?slug=wolfcabin
+                                                                                ▼
+                                                                     ┌───────────────────────┐
+  Staff Access Portals:                                              │ Storefront API        │
+  • Admin Login Portal     (http://localhost:3000/admin)             │ (/api/products)       │
+  • ERP & POS Terminal     (http://localhost:3000/dashboard)         │ Loads brand, catalog, │
+                                                                     │ & Razorpay keys       │
+                                                                     └───────────────────────┘
 ```
 
----
+### Multi-Tenant Resolution Modes Breakdown:
 
-## 2. Configuration Methods for Client Tenants
-
-### Method 1: Tenant Purchased Domain Forwarding (Recommended for Small Businesses)
-If the client owns `www.wolfcabin.com` and wants a zero-code setup:
-
-1. **Log into Domain Registrar**: (GoDaddy, Namecheap, BigRock, Hostinger, Cloudflare).
-2. **Navigate to DNS / Domain Forwarding**:
-   - **Forward To**: `https://fabricvault-storefront.vercel.app/?slug=wolfcabin`
-   - **Redirect Type**: `301 Permanent Redirect`
-   - **Forwarding Type**: `Forward with Masking` (keeps their custom domain in address bar) or `Standard Forward`.
-
----
-
-### Method 2: CNAME Subdomain Alias (White-Label E-Commerce)
-If the client wants a branded URL like `shop.wolfcabin.com` or `store.denimco.in`:
-
-1. **Client DNS Record Setup**:
-   Ask the client to add a `CNAME` record in their DNS manager:
-   - **Type**: `CNAME`
-   - **Host / Name**: `shop` (or `store`)
-   - **Target / Points To**: `cname.vercel-dns.com` (or `fabricvault-storefront.vercel.app`)
-   - **TTL**: `Auto` or `3600`
-
-2. **Vercel Domain Mapping**:
-   In Vercel Project Settings &rarr; **Domains**:
-   - Add domain `shop.wolfcabin.com`.
-   - Vercel automatically issues an SSL/TLS certificate.
-
-3. **Next.js Middleware Auto-Rewrite**:
-   The middleware extracts `shop.wolfcabin.com` and maps it directly to `Company.code = "wolfcabin"`.
-
-### Method 4: Single Custom Domain with `/admin` Routing (Shopify-Style Unified Domain)
-If a tenant or your company purchases a new custom domain (e.g. `wolfcabin.com` or `fabricvault.in`), here is the exact step-by-step Vercel deployment guide:
-
-#### Step 1: Add Custom Domain in Vercel
-1. Log into your **Vercel Dashboard**.
-2. Open your **Storefront Project** (`fabricvault-storefront`).
-3. Go to **Settings &rarr; Domains**.
-4. Type your new domain (e.g. `wolfcabin.com` and `www.wolfcabin.com`) and click **Add**.
-
-#### Step 2: Configure DNS Records in your Registrar (GoDaddy, Namecheap, Cloudflare, Hostinger)
-In your domain registrar's DNS manager, add the 2 standard Vercel DNS records:
-
-| Record Type | Name / Host | Value / Target | Notes |
+| Resolution Mode | URL Example | Technical Resolution Workflow | Target Use Case |
 | :--- | :--- | :--- | :--- |
-| **A Record** | `@` (or leave empty) | `76.76.21.21` | Points `wolfcabin.com` to Vercel |
-| **CNAME Record** | `www` | `cname.vercel-dns.com` | Points `www.wolfcabin.com` to Vercel |
-
-*(Vercel automatically provisions free SSL/TLS security certificates in ~2 minutes!)*
-
-#### Step 3: Update Environment Variables
-In **Vercel Project Settings &rarr; Environment Variables**:
-- Set `NEXT_PUBLIC_STOREFRONT_URL=https://wolfcabin.com`
-- Set `NEXT_PUBLIC_APP_URL=https://fabricvault.vercel.app` (or `https://wolfcabin.com/admin`)
-
-#### Step 4: How Your URLs Work Live:
-- 🛍️ **`https://wolfcabin.com`** ➔ Customer Shopping Catalog & Checkout.
-- 🏢 **`https://wolfcabin.com/admin`** ➔ ERP Admin Operations Panel & POS Billing Terminal!
+| **A. URL Query Parameter** | `https://merchantvault.com/?slug=wolfcabin`<br>`https://merchantvault.com/?companyId=UUID` | API endpoint `/api/products` directly queries Supabase `Company` by `code` or `id`. | Direct marketing links, WhatsApp shares, QR code tags. |
+| **B. Subdomain Alias** | `https://wolfcabin.merchantvault.com/` | `middleware.ts` extracts `wolfcabin` from Host header and auto-rewrites internally to `?slug=wolfcabin`. | Platform SaaS multi-tenant subdomains. |
+| **C. Custom Domain** | `https://wolfcabin.com/` | `middleware.ts` checks database custom domain mapping (`Company.customDomain = "wolfcabin.com"`). | White-label custom domain (Shopify-style). |
 
 ---
 
-### Method 3: SaaS Platform Subdomains (e.g. `wolfcabin.fabricvault-storefront.vercel.app`)
-If you provide SaaS subdomains on your primary platform domain:
+## 2. Vercel Custom Domain Deployment
 
-1. **Vercel Wildcard Domain**: Add `*.fabricvault-storefront.vercel.app` in Vercel domains.
-2. **Automatic Middleware Parsing**:
-   Next.js Middleware inspects `request.headers.get("host")`:
-   ```ts
-   const subdomain = hostname.split(".")[0];
-   // rewrites request to /?slug=subdomain
-   ```
+Since **MerchantVault** is a unified Next.js project, deployment on Vercel requires **only 1 Vercel Project**:
+
+### Step 1: Push Code & Connect Repository
+1. Push your repository to GitHub / GitLab.
+2. Log into [Vercel](https://vercel.com).
+3. Import the repository as a **single project**.
+
+### Step 2: Set Environment Variables
+In Vercel Project Settings &rarr; **Environment Variables**:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+NEXT_PUBLIC_APP_URL=https://yourcustomdomain.com
+```
+
+### Step 3: Add Custom Domain in Vercel
+1. Go to **Settings &rarr; Domains**.
+2. Type your domain (e.g. `yourcustomdomain.com` and `www.yourcustomdomain.com`) and click **Add**.
+
+### Step 4: Configure DNS Records in Registrar
+Add these DNS records in your domain registrar (GoDaddy, Namecheap, Cloudflare, Hostinger):
+
+| Record Type | Host / Name | Value / Target | Notes |
+| :--- | :--- | :--- | :--- |
+| **A Record** | `@` | `76.76.21.21` | Points domain root to Vercel |
+| **CNAME Record** | `www` | `cname.vercel-dns.com` | Points `www` subdomain to Vercel |
+
+*(Vercel automatically issues free SSL/TLS certificates within ~2 minutes!)*
+
+### Step 5: Live Application Endpoints
+- 🛍️ **`https://yourcustomdomain.com/`** ➔ Public D2C Storefront & Checkout.
+- 🏢 **`https://yourcustomdomain.com/admin`** ➔ Retail Merchant & Staff Access Portal.
+- 📊 **`https://yourcustomdomain.com/dashboard`** ➔ ERP Management & POS Counter Billing Terminal!
 
 ---
 
-## 4. Deploying on Hostinger VPS / cPanel / AWS / Docker (Self-Hosted)
+## 3. Hostinger VPS Deployment (PM2 + NGINX)
 
-If you host on **Hostinger (VPS)**, **AWS EC2**, **DigitalOcean**, or **cPanel Node.js**:
+For Hostinger VPS, Ubuntu, AWS EC2, or DigitalOcean servers, deploy using **PM2** and **NGINX Reverse Proxy**:
 
-### Method A: Hostinger VPS Node.js + PM2 Process Manager (Recommended for Hostinger)
-
-#### Step 1: Install Node.js & PM2 on Hostinger VPS
+### Step 1: Install Dependencies on VPS
 ```bash
-# Connect to Hostinger VPS via SSH
-ssh root@your-vps-ip
+# Update Ubuntu packages
+sudo apt update && sudo apt upgrade -y
 
-# Install Node.js 20+ and PM2
+# Install Node.js 20+ & NGINX
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs
-npm install -g pm2
+sudo apt install -y nodejs nginx
+
+# Install PM2 Process Manager globally
+sudo npm install -g pm2
 ```
 
-#### Step 2: Clone Repo & Build Both Apps
+### Step 2: Clone & Build Application
 ```bash
-git clone https://github.com/your-org/fabricvault.git
-cd fabricvault
-npm install
-npm run build
+cd /var/www
+sudo git clone https://github.com/your-username/fabricvault.git merchantvault
+cd merchantvault
+
+# Create environment file
+sudo nano .env.local
 ```
 
-#### Step 3: Start Apps with PM2
+Paste environment variables:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+NEXT_PUBLIC_APP_URL=https://yourcustomdomain.com
+```
+
+Build the production bundle:
 ```bash
-# Start ERP Admin on port 3000
-pm2 start npm --name "erp-admin" --workspace=erp-admin -- run start
+sudo npm install
+sudo npm run build
+```
 
-# Start Storefront on port 3001
-pm2 start npm --name "storefront" --workspace=storefront -- run start
+### Step 3: Start Application with PM2
+```bash
+# Start Next.js production server on Port 3000
+pm2 start npm --name "merchantvault" -- run start
 
-# Save PM2 process list to start automatically on VPS reboot
+# Save PM2 process list & enable auto-restart on boot
 pm2 save
 pm2 startup
 ```
 
-#### Step 4: Configure NGINX Reverse Proxy on Hostinger VPS
-In `/etc/nginx/sites-available/default`:
+### Step 4: Configure NGINX Reverse Proxy
+Create an NGINX server block:
+```bash
+sudo nano /etc/nginx/sites-available/merchantvault
+```
 
+Paste configuration:
 ```nginx
 server {
-    server_name wolfcabin.com www.wolfcabin.com;
+    listen 80;
+    server_name yourcustomdomain.com www.yourcustomdomain.com *.yourcustomdomain.com;
 
-    # Storefront Customer Catalog
     location / {
-        proxy_pass http://127.0.0.1:3001;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-    }
-
-    # ERP Admin Operations Panel & POS
-    location /admin {
-        proxy_pass http://127.0.0.1:3000/dashboard;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
+Enable site & restart NGINX:
 ```bash
-# Reload NGINX & Generate Free SSL Certificate with Certbot
-sudo systemctl reload nginx
-sudo apt-get install certbot python3-certbot-nginx
-sudo certbot --nginx -d wolfcabin.com -d www.wolfcabin.com
+sudo ln -s /etc/nginx/sites-available/merchantvault /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
----
-
-### Method B: Docker Container Deployment (Hostinger / AWS)
-
-Prune the monorepo for containerized Docker deployments:
-
+### Step 5: Enable Free SSL with Certbot
 ```bash
-# Extract storefront app files & shared @repo/db dependencies
-npx turbo prune --scope=storefront --docker
-
-# Extract erp-admin app files & shared @repo/db dependencies
-npx turbo prune --scope=erp-admin --docker
-```
-
-Run both containers on Hostinger VPS using `docker-compose`:
-```yaml
-version: '3.8'
-services:
-  erp-admin:
-    build:
-      context: .
-      dockerfile: apps/erp-admin/Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_SUPABASE_URL=https://your-supabase.supabase.co
-  storefront:
-    build:
-      context: .
-      dockerfile: apps/storefront/Dockerfile
-    ports:
-      - "3001:3001"
-    environment:
-      - NEXT_PUBLIC_APP_URL=http://erp-admin:3000
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d yourcustomdomain.com -d www.yourcustomdomain.com
 ```
