@@ -4,7 +4,7 @@ import React, { createContext, useContext } from "react";
 import Link from "next/link";
 import { ShieldAlert, ArrowLeft, Lock } from "lucide-react";
 
-export type UserRole = "SUPERADMIN" | "TENANTADMIN" | "STAFF";
+export type UserRole = "SUPERADMIN" | "TENANTADMIN" | "MANAGER" | "STAFF";
 
 const RoleContext = createContext<{
   role: UserRole;

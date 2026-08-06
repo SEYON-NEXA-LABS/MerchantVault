@@ -95,7 +95,19 @@
 ### 15. Dual-Razorpay Architectural Separation Standard
 - **Tenant Razorpay Integration**: Customer purchases on merchant storefronts/POS are processed strictly via individual tenant credentials (`Company.razorpayKeyId`, `Company.razorpayKeySecret`), depositing sales directly into merchant accounts.
 - **Platform Razorpay Integration**: Platform SaaS subscriptions (Starter ₹999/mo, Growth ₹1,999/mo, Enterprise ₹4,999/mo) process strictly via platform credentials in `.env.local` (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`).
-- **Standardized Workspace Rule**: Documented rule #5 in `.agents/AGENTS.md` to prevent any overlap between tenant store payments and platform SaaS subscription billing.
+
+### 16. Lifecycle-Ordered Modular Sidebar & Multi-Role Access Control (`MANAGER`, `ADMIN`, `STAFF`)
+- **Modular Component**: Extracted sidebar into [Sidebar.tsx](file:///d:/seyon_nexa_labs/projects/fabricvault/components/Sidebar.tsx) for maintainability.
+- **Physical Lifecycle Flow Ordering**: Organized sidebar sections chronologically (Inbound Procurement $\rightarrow$ Inventory $\rightarrow$ Sales Dispatch $\rightarrow$ Logistics $\rightarrow$ CRM $\rightarrow$ Admin).
+- **Role Permission Matrix & Subtle Glassmorphic Themes**: Updated [RoleGuard.tsx](file:///d:/seyon_nexa_labs/projects/fabricvault/components/RoleGuard.tsx) and dashboard layout supporting `MANAGER` with subtle pastel glassmorphism themes (Rose, Purple, Emerald, Indigo).
+
+### 17. Upcoming Merchant Modules (Marked as "Coming Soon" in Sidebar Navigation)
+- **GST Invoicing & Auto E-Way Bill Generation**: Tax-compliant CGST/SGST/IGST invoicing and 1-click E-Way Bill filings (`Receipt` icon, marked *Soon*).
+- **Auto WhatsApp Webhook Workflows**: Automated WhatsApp notifications for COD call verification, shipment tracking links, and abandoned cart recoveries (`MessageSquare` icon, marked *Soon*).
+- **Merchant Discount Codes & Coupon Desk**: Flexible percentage & flat rupee promo codes for both Storefront & POS billing (`Star` icon, marked *Soon*).
+- **COGS & Profit Margin Analytics**: Real-time margin reports comparing product unit costs vs shipping costs vs net profit margins (`PieChart` icon, marked *Soon*).
+
+
 
 
 

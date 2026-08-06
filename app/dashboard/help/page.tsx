@@ -44,7 +44,7 @@ function HelpContent() {
     "Orders & Logistics": true,
     "Brand Customization & Storefront Channels": true
   });
-  const [activeTopicId, setActiveTopicId] = useState("intro");
+  const [activeTopicId, setActiveTopicId] = useState("sop-workflows");
 
   useEffect(() => {
     if (topicParam) {
@@ -201,22 +201,40 @@ function HelpContent() {
             </ul>
           </div>
 
+          <h3 className="text-base font-bold text-slate-900 mt-6">Product Lifecycle Navigation Flow</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            The ERP sidebar menu is structured chronologically according to the physical life cycle of products entering inventory through to customer delivery, using hierarchical decimal menu codes:
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-700 pl-2 space-y-2 mt-2">
+            <li><strong>1. Inbound & Procurement</strong>: Suppliers (1.1), Purchase Orders (1.2), Barcode Generation (1.3), Inward Receiving (1.4).</li>
+            <li><strong>2. Inventory & Warehouse</strong>: Stock Inventory (2.1), Floor Audits (2.2), Audit Logs (2.3), COGS Analytics (2.4).</li>
+            <li><strong>3. Sales & Dispatch</strong>: Orders Directory (3.1), Outward Dispatch (3.2), Discounts & Coupons (3.3).</li>
+            <li><strong>4. Logistics & Delivery</strong>: Shipping & Manifests (4.1), GST & E-Way Bill Filing (4.2).</li>
+            <li><strong>5. Customer Management (CRM)</strong>: Customer Directory (5.1), Abandoned Cart Recalls (5.2), WhatsApp Broadcasts (5.3), Social & Ads Leads (5.4).</li>
+            <li><strong>6. Administration & System</strong>: Staff & RBAC Permissions (6.1), Tenant Configurations (6.2).</li>
+            <li><strong>Platform Superadmin</strong>: Superadmin Control Center (7.1).</li>
+          </ul>
+
           <h3 className="text-base font-bold text-slate-900 mt-6">User Access Control (RBAC)</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
             Permission scopes are enforced strictly depending on your operator account credentials:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
               <span className="font-bold text-xs text-indigo-900 block">SUPERADMIN</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Platform billing, index adjustments, tenant company creations, and developer mocks database seeding.</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Platform billing, index adjustments, tenant company creations, and system-wide overrides.</span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
               <span className="font-bold text-xs text-amber-800 block">TENANTADMIN</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Seyon Bridge webhook calibrations, API token changes, warehouse directory additions, and staff assignments.</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Shopify bridge webhooks, API token changes, warehouse additions, and staff role assignments.</span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <span className="font-bold text-xs text-emerald-800 block">MANAGER</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Full operational control: POs, vendors, stock adjustments, audits, barcode printing, orders & CRM.</span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
               <span className="font-bold text-xs text-slate-800 block">STAFF (OPERATOR)</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Floor operations: barcode generation, inward/outward scanning, cycle audits, and courier handovers.</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Floor execution: barcode generation, inward/outward scanning, cycle counts, and shipping.</span>
             </div>
           </div>
         </div>

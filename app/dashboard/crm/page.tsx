@@ -73,21 +73,34 @@ interface CampaignLog {
   status: "PROCESSING" | "SENT";
 }
 
+import { useSearchParams } from "next/navigation";
+
 export default function CRMPage() {
   return (
     <RoleGuard allowedRoles={["SUPERADMIN", "TENANTADMIN"]}>
-      <CRMContent />
+      <React.Suspense fallback={<div className="p-8 text-center text-slate-500 font-medium">Loading CRM Module...</div>}>
+        <CRMContent />
+      </React.Suspense>
     </RoleGuard>
   );
 }
 
 function CRMContent() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as any;
+
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
   const [abandonedCarts, setAbandonedCarts] = useState<AbandonedCart[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "whatsapp" | "social" | "storefront">("directory");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
+
+  useEffect(() => {
+    if (tabParam && ["directory", "abandoned", "whatsapp", "social", "storefront"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
 
   // Pagination & Filter states for Customer Directory
   const [currentPage, setCurrentPage] = useState(1);
