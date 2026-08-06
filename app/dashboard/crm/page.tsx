@@ -19,7 +19,8 @@ import {
   Send,
   BarChart4,
   Mail,
-  X
+  X,
+  Share2
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
@@ -85,7 +86,7 @@ function CRMContent() {
   const [abandonedCarts, setAbandonedCarts] = useState<AbandonedCart[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "campaigns">("directory");
+  const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "whatsapp" | "social" | "storefront">("directory");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
 
   // Pagination & Filter states for Customer Directory
@@ -335,36 +336,56 @@ function CRMContent() {
       </div>
 
       {/* Main Tabs Navigation */}
-      <div className="inline-flex h-11 items-center justify-start rounded-lg bg-gray-100 p-1 text-gray-500 gap-1 border border-gray-200">
+      <div className="inline-flex h-11 items-center justify-start rounded-lg bg-gray-100 p-1 text-gray-500 gap-1 border border-gray-200 flex-wrap">
         <button
           onClick={() => setActiveTab("directory")}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 gap-2 cursor-pointer ${
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
             activeTab === "directory"
               ? "bg-white text-gray-900 shadow-sm font-bold border border-gray-200/50"
               : "text-gray-550 hover:text-gray-900 hover:bg-gray-50/50"
           }`}
         >
-          <Users className="w-4 h-4" /> Customer Directory
+          <Users className="w-3.5 h-3.5" /> Customer Directory
         </button>
         <button
           onClick={() => setActiveTab("abandoned")}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 gap-2 cursor-pointer ${
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
             activeTab === "abandoned"
               ? "bg-white text-gray-900 shadow-sm font-bold border border-gray-200/50"
               : "text-gray-550 hover:text-gray-900 hover:bg-gray-50/50"
           }`}
         >
-          <Clock className="w-4 h-4" /> Abandoned Checkouts
+          <Clock className="w-3.5 h-3.5" /> Abandoned Checkouts
         </button>
         <button
-          onClick={() => setActiveTab("campaigns")}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 gap-2 cursor-pointer ${
-            activeTab === "campaigns"
-              ? "bg-white text-gray-900 shadow-sm font-bold border border-gray-200/50"
+          onClick={() => setActiveTab("whatsapp")}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === "whatsapp"
+              ? "bg-white text-emerald-800 shadow-sm font-bold border border-emerald-200"
               : "text-gray-550 hover:text-gray-900 hover:bg-gray-50/50"
           }`}
         >
-          <MessageSquare className="w-4 h-4" /> Campaigns & Broadcasts
+          <MessageSquare className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp Broadcasts
+        </button>
+        <button
+          onClick={() => setActiveTab("social")}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === "social"
+              ? "bg-white text-indigo-800 shadow-sm font-bold border border-indigo-200"
+              : "text-gray-550 hover:text-gray-900 hover:bg-gray-50/50"
+          }`}
+        >
+          <Share2 className="w-3.5 h-3.5 text-indigo-600" /> Social Media & Ads
+        </button>
+        <button
+          onClick={() => setActiveTab("storefront")}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+            activeTab === "storefront"
+              ? "bg-white text-amber-800 shadow-sm font-bold border border-amber-200"
+              : "text-gray-550 hover:text-gray-900 hover:bg-gray-50/50"
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-600" /> Storefront Flash Banners
         </button>
       </div>
 
@@ -682,32 +703,30 @@ function CRMContent() {
         </div>
       )}
 
-      {/* Campaigns & Broadcasting Tab View */}
-      {activeTab === "campaigns" && (
+      {/* WhatsApp Broadcasts Tab */}
+      {activeTab === "whatsapp" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Launch Campaign Panel */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
               <div>
-                <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-indigo-650" /> Launch WhatsApp Broadcast
+                <h3 className="font-bold text-emerald-950 text-sm flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-emerald-600" /> WhatsApp Cloud Broadcast
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
-                  Send bulk marketing templates directly to segmented buyer contacts.
+                  Send HSM pre-approved templates directly to customer phone contacts via WATI API.
                 </p>
               </div>
 
               <form onSubmit={handleLaunchCampaign} className="space-y-4 text-xs">
                 <div className="space-y-1">
-                  <label className="font-semibold text-gray-600">Campaign Campaign Name *</label>
+                  <label className="font-semibold text-gray-600">Campaign Name *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Diwali Premium Silk Promo"
+                    placeholder="e.g. Wednesday Flash WhatsApp Blast"
                     value={campaignName}
                     onChange={(e) => setCampaignName(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
 
@@ -716,7 +735,7 @@ function CRMContent() {
                   <select
                     value={campaignSegment}
                     onChange={(e) => setCampaignSegment(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   >
                     <option value="ALL">All Unique Customers ({customers.length})</option>
                     <option value="VIP">VIP Customers ({customers.filter(c => getCustomerLtv(c) >= 6000 || c.totalOrders >= 3).length})</option>
@@ -726,7 +745,7 @@ function CRMContent() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-gray-600">Approved Message Template *</label>
+                  <label className="font-semibold text-gray-600">WhatsApp Approved Template *</label>
                   <select
                     value={campaignTemplate}
                     onChange={(e) => setCampaignTemplate(e.target.value)}
@@ -735,8 +754,6 @@ function CRMContent() {
                     <option value="BIG_BILLION_SALE">🔥 Big Billion Sale Special (50% OFF)</option>
                     <option value="WEDNESDAY_MIDNIGHT_BLITZ">⚡ Wednesday Midnight Flash Sale (10 PM - 2 AM)</option>
                     <option value="FESTIVE_PROMO">Festive Mega Sale Template (WhatsApp Approved)</option>
-                    <option value="NEW_STYLE_LAUNCH">New Collection Catalog Broadcaster</option>
-                    <option value="DISCOUNT_OFFER">Loyalty Reward Voucher Code</option>
                   </select>
                 </div>
 
@@ -744,15 +761,15 @@ function CRMContent() {
                   <button
                     type="submit"
                     disabled={launchingCampaign || !campaignName}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
                   >
                     {launchingCampaign ? (
                       <>
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Distributing Broadcast ({campaignProgress}%)
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Transmitting ({campaignProgress}%)
                       </>
                     ) : (
                       <>
-                        <Send className="w-3.5 h-3.5" /> Launch Broadcast Campaign
+                        <Send className="w-3.5 h-3.5" /> Dispatch WhatsApp Broadcast
                       </>
                     )}
                   </button>
@@ -761,15 +778,14 @@ function CRMContent() {
             </div>
           </div>
 
-          {/* Campaign Analytics Logs Ledger */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-              <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex items-center justify-between">
+              <div className="p-4 border-b border-gray-200 bg-emerald-50/30 flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                    <BarChart4 className="w-4 h-4 text-indigo-650" /> Campaign Dispatch Analytics
+                    <BarChart4 className="w-4 h-4 text-emerald-600" /> WhatsApp Campaign Performance
                   </h3>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Logs of active and completed marketing campaigns.</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Logs of dispatched bulk WhatsApp messages.</p>
                 </div>
               </div>
 
@@ -781,8 +797,8 @@ function CRMContent() {
                       <th className="p-4">Segment</th>
                       <th className="p-4 text-center">Sent</th>
                       <th className="p-4 text-center">Open Rate</th>
-                      <th className="p-4 text-center">Clicks (CTR)</th>
-                      <th className="p-4 text-right">Revenue Generated</th>
+                      <th className="p-4 text-center">Clicks</th>
+                      <th className="p-4 text-right">Revenue</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 font-medium text-gray-700">
@@ -796,7 +812,7 @@ function CRMContent() {
                         <td className="p-4 text-center font-mono font-bold text-gray-800">{log.sentCount}</td>
                         <td className="p-4 text-center font-mono font-bold text-emerald-600">{log.openRate}%</td>
                         <td className="p-4 text-center font-mono font-bold text-indigo-600">{log.clickRate}%</td>
-                        <td className="p-4 text-right font-mono font-black text-indigo-950">₹{log.revenue.toLocaleString()}</td>
+                        <td className="p-4 text-right font-mono font-black text-emerald-950">₹{log.revenue.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -804,7 +820,83 @@ function CRMContent() {
               </div>
             </div>
           </div>
+        </div>
+      )}
 
+      {/* Social Media & Paid Ads Tab */}
+      {activeTab === "social" && (
+        <div className="space-y-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                  <Share2 className="w-4 h-4 text-indigo-600" /> Social Media & Meta/Google Pixel Integration
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Track Instagram, Meta Ads, and Google Shopping traffic conversions directly on your storefront.
+                </p>
+              </div>
+              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold px-3 py-1 rounded-md">
+                Meta Pixel: Active
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-xl border border-gray-200 bg-slate-50 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold uppercase">Instagram Click-Throughs</span>
+                <p className="text-xl font-bold text-indigo-900">4,820 clicks</p>
+              </div>
+              <div className="p-4 rounded-xl border border-gray-200 bg-slate-50 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold uppercase">Meta Ad Conversions</span>
+                <p className="text-xl font-bold text-emerald-700">₹1,84,500 Sales</p>
+              </div>
+              <div className="p-4 rounded-xl border border-gray-200 bg-slate-50 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold uppercase">ROAS (Return On Ad Spend)</span>
+                <p className="text-xl font-bold text-amber-700">4.2x ROAS</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Storefront Flash Sales & Banners Tab */}
+      {activeTab === "storefront" && (
+        <div className="space-y-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-600" /> Storefront Campaign Banners & Themes
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Manage active top marquee banners, countdown timers, and strike-through discounts on the public store page.
+                </p>
+              </div>
+              <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold px-3 py-1 rounded-md">
+                Active Theme: Big Billion Day
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-xl border border-amber-300 bg-amber-50/40 space-y-2">
+                <span className="bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 1</span>
+                <h4 className="font-bold text-amber-950 text-sm">🔥 Big Billion Day</h4>
+                <p className="text-xs text-amber-900">Amber Gold Mesh gradient banner with BBD50 promo code and 50% strike-through discount.</p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/40 space-y-2">
+                <span className="bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 2</span>
+                <h4 className="font-bold text-indigo-950 text-sm">⚡ Wednesday Midnight Blitz</h4>
+                <p className="text-xs text-indigo-900">Electric Cyan/Blue gradient banner for 10 PM - 2 AM flash sales with live inventory stock meters.</p>
+              </div>
+
+              <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 space-y-2">
+                <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 3</span>
+                <h4 className="font-bold text-rose-950 text-sm">✨ Festive Mega Sale</h4>
+                <p className="text-xs text-rose-900">Deep Violet/Ruby Rose gradient marquee banner for holiday & Diwali festival promotions.</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

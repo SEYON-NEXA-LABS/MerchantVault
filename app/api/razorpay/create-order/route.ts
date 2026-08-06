@@ -24,11 +24,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Razorpay payment gateway is not enabled" }, { status: 400 });
     }
 
-    const keyId = company.razorpayKeyId || process.env.RAZORPAY_KEY_ID;
-    const keySecret = company.razorpayKeySecret || process.env.RAZORPAY_KEY_SECRET;
+    const keyId = company.razorpayKeyId;
+    const keySecret = company.razorpayKeySecret;
 
     if (!keyId || !keySecret) {
-      return NextResponse.json({ error: "Razorpay API credentials are not configured" }, { status: 400 });
+      return NextResponse.json({ error: "Merchant Razorpay API credentials are not configured in settings" }, { status: 400 });
     }
 
     const razorpay = new Razorpay({

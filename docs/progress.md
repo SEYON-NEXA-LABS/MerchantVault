@@ -92,6 +92,11 @@
 - **ERP Campaign Desk Integration**: Added Big Billion Sale (`🔥 Big Billion Sale Special`) and Wednesday Blitz (`⚡ Wednesday Midnight Flash Sale`) pre-configured message templates in `app/dashboard/crm/page.tsx`.
 - **Storefront Campaign Themes**: Added sticky promotional announcement banners in `app/page.tsx` with dynamic visual themes (`🔥 Big Billion Sale` Amber Gold, `⚡ Wednesday Flash Blitz` Electric Blue, `✨ Festive Mega Sale` Ruby Rose) complete with countdown timers, promo code snippets (`BBD50`), and dismissal controls.
 
+### 15. Dual-Razorpay Architectural Separation Standard
+- **Tenant Razorpay Integration**: Customer purchases on merchant storefronts/POS are processed strictly via individual tenant credentials (`Company.razorpayKeyId`, `Company.razorpayKeySecret`), depositing sales directly into merchant accounts.
+- **Platform Razorpay Integration**: Platform SaaS subscriptions (Starter ₹999/mo, Growth ₹1,999/mo, Enterprise ₹4,999/mo) process strictly via platform credentials in `.env.local` (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`).
+- **Standardized Workspace Rule**: Documented rule #5 in `.agents/AGENTS.md` to prevent any overlap between tenant store payments and platform SaaS subscription billing.
+
 
 
 

@@ -901,15 +901,28 @@ export default function DashboardLayout({
 
           {/* Global Operational Status Bar */}
           <footer className="h-8 bg-stone-100 text-stone-600 border-t border-stone-200 flex items-center justify-between px-6 text-[10px] font-mono select-none flex-shrink-0">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <span className="flex items-center gap-1.5 text-stone-900 font-semibold">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> TENANT: {company?.name ? company.name.toUpperCase() : "SEYON"} ({company?.code || "syn"})
               </span>
               <span className="text-stone-300">|</span>
+              <a 
+                href={getStorefrontUrl()} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-indigo-700 font-bold hover:underline flex items-center gap-1"
+              >
+                <span>Storefront:</span> {process.env.NEXT_PUBLIC_APP_URL ? new URL(process.env.NEXT_PUBLIC_APP_URL).host : "merchantvault.vercel.app"} ↗
+              </a>
+              <span className="text-stone-300">|</span>
               <span>
-                Shopify: {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && company?.shopifyAccessToken 
-                  ? (company.shopifyStoreUrl || company.shopifyShopDomain).replace("https://", "").replace("http://", "") 
-                  : "Unconfigured"}
+                Sales Channel: {(company?.shopifyStoreUrl || company?.shopifyShopDomain)
+                  ? ((company?.razorpayEnabled && company?.razorpayKeyId) 
+                      ? `Hybrid (Storefront + ${(company.shopifyStoreUrl || company.shopifyShopDomain).replace("https://", "").replace("http://", "")})` 
+                      : `Shopify Sync Only (${(company.shopifyStoreUrl || company.shopifyShopDomain).replace("https://", "").replace("http://", "")})`)
+                  : ((company?.razorpayEnabled && company?.razorpayKeyId) 
+                      ? "Merchant Vault Storefront (Native Active)" 
+                      : "Storefront Pending Gateway / COD Only")}
               </span>
               <span className="text-stone-300">|</span>
               <span className="flex items-center gap-1">
@@ -917,10 +930,12 @@ export default function DashboardLayout({
                 <span className="font-bold uppercase">{activeWarehouse?.code || "NONE"}</span>
               </span>
             </div>
-            <div className="flex items-center gap-4">
-              <span>Webhook: {(company?.shopifyStoreUrl || company?.shopifyShopDomain) && company?.shopifyAccessToken ? "Listening (Active)" : "Inactive (Handshake Required)"}</span>
+            <div className="flex items-center gap-3">
+              <span>Payment Gateway: {(company?.razorpayEnabled && company?.razorpayKeyId) ? <span className="text-emerald-700 font-bold">Merchant Razorpay Live (Store Active)</span> : <span className="text-amber-600 font-bold">COD Only / Merchant Gateway Pending</span>}</span>
               <span className="text-stone-300">|</span>
-              <span>Sync Health: {company?.shopifyStoreUrl && company.shopifyAccessToken ? "99.8%" : "0.0%"}</span>
+              <span>Orders Ingestion: <span className="text-emerald-700 font-bold">Active (/api/orders)</span></span>
+              <span className="text-stone-300">|</span>
+              <span>Sync Health: {(company?.shopifyStoreUrl || company?.shopifyShopDomain) ? "Hybrid 99.8%" : "Native 100%"}</span>
               <span className="text-stone-300">|</span>
               <span className="text-stone-900 font-semibold flex items-center gap-1">
                 <span>BUILD:</span>

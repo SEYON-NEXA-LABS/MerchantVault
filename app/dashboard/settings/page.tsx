@@ -1513,6 +1513,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Email Address</label>
                           <input
                             type="email"
+                            name="shiprocket_api_email"
+                            autoComplete="off"
                             value={shiprocketEmail}
                             onChange={(e) => setShiprocketEmail(e.target.value)}
                             placeholder="email@shiprocket.in"
@@ -1524,6 +1526,8 @@ function SettingsContent() {
                           <div className="relative">
                             <input
                               type={showPasswords.shiprocket ? "text" : "password"}
+                              name="shiprocket_api_password"
+                              autoComplete="new-password"
                               value={shiprocketPassword}
                               onChange={(e) => setShiprocketPassword(e.target.value)}
                               placeholder="••••••••"
@@ -1584,6 +1588,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Token / Key</label>
                           <input
                             type="password"
+                            name="delhivery_api_key"
+                            autoComplete="new-password"
                             value={delhiveryKey}
                             onChange={(e) => setDelhiveryKey(e.target.value)}
                             placeholder="delhivery_api_key_..."
@@ -1635,6 +1641,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API License Key</label>
                           <input
                             type="password"
+                            name="bluedart_license_key"
+                            autoComplete="new-password"
                             value={bluedartLicense}
                             onChange={(e) => setBluedartLicense(e.target.value)}
                             placeholder="bluedart_license_key_..."
@@ -1686,6 +1694,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Client ID / Key</label>
                           <input
                             type="password"
+                            name="dtdc_client_key"
+                            autoComplete="new-password"
                             value={dtdcKey}
                             onChange={(e) => setDtdcKey(e.target.value)}
                             placeholder="dtdc_client_key_..."
@@ -1737,6 +1747,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Key / Customer Key</label>
                           <input
                             type="password"
+                            name="xpressbees_key"
+                            autoComplete="new-password"
                             value={xpressbeesKey}
                             onChange={(e) => setXpressbeesKey(e.target.value)}
                             placeholder="xpressbees_key_..."
@@ -1788,6 +1800,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Key / License Key</label>
                           <input
                             type="password"
+                            name="indiapost_key"
+                            autoComplete="new-password"
                             value={indiaPostKey}
                             onChange={(e) => setIndiaPostKey(e.target.value)}
                             placeholder="indiapost_key_..."
@@ -1839,6 +1853,8 @@ function SettingsContent() {
                           <label className="font-semibold text-gray-600">API Key</label>
                           <input
                             type="password"
+                            name="professional_couriers_key"
+                            autoComplete="new-password"
                             value={professionalCouriersKey}
                             onChange={(e) => setProfessionalCouriersKey(e.target.value)}
                             placeholder="tpc_key_..."
@@ -1943,6 +1959,8 @@ function SettingsContent() {
                       </label>
                       <input
                         type="text"
+                        name="razorpay_key_id_field"
+                        autoComplete="off"
                         value={razorpayKeyId}
                         onChange={(e) => setRazorpayKeyId(e.target.value)}
                         placeholder="rzp_test_..."
@@ -1958,6 +1976,8 @@ function SettingsContent() {
                       <div className="relative">
                         <input
                           type={showPasswords["razorpayKeySecret"] ? "text" : "password"}
+                          name="razorpay_key_secret_field"
+                          autoComplete="new-password"
                           value={razorpayKeySecret}
                           onChange={(e) => setRazorpayKeySecret(e.target.value)}
                           placeholder="••••••••••••••••••••••••"

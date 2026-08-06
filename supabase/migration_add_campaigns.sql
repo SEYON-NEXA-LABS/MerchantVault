@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS "Campaign" (
 CREATE TABLE IF NOT EXISTS "CampaignProduct" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "campaignId" UUID NOT NULL REFERENCES "Campaign"("id") ON DELETE CASCADE,
-    "productId" UUID NOT NULL REFERENCES "Product"("id") ON DELETE CASCADE,
+    "variantId" UUID NOT NULL REFERENCES "ProductVariant"("id") ON DELETE CASCADE,
     "overridePrice" DOUBLE PRECISION,
-    UNIQUE("campaignId", "productId")
+    UNIQUE("campaignId", "variantId")
 );
 
 CREATE TABLE IF NOT EXISTS "CampaignAnalytics" (
@@ -37,4 +37,4 @@ CREATE TABLE IF NOT EXISTS "CampaignAnalytics" (
 -- Indexes
 CREATE INDEX IF NOT EXISTS "idx_campaign_company" ON "Campaign"("companyId");
 CREATE INDEX IF NOT EXISTS "idx_campaign_active" ON "Campaign"("isActive", "startTime", "endTime");
-CREATE INDEX IF NOT EXISTS "idx_campaign_product" ON "CampaignProduct"("campaignId", "productId");
+CREATE INDEX IF NOT EXISTS "idx_campaign_product" ON "CampaignProduct"("campaignId", "variantId");

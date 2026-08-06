@@ -14,3 +14,8 @@
 - Always maintain 0% platform transaction fees.
 - Pricing tiers: Starter (₹999/mo), Growth (₹1,999/mo), Enterprise (₹4,999/mo).
 - Refer to `docs/subscription_pricing_architecture.md` for multi-tenant subscription architecture and schema design.
+
+## 5. Dual-Razorpay Integration Architecture
+- **Tenant Razorpay (Merchant Storefront Payments)**: Tenant credentials stored per-company in Supabase (`Company.razorpayKeyId`, `Company.razorpayKeySecret`) are used EXCLUSIVELY for receiving customer order payments on merchant storefronts/POS.
+- **Platform Razorpay (SaaS Subscriptions)**: Platform credentials stored in root `.env.local` (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) are used EXCLUSIVELY for billing merchant subscription plans (Starter ₹999/mo, Growth ₹1,999/mo, Enterprise ₹4,999/mo) and generating platform invoices.
+- Do NOT mix or confuse merchant store checkout credentials with platform subscription billing credentials.
