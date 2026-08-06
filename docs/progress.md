@@ -53,3 +53,23 @@
 - **Database Schema**: Added `orderSource` column to both `Order` and `OrderFulfillment` tables.
 - **Backend API & Webhooks**: Updated `/api/webhooks/shopify/orders-create` and `/api/orders` to automatically tag and filter orders by their origin (`orderSource: "STOREFRONT"` vs `orderSource: "SHOPIFY"`).
 - **ERP Admin UI**: Rendered visual source badges (`STOREFRONT` in Teal vs `SHOPIFY` in Purple) in the orders dashboard ([apps/erp-admin/app/dashboard/orders/page.tsx](../apps/erp-admin/app/dashboard/orders/page.tsx)).
+
+### 7. MerchantVault Rebranding & Generic E-Commerce Copy Refactoring
+- **Environment & URL Configuration**: Updated `.env.local` and `.env.example` URLs to `https://merchantvault.vercel.app`.
+- **Copy Generalization**: Replaced apparel-specific wording (*"garments"*, *"fabric"*, *"cloth"*) with generic retail e-commerce terms (*"products"*, *"items"*, *"catalog"*, *"inventory"*) across storefront fallbacks, fulfillment status badges (`Items Checked & Packed`), and superadmin onboarding defaults.
+
+### 8. Separate Public Storefront Name (`storeName`) vs. Legal Entity (`name`)
+- **Database Schema**: Added `supabase/migration_add_store_name.sql` adding `storeName` column to `Company` table in Supabase.
+- **Backend APIs**: Updated `/api/products` and `/api/settings` to handle `storeName` alongside `name`.
+- **ERP Admin Settings**: Added a **Public Storefront Name** (`storeName`) input field alongside **Company Legal Name** (`name`) and read-only **Tenant Slug** (`code`) in `/dashboard/settings`.
+- **Storefront Rendering**: Updated storefront header, POS receipts, and footer to display `storeName` for public branding and `name` for legal operations.
+
+### 9. Storefront Hero CSS Styling & Mobile Responsive UX
+- **Modern Hero Styling**: Added ambient radial gradient background mesh glow, glassmorphism badge pill, text gradient masking, and interactive CTA shimmer buttons in `app/globals.css` and `app/page.tsx`.
+- **Flexible Catalog Pagination**: Increased default pagination to `12` items per page and added a dynamic **Items per Page** dropdown selector (`12`, `24`, `48`, `96`).
+- **Mobile Quick View Modal Fix**: Added `-webkit-overflow-scrolling: touch`, responsive max-height constraints, and adaptive image scaling so size/color selectors and cart buttons render cleanly on mobile viewports.
+
+### 10. Next.js 16+ `proxy.ts` Edge Proxy Migration
+- **Edge Proxy Migration**: Created root `proxy.ts` with `export function proxy(request: NextRequest)` conforming to Next.js 16 edge routing specification.
+- **Clean Deprecation Fix**: Removed legacy `middleware.ts` to eliminate build conflicts and deprecation warnings.
+

@@ -12,6 +12,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type"); // "active" | "delivered" | "returns"
     const source = searchParams.get("source"); // "STOREFRONT" | "SHOPIFY" | "ALL"
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!, 10) : null;
+    const offset = searchParams.get("offset") ? parseInt(searchParams.get("offset")!, 10) : 0;
 
     let query = supabase
       .from("OrderFulfillment")
@@ -28,6 +30,10 @@ export async function GET(request: NextRequest) {
       query = query.eq("deliveryStatus", "DELIVERED");
     } else if (type === "returns") {
       query = query.in("deliveryStatus", ["RTO_INITIATED", "RTO_RECEIVED"]);
+    }
+
+    if (limit && !isNaN(limit)) {
+      query = query.range(offset, offset + limit - 1);
     }
 
     const { data: orders, error: ordersErr } = await query.order("createdAt", { ascending: false });

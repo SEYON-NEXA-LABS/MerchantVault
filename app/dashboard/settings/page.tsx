@@ -118,24 +118,32 @@ function SettingsContent() {
   const [initialCompanySettings, setInitialCompanySettings] = useState<any>(null);
 
   useEffect(() => {
-    if (!initialCompanySettings) return;
+    if (loadingSettings || !initialCompanySettings) {
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
+      return;
+    }
+
     const isDirty = 
-      companyName !== initialCompanySettings.name ||
-      storeName !== initialCompanySettings.storeName ||
-      currency !== initialCompanySettings.currency ||
-      timezone !== initialCompanySettings.timezone ||
-      taxId !== initialCompanySettings.taxId ||
-      gstin !== initialCompanySettings.gstin ||
-      lowStockMode !== initialCompanySettings.lowStockMode ||
-      shopUrl !== initialCompanySettings.shopUrl ||
-      accessToken !== initialCompanySettings.accessToken ||
-      secretKey !== initialCompanySettings.secretKey ||
-      barcodeMode !== initialCompanySettings.barcodeMode;
+      companyName !== (initialCompanySettings.name || "") ||
+      storeName !== (initialCompanySettings.storeName || "") ||
+      currency !== (initialCompanySettings.currency || "INR") ||
+      timezone !== (initialCompanySettings.timezone || "") ||
+      taxId !== (initialCompanySettings.taxId || "") ||
+      gstin !== (initialCompanySettings.gstin || "") ||
+      contactEmail !== (initialCompanySettings.contactEmail || "") ||
+      whatsappNumber !== (initialCompanySettings.whatsappNumber || "") ||
+      lowStockMode !== (initialCompanySettings.lowStockMode || "MANUAL") ||
+      shopUrl !== (initialCompanySettings.shopUrl || "") ||
+      accessToken !== (initialCompanySettings.accessToken || "") ||
+      secretKey !== (initialCompanySettings.secretKey || "") ||
+      barcodeMode !== (initialCompanySettings.barcodeMode || "HYBRID");
 
     if (typeof window !== "undefined") {
       (window as any).__seyonIsDirty = isDirty;
     }
-  }, [companyName, storeName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, secretKey, barcodeMode, initialCompanySettings]);
+  }, [loadingSettings, companyName, storeName, currency, timezone, taxId, gstin, contactEmail, whatsappNumber, lowStockMode, shopUrl, accessToken, secretKey, barcodeMode, initialCompanySettings]);
 
   useEffect(() => {
     return () => {
@@ -300,7 +308,11 @@ function SettingsContent() {
           setIsConnected(true);
         }
         const tokenVal = data.shopifyAccessToken || "";
+        const secretKeyVal = data.shopifyWebhookSecret || "";
+        const barcodeModeVal = data.barcodeMode || "HYBRID";
         setAccessToken(tokenVal);
+        setSecretKey(secretKeyVal);
+        setBarcodeMode(barcodeModeVal);
 
         setInitialCompanySettings({
           name: data.name || "",
@@ -313,7 +325,9 @@ function SettingsContent() {
           whatsappNumber: data.whatsappNumber || "",
           lowStockMode: data.lowStockMode || "MANUAL",
           shopUrl: shopUrlVal,
-          accessToken: tokenVal
+          accessToken: tokenVal,
+          secretKey: secretKeyVal,
+          barcodeMode: barcodeModeVal
         });
       } catch (e) {
         console.error("Failed to parse cached company settings", e);
@@ -368,6 +382,7 @@ function SettingsContent() {
 
         setInitialCompanySettings({
           name: data.name || "",
+          storeName: data.storeName || "",
           currency: data.currency || "INR",
           timezone: data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
           taxId: data.taxId || "",
@@ -387,6 +402,9 @@ function SettingsContent() {
       toast.error("Failed to load company settings.");
     } finally {
       setLoadingSettings(false);
+      if (typeof window !== "undefined") {
+        (window as any).__seyonIsDirty = false;
+      }
     }
   };
 
@@ -520,7 +538,8 @@ function SettingsContent() {
         toast.success(`Company details saved! Default low stock threshold set to ${defaultThreshold} units.`);
         if (data.company) {
           localStorage.setItem("seyon:company", JSON.stringify(data.company));
-          setInitialCompanySettings({
+          setInitialCompanySettings((prev: any) => ({
+            ...prev,
             name: data.company.name || "",
             storeName: data.company.storeName || "",
             currency: data.company.currency || "INR",
@@ -530,9 +549,14 @@ function SettingsContent() {
             contactEmail: data.company.contactEmail || "",
             whatsappNumber: data.company.whatsappNumber || "",
             lowStockMode: data.company.lowStockMode || "MANUAL",
-            shopUrl: data.company.shopifyStoreUrl ? data.company.shopifyStoreUrl.replace("https://", "") : "",
-            accessToken: data.company.shopifyAccessToken || ""
-          });
+            shopUrl: data.company.shopifyStoreUrl ? data.company.shopifyStoreUrl.replace("https://", "").replace("http://", "") : (prev?.shopUrl || ""),
+            accessToken: data.company.shopifyAccessToken || (prev?.accessToken || ""),
+            secretKey: data.company.shopifyWebhookSecret || (prev?.secretKey || ""),
+            barcodeMode: data.company.barcodeMode || (prev?.barcodeMode || "HYBRID")
+          }));
+          if (typeof window !== "undefined") {
+            (window as any).__seyonIsDirty = false;
+          }
         }
       } else {
         toast.error(data.error || "Failed to save company details.");
@@ -657,7 +681,7 @@ function SettingsContent() {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-8 w-full">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white border border-gray-200 rounded-xl shadow-sm">
         <div className="space-y-1">
@@ -1078,7 +1102,7 @@ function SettingsContent() {
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
                 <h3 className="font-bold text-gray-950 text-sm">Custom E-Commerce Gateway</h3>
                 <p className="text-xs text-gray-500">Connect your own custom e-commerce storefront or point-of-sale systems.</p>
-                <div className="border border-dashed border-gray-200 rounded-xl p-8 text-center max-w-lg mx-auto space-y-4">
+                <div className="border border-dashed border-gray-200 rounded-xl p-8 text-center w-full space-y-4">
                   <div className="mx-auto w-12 h-12 bg-indigo-50 text-indigo-650 rounded-full flex items-center justify-center">
                     <RefreshCw className="w-5 h-5 animate-spin" style={{ animationDuration: '4s' }} />
                   </div>
@@ -1172,53 +1196,55 @@ function SettingsContent() {
 
           {activeTab === "company" && (
             /* Company Settings Pane */
-            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-5">
+            <div className="bg-white border border-gray-200 rounded-xl p-5 lg:p-8 shadow-sm space-y-6 lg:space-y-8">
               <div>
-                <h3 className="font-bold text-gray-950 text-base">Tenant Company Profile</h3>
-                <p className="text-xs text-gray-500 mt-1">Configure tenant identification, default thresholds, currencies, and regional settings.</p>
+                <h3 className="font-bold text-gray-950 text-base lg:text-lg">Tenant Company Profile</h3>
+                <p className="text-xs lg:text-sm text-gray-500 mt-1">Configure tenant identification, default thresholds, currencies, and regional settings.</p>
               </div>
 
-              <form onSubmit={saveCompanyDetails} className="space-y-4 text-xs max-w-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Company Legal Name (`name`)</label>
+              <form onSubmit={saveCompanyDetails} className="space-y-6 lg:space-y-8 text-xs w-full">
+                {/* Group 1: Identity & Storefront Branding */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Company Legal Name (`name`)</label>
                     <input 
                       required 
                       type="text" 
                       value={companyName} 
                       onChange={e => setCompanyName(e.target.value)} 
                       placeholder="e.g. Seyon Nexa Labs Pvt Ltd"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" 
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Public Storefront Name (`storeName`)</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Public Storefront Name (`storeName`)</label>
                     <input 
                       type="text" 
                       value={storeName} 
                       onChange={e => setStoreName(e.target.value)} 
                       placeholder="e.g. MerchantVault Retail"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-indigo-950" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-indigo-950" 
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Tenant Slug (`code`)</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Tenant Slug (`code`)</label>
                     <input 
                       disabled
                       type="text" 
                       value={companyCode || "syn"} 
-                      className="w-full bg-gray-100 border border-gray-200 rounded-lg py-2 px-3 text-sm cursor-not-allowed font-mono font-bold text-indigo-700" 
+                      className="w-full bg-gray-100 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm cursor-not-allowed font-mono font-bold text-indigo-700" 
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Default Currency</label>
+                {/* Group 2: Regional & Support Contact */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Default Currency</label>
                     <select 
                       value={currency} 
                       onChange={e => setCurrency(e.target.value)} 
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                     >
                       <option value="INR">INR (₹)</option>
                       <option value="USD">USD ($)</option>
@@ -1226,94 +1252,98 @@ function SettingsContent() {
                     </select>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Timezone</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Timezone</label>
                     <input 
                       disabled
                       type="text" 
                       value={timezone} 
-                      className="w-full bg-gray-100 border border-gray-200 rounded-lg py-2 px-3 text-sm cursor-not-allowed font-medium text-gray-500" 
+                      className="w-full bg-gray-100 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm cursor-not-allowed font-medium text-gray-500" 
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Default Low Stock Alert Threshold</label>
-                    <input 
-                      type="number"
-                      min="1"
-                      value={defaultThreshold} 
-                      onChange={e => setDefaultThreshold(parseInt(e.target.value) || 3)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono font-bold" 
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Low Stock Control Mode</label>
-                    <select
-                      value={lowStockMode}
-                      onChange={e => setLowStockMode(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold"
-                    >
-                      <option value="MANUAL">Manual (Use Set Safety Limits)</option>
-                      <option value="AUTOMATIC">Automatic (Dynamic Sales Velocity-based)</option>
-                    </select>
-                    <div className="mt-2 p-2.5 bg-gray-50 border border-gray-150 rounded-lg text-[10px] text-gray-500 space-y-1 leading-relaxed">
-                      {lowStockMode === "MANUAL" ? (
-                        <p>
-                          <strong className="text-gray-700">Manual Mode Theory:</strong> Low stock status is triggered when the physical stock level drops to or below the static <code className="bg-gray-200 px-1 py-0.5 rounded font-mono text-[9px]">safetyStockLimit</code> configured directly on the product variant catalog profile.
-                        </p>
-                      ) : (
-                        <p>
-                          <strong className="text-gray-700">Automatic Mode Theory:</strong> Low stock status is dynamically calculated daily using sales data and lead time metrics. The system evaluates when stock levels drop below: <br />
-                          <span className="font-semibold text-indigo-900 font-mono text-[9px]">Average Daily Sales (ADS) × Lead Time Days</span> (ensuring enough coverage for restocking replenishment).
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Support Email Address</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Support Email Address</label>
                     <input 
                       type="email" 
                       value={contactEmail} 
                       onChange={e => setContactEmail(e.target.value)} 
                       placeholder="e.g. support@yourbrand.com"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Support WhatsApp / Phone</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Support WhatsApp / Phone</label>
                     <input 
                       type="text" 
                       value={whatsappNumber} 
                       onChange={e => setWhatsappNumber(e.target.value)} 
                       placeholder="e.g. +91 98765 43210"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                    />
+                  </div>
+                </div>
+
+                {/* Group 3: Inventory Rules & Tax Identifiers */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Default Low Stock Alert Threshold</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      value={defaultThreshold} 
+                      onChange={e => setDefaultThreshold(parseInt(e.target.value) || 3)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono font-bold" 
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">GSTIN / VAT Number (Optional)</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Low Stock Control Mode</label>
+                    <select
+                      value={lowStockMode}
+                      onChange={e => setLowStockMode(e.target.value)}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold"
+                    >
+                      <option value="MANUAL">Manual (Use Set Safety Limits)</option>
+                      <option value="AUTOMATIC">Automatic (Dynamic Sales Velocity-based)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">GSTIN / VAT Number (Optional)</label>
                     <input 
                       type="text" 
                       value={gstin} 
                       onChange={e => setGstin(e.target.value)} 
                       placeholder="e.g. 22AAAAA1111A1Z1"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all uppercase font-mono" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all uppercase font-mono" 
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-semibold text-gray-600">Tax Registration ID (Optional)</label>
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-gray-700 text-xs">Tax Registration ID (Optional)</label>
                     <input 
                       type="text" 
                       value={taxId} 
                       onChange={e => setTaxId(e.target.value)} 
                       placeholder="e.g. TAX-99999"
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono" 
                     />
                   </div>
+                </div>
+
+                {/* Theory Information Banner spanning full width */}
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 space-y-1 leading-relaxed w-full">
+                  {lowStockMode === "MANUAL" ? (
+                    <p>
+                      <strong className="text-gray-900 font-bold">Manual Stock Control Mode:</strong> Low stock status is triggered when physical inventory level drops to or below the static <code className="bg-gray-200 px-1.5 py-0.5 rounded font-mono text-[11px]">safetyStockLimit</code> configured directly on the product variant catalog profile.
+                    </p>
+                  ) : (
+                    <p>
+                      <strong className="text-gray-900 font-bold">Automatic Stock Control Mode:</strong> Low stock status is dynamically calculated daily using sales velocity and lead time metrics. Evaluates when stock drops below: <span className="font-bold text-indigo-900 font-mono text-[11px]">Average Daily Sales (ADS) × Lead Time Days</span>.
+                    </p>
+                  )}
                 </div>
 
                 <div className="pt-3 border-t border-gray-100">

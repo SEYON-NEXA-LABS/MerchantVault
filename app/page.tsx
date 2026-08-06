@@ -771,12 +771,12 @@ export default function StorefrontPage() {
   // Sorting & Pagination States
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "stock">("featured");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [itemsPerPage, setItemsPerPage] = useState(12);
 
-  // Reset pagination to page 1 whenever search, category, brand, or sort changes
+  // Reset pagination to page 1 whenever search, category, brand, sort, or page limit changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedBrand, sortBy]);
+  }, [searchQuery, selectedCategory, selectedBrand, sortBy, itemsPerPage]);
 
   const filteredProducts = React.useMemo(() => {
     let result = groupedProducts.filter(p => {
@@ -1221,6 +1221,31 @@ export default function StorefrontPage() {
                     <option value="stock">Stock Level</option>
                   </select>
                 </div>
+
+                {/* Items Per Page Selector */}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span style={{ fontSize: "0.75rem", color: "#71717a", fontWeight: "500" }}>Show:</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e: any) => setItemsPerPage(Number(e.target.value))}
+                    style={{
+                      backgroundColor: "#ffffff",
+                      border: "1px solid #e4e4e7",
+                      borderRadius: "0.375rem",
+                      padding: "0.35rem 0.65rem",
+                      fontSize: "0.78rem",
+                      fontWeight: "500",
+                      color: "#18181b",
+                      outline: "none",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <option value={12}>12 per page</option>
+                    <option value={24}>24 per page</option>
+                    <option value={48}>48 per page</option>
+                    <option value={96}>96 per page</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1241,7 +1266,7 @@ export default function StorefrontPage() {
                 <ShoppingBag style={{ width: "2rem", height: "2rem", color: "#a1a1aa" }} />
                 <div>
                   <h4 style={{ fontSize: "0.95rem", fontWeight: "600", color: "#27272a", margin: 0 }}>No Products Available</h4>
-                  <p style={{ color: "#71717a", fontSize: "0.85rem", margin: "0.25rem 0 0 0" }}>No matching apparel items found for your selection.</p>
+                  <p style={{ color: "#71717a", fontSize: "0.85rem", margin: "0.25rem 0 0 0" }}>No matching products found for your selection.</p>
                 </div>
               </div>
             ) : (
@@ -1570,7 +1595,7 @@ export default function StorefrontPage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "1.5rem"
+            padding: "0.75rem"
           }}
         >
           <div 
@@ -1580,14 +1605,14 @@ export default function StorefrontPage() {
               borderRadius: "1rem",
               width: "100%",
               maxWidth: "680px",
-              maxHeight: "90vh",
+              maxHeight: "92vh",
               boxShadow: "0 25px 50px -12px rgba(0,0,0,0.35)",
               overflow: "hidden",
               position: "relative",
               border: "1px solid rgba(228,228,231,0.8)",
               display: "flex",
               flexDirection: "column",
-              padding: "0.5rem"
+              padding: "0.25rem"
             }}
           >
             <button 
@@ -1616,8 +1641,8 @@ export default function StorefrontPage() {
 
             <div className="quickview-modal-content">
               {/* Image Column */}
-              <div style={{ flex: 1, backgroundColor: "#f8fafc", position: "relative", borderRadius: "0.75rem", overflow: "hidden", margin: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <ProductImage prod={selectedProduct} style={{ minHeight: "300px", width: "100%", objectFit: "cover" }} />
+              <div className="quickview-img-container" style={{ flex: 1, backgroundColor: "#f8fafc", position: "relative", borderRadius: "0.75rem", overflow: "hidden", margin: "0.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <ProductImage prod={selectedProduct} style={{ height: "100%", width: "100%", objectFit: "cover" }} />
               </div>
 
               {/* Specs Column */}
@@ -1848,10 +1873,25 @@ export default function StorefrontPage() {
         .quickview-modal-content {
           display: flex;
           flex-direction: column;
+          max-height: calc(92vh - 1rem);
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+          padding: 0.5rem;
         }
-        @media (min-width: 600px) {
+        .quickview-img-container {
+          min-height: 200px;
+          max-height: 240px;
+        }
+        @media (min-width: 640px) {
           .quickview-modal-content {
             flex-direction: row;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 0;
+          }
+          .quickview-img-container {
+            min-height: 320px;
+            max-height: 480px;
           }
         }
         .toast-container {

@@ -18,7 +18,8 @@ import {
   ArrowRight,
   Send,
   BarChart4,
-  Mail
+  Mail,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
@@ -85,8 +86,12 @@ function CRMContent() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "campaigns">("directory");
-  const [directorySegment, setDirectorySegment] = useState<"ALL" | "VIP" | "REPEAT" | "INACTIVE">("ALL");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
+
+  // Pagination & Filter states for Customer Directory
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [directorySegment, setDirectorySegment] = useState<"ALL" | "VIP" | "REPEAT" | "INACTIVE">("ALL");
 
   // Marketing Campaign form states
   const [campaignName, setCampaignName] = useState("");
@@ -259,10 +264,13 @@ function CRMContent() {
       directorySegment === "ALL" ||
       (directorySegment === "VIP" && (getCustomerLtv(c) >= 6000 || c.totalOrders >= 3)) ||
       (directorySegment === "REPEAT" && c.isRepeat) ||
-      (directorySegment === "INACTIVE" && c.totalOrders === 1); // Simulated inactive
+      (directorySegment === "INACTIVE" && c.totalOrders === 1);
 
     return matchesSearch && matchesSegment;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredCustomers.length / itemsPerPage));
+  const paginatedCustomers = filteredCustomers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -358,9 +366,9 @@ function CRMContent() {
 
       {/* Directory Tab View */}
       {activeTab === "directory" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="space-y-6">
           {/* Main Directory Table */}
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm lg:col-span-2 overflow-hidden flex flex-col">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
             
             {/* Filters Bar */}
             <div className="p-4 border-b border-gray-200 bg-gray-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -413,14 +421,14 @@ function CRMContent() {
                         Fetching customer profile records...
                       </td>
                     </tr>
-                  ) : filteredCustomers.length === 0 ? (
+                  ) : paginatedCustomers.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="p-12 text-center text-gray-400">
                         No customer profiles match the segment criteria.
                       </td>
                     </tr>
                   ) : (
-                    filteredCustomers.map((c, idx) => {
+                    paginatedCustomers.map((c, idx) => {
                       const badge = getCustomerBadge(c);
                       return (
                         <tr 
@@ -448,9 +456,9 @@ function CRMContent() {
                           <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => setSelectedCustomer(c)}
-                              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-750 font-semibold px-3 py-1.5 rounded text-xs transition-all cursor-pointer"
+                              className="bg-indigo-50 hover:bg-indigo-100 text-indigo-750 font-semibold px-3 py-1.5 rounded text-xs transition-all cursor-pointer shadow-xs border border-indigo-200/60"
                             >
-                              Details
+                              View Details
                             </button>
                           </td>
                         </tr>
@@ -460,87 +468,136 @@ function CRMContent() {
                 </tbody>
               </table>
             </div>
+
+            {/* Pagination Controls */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50/50 flex items-center justify-between text-xs text-gray-500">
+              <div>
+                Showing <span className="font-bold text-gray-800">{filteredCustomers.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+                <span className="font-bold text-gray-800">{Math.min(currentPage * itemsPerPage, filteredCustomers.length)}</span> of{" "}
+                <span className="font-bold text-gray-800">{filteredCustomers.length}</span> profiles
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  Previous
+                </button>
+                <span className="font-semibold text-gray-700 px-1">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage >= totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Customer Detail Dashboard Sidebar */}
-          <div className="lg:col-span-1">
-            {selectedCustomer ? (
-              <div className="bg-white border border-indigo-100 shadow-md rounded-xl p-5 space-y-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
-
-                {/* Profile Header */}
-                <div className="flex items-start justify-between border-b border-gray-150 pb-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Customer Profile</span>
-                    <h3 className="font-bold text-gray-900 text-base">{selectedCustomer.name}</h3>
-                    <p className="text-xs text-gray-500 font-mono">{selectedCustomer.phone}</p>
-                    {selectedCustomer.email && (
-                      <p className="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1"><Mail className="w-3 h-3" /> {selectedCustomer.email}</p>
-                    )}
+          {/* Customer Details Modal Popup */}
+          {selectedCustomer && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 relative animate-in fade-in zoom-in-95 duration-150">
+                <div className="sticky top-0 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-gray-150 flex items-center justify-between z-10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest block">Customer Profile</span>
+                      <h3 className="font-bold text-gray-900 text-base leading-tight">{selectedCustomer.name}</h3>
+                    </div>
                   </div>
                   <button 
                     onClick={() => setSelectedCustomer(null)}
-                    className="text-gray-400 hover:text-gray-650 p-1.5 hover:bg-gray-50 rounded-full cursor-pointer"
+                    className="text-gray-400 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
                   >
-                    ✕
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                {/* Metrics Breakdown */}
-                <div className="grid grid-cols-2 gap-4 border-b border-gray-100 pb-4">
-                  <div className="space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Lifetime Value</span>
-                    <span className="font-black text-indigo-950 text-base block font-mono">₹{getCustomerLtv(selectedCustomer).toLocaleString()}</span>
+                <div className="p-6 space-y-6">
+                  {/* Basic Contact Info */}
+                  <div className="bg-slate-50 border border-slate-150 rounded-xl p-4 flex flex-wrap gap-4 justify-between items-center text-xs">
+                    <div>
+                      <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Phone</span>
+                      <span className="font-mono font-bold text-slate-800">{selectedCustomer.phone}</span>
+                    </div>
+                    {selectedCustomer.email && (
+                      <div>
+                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Email</span>
+                        <span className="font-mono text-slate-700">{selectedCustomer.email}</span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Location</span>
+                      <span className="text-slate-700">{selectedCustomer.city ? `${selectedCustomer.city}, ${selectedCustomer.state || ""}` : "Not provided"}</span>
+                    </div>
                   </div>
-                  <div className="space-y-1 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Avg Order Value</span>
-                    <span className="font-black text-slate-800 text-base block font-mono">₹{getCustomerAov(selectedCustomer).toLocaleString()}</span>
+
+                  {/* Metrics Breakdown */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                      <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Lifetime Value</span>
+                      <span className="font-black text-indigo-950 text-xl block font-mono">₹{getCustomerLtv(selectedCustomer).toLocaleString()}</span>
+                    </div>
+                    <div className="space-y-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Avg Order Value</span>
+                      <span className="font-black text-slate-900 text-xl block font-mono">₹{getCustomerAov(selectedCustomer).toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Timeline Ledger */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <ShoppingBag className="w-4 h-4 text-indigo-600" /> Order History Ledger ({selectedCustomer.totalOrders})
+                    </h4>
+                    <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+                      {selectedCustomer.orders.length === 0 ? (
+                        <p className="text-xs text-gray-400 italic">No order records attached.</p>
+                      ) : (
+                        selectedCustomer.orders.map(o => (
+                          <div key={o.id} className="p-3.5 border border-gray-200 rounded-xl text-xs bg-white hover:bg-slate-50/50 transition-colors shadow-2xs">
+                            <div className="flex justify-between items-center">
+                              <span className="font-bold text-gray-900 font-mono">{o.orderNumber}</span>
+                              <span className="text-[10px] text-gray-400 font-mono">{new Date(o.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
+                              <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                                o.deliveryStatus === "DELIVERED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50" :
+                                o.deliveryStatus === "SHIPPED" ? "bg-blue-50 text-blue-700 border border-blue-200/50" :
+                                "bg-amber-50 text-amber-700 border border-amber-200/50"
+                              }`}>
+                                {o.deliveryStatus}
+                              </span>
+                              {o.awbNumber && (
+                                <span className="font-mono text-[10px] text-gray-500 font-bold">
+                                  AWB: {o.awbNumber}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {/* Timeline Ledger */}
-                <div className="space-y-3.5">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <ShoppingBag className="w-4 h-4 text-indigo-600" /> Order History Ledger
-                  </h4>
-                  <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
-                    {selectedCustomer.orders.map(o => (
-                      <div key={o.id} className="p-3 border border-gray-150 rounded-lg text-xs hover:bg-slate-50/50">
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-gray-800">{o.orderNumber}</span>
-                          <span className="text-[10px] text-gray-400 font-mono">{new Date(o.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between items-center mt-2 pt-1 border-t border-gray-100">
-                          <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                            o.deliveryStatus === "DELIVERED" ? "bg-emerald-50 text-emerald-700" :
-                            o.deliveryStatus === "SHIPPED" ? "bg-blue-50 text-blue-700" :
-                            "bg-amber-50 text-amber-700"
-                          }`}>
-                            {o.deliveryStatus}
-                          </span>
-                          {o.awbNumber && (
-                            <span className="font-mono text-[9px] text-gray-500 font-bold">
-                              AWB: {o.awbNumber}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 flex justify-end">
+                  <button
+                    onClick={() => setSelectedCustomer(null)}
+                    className="bg-gray-900 hover:bg-gray-800 text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors cursor-pointer"
+                  >
+                    Close Profile
+                  </button>
                 </div>
               </div>
-            ) : (
-              <div className="border border-dashed border-gray-250 bg-slate-50/40 rounded-xl p-8 text-center h-80 flex items-center justify-center text-gray-400">
-                <div className="space-y-2 max-w-xs">
-                  <Award className="w-8 h-8 text-gray-300 mx-auto" />
-                  <p className="text-sm font-bold text-gray-500">No Profile Selected</p>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    Click on any customer record in the directory to display their dynamic lifecycle analytics ledger, tiers, and orders timeline.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
