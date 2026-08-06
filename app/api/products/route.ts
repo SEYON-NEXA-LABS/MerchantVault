@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
     let companyQuery = supabase
       .from("Company")
-      .select("id, name, code, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber");
+      .select("id, name, storeName, code, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber");
 
     if (slug) {
       companyQuery = companyQuery.or(`code.eq.${slug},id.eq.${slug}`);

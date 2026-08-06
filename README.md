@@ -1,6 +1,6 @@
 # MERCHANT VAULT — Enterprise Retail ERP & D2C Storefront OS
 
-[![Powered by](https://img.shields.io/badge/Engineered%20By-SEYON%20NEXA%20LABS-0d9488?style=for-the-badge)](https://fabricvault.vercel.app)
+[![Powered by](https://img.shields.io/badge/Engineered%20By-SEYON%20NEXA%20LABS-0d9488?style=for-the-badge)](https://merchantvault.vercel.app)
 [![Framework](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Database](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=for-the-badge&logo=supabase)](https://supabase.com)
 [![Gateway](https://img.shields.io/badge/Razorpay-Integrated-02042b?style=for-the-badge&logo=razorpay)](https://razorpay.com)

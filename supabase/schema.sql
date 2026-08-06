@@ -11,6 +11,7 @@ CREATE TYPE "UserRole" AS ENUM ('SUPERADMIN', 'TENANTADMIN', 'STAFF');
 CREATE TABLE "Company" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
+    "storeName" TEXT,
     "code" TEXT NOT NULL UNIQUE,
     "shopifyStoreUrl" TEXT,
     "shopifyAccessToken" TEXT,

@@ -256,7 +256,7 @@ function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: 
 }
 
 export default function ProductDetailPage() {
-  const [erpAdminUrl, setErpAdminUrl] = useState("https://fabricvault.vercel.app/dashboard");
+  const [erpAdminUrl, setErpAdminUrl] = useState("https://merchantvault.vercel.app/dashboard");
 
   useEffect(() => {
     if (typeof window !== "undefined") {

@@ -29,7 +29,7 @@
   - Automatically handles SKU collision checks, updating stock levels and pricing when SKUs already exist.
 - **Inventory Import UI**: Updated `/dashboard/inventory` ([apps/erp-admin/app/dashboard/inventory/page.tsx](../apps/erp-admin/app/dashboard/inventory/page.tsx)):
   - **CSV & JSON Parser**: Accepts both standard `.csv` spreadsheet files and `.json` catalog files.
-  - **Sample Template Downloads**: Added instant download buttons for sample CSV (`fabricvault_bulk_import_template.csv`) and sample JSON (`fabricvault_bulk_import_template.json`).
+  - **Sample Template Downloads**: Added instant download buttons for sample CSV (`merchantvault_bulk_import_template.csv`) and sample JSON (`merchantvault_bulk_import_template.json`).
   - **Pre-Import Analysis**: Displays live row validation preview before committing changes to the database.
 
 ### 5. Single Custom Domain & `/admin` Rewrite Routing

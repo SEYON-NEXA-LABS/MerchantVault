@@ -578,7 +578,7 @@ function PosTerminalContent() {
             {/* Printable Thermal Receipt Card */}
             <div id="printable-pos-receipt" className="bg-amber-50/40 border border-amber-200/60 rounded-xl p-4 text-left space-y-3 font-mono text-xs text-gray-800">
               <div className="text-center border-b border-dashed border-amber-300/80 pb-2">
-                <span className="font-bold text-sm uppercase block text-amber-950">{company?.name || "FabricVault Retail"}</span>
+                <span className="font-bold text-sm uppercase block text-amber-950">{company?.name || "MerchantVault Retail"}</span>
                 <span className="text-[10px] text-amber-800 block mt-0.5">📍 {activeWarehouse.name}</span>
                 <span className="text-[10px] text-amber-800 block">{new Date().toLocaleString()}</span>
               </div>

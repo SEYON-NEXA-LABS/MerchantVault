@@ -112,7 +112,7 @@ function CompaniesContent() {
   const [brandAccentColor, setBrandAccentColor] = useState("#fbbf24");
   const [brandRadius, setBrandRadius] = useState("0.375rem");
   const [brandBannerText, setBrandBannerText] = useState("0% Commission Native Sales Channel");
-  const [brandHeroTitle, setBrandHeroTitle] = useState("Premium Garments, Synced in Real-Time");
+  const [brandHeroTitle, setBrandHeroTitle] = useState("Premium Products, Synced in Real-Time");
   const [brandHeroSubtitle, setBrandHeroSubtitle] = useState("Experience direct database checkout.");
 
   // Onboarding fields
@@ -331,7 +331,7 @@ function CompaniesContent() {
     setBrandAccentColor("#fbbf24");
     setBrandRadius("0.375rem");
     setBrandBannerText("0% Commission Native Sales Channel");
-    setBrandHeroTitle("Premium Garments, Synced in Real-Time");
+    setBrandHeroTitle("Premium Products, Synced in Real-Time");
     setBrandHeroSubtitle("Experience direct database checkout.");
     setShowAddBrandForm(true);
   };
@@ -350,7 +350,7 @@ function CompaniesContent() {
     setBrandAccentColor(theme.accent || "#fbbf24");
     setBrandRadius(theme.radius || "0.375rem");
     setBrandBannerText(theme.bannerText || "0% Commission Native Sales Channel");
-    setBrandHeroTitle(theme.heroTitle || "Premium Garments, Synced in Real-Time");
+    setBrandHeroTitle(theme.heroTitle || "Premium Products, Synced in Real-Time");
     setBrandHeroSubtitle(theme.heroSubtitle || "Experience direct database checkout.");
     setShowAddBrandForm(true);
   };

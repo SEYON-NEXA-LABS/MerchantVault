@@ -103,6 +103,7 @@ function SettingsContent() {
 
   // Company details form states
   const [companyName, setCompanyName] = useState("");
+  const [storeName, setStoreName] = useState("");
   const [companyCode, setCompanyCode] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [currency, setCurrency] = useState("INR");
@@ -120,6 +121,7 @@ function SettingsContent() {
     if (!initialCompanySettings) return;
     const isDirty = 
       companyName !== initialCompanySettings.name ||
+      storeName !== initialCompanySettings.storeName ||
       currency !== initialCompanySettings.currency ||
       timezone !== initialCompanySettings.timezone ||
       taxId !== initialCompanySettings.taxId ||
@@ -133,7 +135,7 @@ function SettingsContent() {
     if (typeof window !== "undefined") {
       (window as any).__seyonIsDirty = isDirty;
     }
-  }, [companyName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, secretKey, barcodeMode, initialCompanySettings]);
+  }, [companyName, storeName, currency, timezone, taxId, gstin, lowStockMode, shopUrl, accessToken, secretKey, barcodeMode, initialCompanySettings]);
 
   useEffect(() => {
     return () => {
@@ -282,6 +284,7 @@ function SettingsContent() {
       try {
         const data = JSON.parse(cachedCompany);
         setCompanyName(data.name || "");
+        setStoreName(data.storeName || "");
         setCurrency(data.currency || "INR");
         setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
         setTaxId(data.taxId || "");
@@ -301,6 +304,7 @@ function SettingsContent() {
 
         setInitialCompanySettings({
           name: data.name || "",
+          storeName: data.storeName || "",
           currency: data.currency || "INR",
           timezone: data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
           taxId: data.taxId || "",
@@ -321,6 +325,7 @@ function SettingsContent() {
       if (!data.error) {
         localStorage.setItem("seyon:company", JSON.stringify(data));
         setCompanyName(data.name || "");
+        setStoreName(data.storeName || "");
         setCompanyCode(data.code || "syn");
         setCurrency(data.currency || "INR");
         setTimezone(data.timezone ? `${data.timezone} (UTC+05:30)` : "IST (UTC+05:30)");
@@ -499,6 +504,7 @@ function SettingsContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: companyName,
+          storeName: storeName,
           logoUrl,
           currency,
           timezone: timezone.split(" ")[0], // Extract just the code e.g. "IST"
@@ -516,6 +522,7 @@ function SettingsContent() {
           localStorage.setItem("seyon:company", JSON.stringify(data.company));
           setInitialCompanySettings({
             name: data.company.name || "",
+            storeName: data.company.storeName || "",
             currency: data.company.currency || "INR",
             timezone: data.company.timezone ? `${data.company.timezone} (UTC+05:30)` : "IST (UTC+05:30)",
             taxId: data.company.taxId || "",
@@ -667,8 +674,8 @@ function SettingsContent() {
           const baseUrl = (process.env.NEXT_PUBLIC_STOREFRONT_URL || "").replace(/\/$/, "") || (typeof window !== "undefined"
             ? (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
                 ? `${window.location.protocol}//${window.location.hostname}:3000`
-                : "https://fabricvault.vercel.app")
-            : "https://fabricvault.vercel.app");
+                : "https://merchantvault.vercel.app")
+            : "https://merchantvault.vercel.app");
           const storefrontUrl = `${baseUrl}/?slug=${companyCode || "syn"}`;
 
           return (
@@ -1172,15 +1179,37 @@ function SettingsContent() {
               </div>
 
               <form onSubmit={saveCompanyDetails} className="space-y-4 text-xs max-w-lg">
-                <div className="space-y-1">
-                  <label className="font-semibold text-gray-600">Company Name</label>
-                  <input 
-                    required 
-                    type="text" 
-                    value={companyName} 
-                    onChange={e => setCompanyName(e.target.value)} 
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" 
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">Company Legal Name (`name`)</label>
+                    <input 
+                      required 
+                      type="text" 
+                      value={companyName} 
+                      onChange={e => setCompanyName(e.target.value)} 
+                      placeholder="e.g. Seyon Nexa Labs Pvt Ltd"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">Public Storefront Name (`storeName`)</label>
+                    <input 
+                      type="text" 
+                      value={storeName} 
+                      onChange={e => setStoreName(e.target.value)} 
+                      placeholder="e.g. MerchantVault Retail"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold text-indigo-950" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="font-semibold text-gray-600">Tenant Slug (`code`)</label>
+                    <input 
+                      disabled
+                      type="text" 
+                      value={companyCode || "syn"} 
+                      className="w-full bg-gray-100 border border-gray-200 rounded-lg py-2 px-3 text-sm cursor-not-allowed font-mono font-bold text-indigo-700" 
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -267,7 +267,7 @@ export default function CheckoutPage() {
 
     const webhookUrl = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
       ? "http://localhost:3000/api/webhooks/shopify/orders-create"
-      : "https://fabricvault.vercel.app/api/webhooks/shopify/orders-create";
+      : "https://merchantvault.vercel.app/api/webhooks/shopify/orders-create";
 
     const payload = {
       companyId: company?.id,

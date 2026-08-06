@@ -246,7 +246,7 @@ export default function StockInventoryPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "fabricvault_bulk_import_template.csv";
+      a.download = "merchantvault_bulk_import_template.csv";
       a.click();
     } else {
       const jsonContent = JSON.stringify([
@@ -275,7 +275,7 @@ export default function StockInventoryPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "fabricvault_bulk_import_template.json";
+      a.download = "merchantvault_bulk_import_template.json";
       a.click();
     }
   };

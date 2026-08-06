@@ -105,7 +105,7 @@ export default function DashboardLayout({
 
   const getStorefrontUrl = () => {
     const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    const base = typeof window !== "undefined" ? window.location.origin : (isLocal ? "http://localhost:3000" : "https://fabricvault.vercel.app");
+    const base = typeof window !== "undefined" ? window.location.origin : (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app");
     if (company?.id) {
       return `${base}/?companyId=${company.id}`;
     }
@@ -180,14 +180,14 @@ export default function DashboardLayout({
               }
             }
           } else {
-            router.push("/");
+            router.push("/admin");
           }
         } else {
-          router.push("/");
+          router.push("/admin");
         }
       } catch (err) {
         console.error("Failed to bootstrap user context", err);
-        router.push("/");
+        router.push("/admin");
       } finally {
         setIsBootstrapping(false);
       }
@@ -258,7 +258,7 @@ export default function DashboardLayout({
     localStorage.removeItem("seyon:warehouses");
     localStorage.removeItem("seyon:company");
     localStorage.removeItem("seyon:user");
-    router.push("/");
+    router.push("/admin");
   };
 
   const activeWarehouse = warehouses.find(w => w.id === activeWhId);

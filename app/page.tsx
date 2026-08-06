@@ -35,92 +35,64 @@ import {
 const FALLBACK_PRODUCTS = [
   {
     id: "mock-1",
-    sku: "SEY-KHD-01",
-    title: "Premium Mulberry Silk Shirt",
-    size: "M",
-    color: "Indigo Blue",
+    sku: "MRC-BKP-01",
+    title: "Minimalist Commuter Backpack",
+    size: "Standard",
+    color: "Charcoal Black",
     price: 3499,
     currentStockLevel: 12,
-    category: "Shirts",
+    category: "Accessories",
     rating: 4.8,
     reviews: 24,
-    imageUrl: "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=800&auto=format&fit=crop&q=80",
-    description: "Crafted from fine handwoven mulberry silk, this shirt balances ethnic luxury with modern casual cuts. Features breathable texture and natural shine."
+    imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80",
+    description: "Durable water-resistant commuter backpack featuring dedicated laptop compartment and ergonomic padded shoulder straps."
   },
   {
     id: "mock-2",
-    sku: "SEY-LIN-02",
-    title: "Sage Green Linen Trousers",
-    size: "L",
+    sku: "MRC-WTR-02",
+    title: "Insulated Stainless Steel Flask",
+    size: "750ml",
     color: "Sage Green",
-    price: 2899,
-    currentStockLevel: 5,
-    category: "Pants",
+    price: 1899,
+    currentStockLevel: 25,
+    category: "Accessories",
     rating: 4.6,
     reviews: 18,
-    imageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&auto=format&fit=crop&q=80",
-    description: "Breathable Italian linen blend trousers featuring clean tailoring and custom adjustments. Pre-washed for maximum softness and drape."
+    imageUrl: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=800&auto=format&fit=crop&q=80",
+    description: "Double-wall vacuum insulated stainless steel water bottle keeping drinks ice cold for 24 hours."
   },
   {
     id: "mock-3",
-    sku: "SEY-NEH-03",
-    title: "Classic Khadi Nehru Jacket",
-    size: "XL",
+    sku: "MRC-JKT-03",
+    title: "Technical Utility Jacket",
+    size: "L",
     color: "Khaki Gold",
     price: 4500,
-    currentStockLevel: 0,
-    category: "Jackets",
+    currentStockLevel: 8,
+    category: "Apparel",
     rating: 4.9,
     reviews: 32,
     imageUrl: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop&q=80",
-    description: "Traditional silhouette tailored with locally sourced organic Khadi cotton. Adorned with handcrafted coconut-shell buttons."
+    description: "Weatherproof lightweight outer shell designed with multiple utility pockets and breathable lining."
   },
   {
     id: "mock-4",
-    sku: "SEY-SLK-04",
-    title: "Crimson Silk Festive Kurta",
+    sku: "MRC-TEE-04",
+    title: "Essential Crewneck T-Shirt",
     size: "M",
-    color: "Crimson Rose",
-    price: 3999,
+    color: "Off-White",
+    price: 1299,
     currentStockLevel: 18,
-    category: "Ethnic",
+    category: "Apparel",
     rating: 4.7,
-    reviews: 15,
-    imageUrl: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&auto=format&fit=crop&q=80",
-    description: "An elegant raw silk kurta designed for festive celebrations. Features minimalist gold-thread embroidery along the collar."
+    reviews: 58,
+    imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
+    description: "Luxuriously soft premium cotton t-shirt. The ideal daily classic foundation piece."
   },
   {
     id: "mock-5",
-    sku: "SEY-DEN-05",
-    title: "Raw Denim Workwear Jacket",
-    size: "L",
-    color: "Dark Navy",
-    price: 5200,
-    currentStockLevel: 8,
-    category: "Jackets",
-    rating: 4.9,
-    reviews: 40,
-    imageUrl: "https://images.unsplash.com/photo-1611312449412-6cefac5dc3e4?w=800&auto=format&fit=crop&q=80",
-    description: "Heavyweight indigo dyed raw denim jacket built for longevity. Contrast gold stitching and heavy brass hardware throughout."
-  },
-  {
-    id: "mock-6",
-    sku: "SEY-COT-06",
-    title: "Pima Cotton Minimalist Tee",
-    size: "S",
-    color: "Off-White",
-    price: 1299,
-    currentStockLevel: 25,
-    category: "Tees",
-    rating: 4.5,
-    reviews: 58,
-    imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
-    description: "Luxuriously soft long-staple Pima cotton t-shirt. The perfect everyday foundation featuring double-needle stitched hems."
-  },
-  {
-    id: "mock-7",
-    sku: "SEY-BEL-07",
-    title: "Premium Leather Dress Belt",
+    sku: "MRC-BEL-05",
+    title: "Premium Leather Belt",
     size: "M",
     color: "Charcoal Black",
     price: 1899,
@@ -129,119 +101,49 @@ const FALLBACK_PRODUCTS = [
     rating: 4.7,
     reviews: 14,
     imageUrl: "https://images.unsplash.com/photo-1624222247344-550fb8ec5507?w=800&auto=format&fit=crop&q=80",
-    description: "Genuine top-grain leather dress belt with a clean brushed steel buckle. Perfect for both casual and formal wear."
+    description: "Genuine top-grain leather dress belt with a clean brushed steel buckle."
   },
   {
-    id: "mock-8",
-    sku: "SEY-CAP-08",
+    id: "mock-6",
+    sku: "MRC-CAP-06",
     title: "Organic Cotton Twill Cap",
-    size: "S",
+    size: "Adjustable",
     color: "Off-White",
     price: 999,
-    currentStockLevel: 3,
+    currentStockLevel: 10,
     category: "Accessories",
     rating: 4.4,
     reviews: 9,
     imageUrl: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&auto=format&fit=crop&q=80",
-    description: "A classic 6-panel cap crafted from certified organic cotton twill. Features an adjustable fabric strap with brass hardware."
+    description: "A classic 6-panel cap crafted from certified organic cotton twill with an adjustable back strap."
   },
   {
-    id: "mock-9",
-    sku: "SEY-CNV-09",
-    title: "V-Neck Silk Blend Kurta",
-    size: "XL",
-    color: "Rust Orange",
-    price: 3299,
-    currentStockLevel: 20,
-    category: "Ethnic",
-    rating: 4.6,
-    reviews: 22,
-    imageUrl: "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?w=800&auto=format&fit=crop&q=80",
-    description: "A lightweight linen-silk blend kurta with a modern V-neck cut. Breathable and comfortable for all-day wear."
-  },
-  {
-    id: "mock-10",
-    sku: "SEY-KHD-10",
-    title: "Modern Khadi Comfort Pants",
-    size: "M",
-    color: "Mustard Yellow",
-    price: 2499,
-    currentStockLevel: 6,
-    category: "Pants",
-    rating: 4.5,
-    reviews: 11,
-    imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=800&auto=format&fit=crop&q=80",
-    description: "Tailored khadi trousers featuring an elasticated drawstring waist. Pre-washed to prevent shrinkage."
-  },
-  {
-    id: "mock-11",
-    sku: "SEY-CAR-11",
-    title: "Utility Ripstop Cargo Pants",
-    size: "L",
-    color: "Sage Green",
-    price: 3199,
-    currentStockLevel: 4,
-    category: "Pants",
-    rating: 4.8,
-    reviews: 35,
-    imageUrl: "https://images.unsplash.com/photo-1517423568366-8b83523034fd?w=800&auto=format&fit=crop&q=80",
-    description: "Heavy-duty cotton ripstop cargo pants with multiple utility pockets and reinforced knees. Built for rugged daily use."
-  },
-  {
-    id: "mock-12",
-    sku: "SEY-WND-12",
-    title: "Technical Lightweight Windbreaker",
+    id: "mock-7",
+    sku: "MRC-WND-07",
+    title: "Lightweight Technical Windbreaker",
     size: "M",
     color: "Dark Navy",
     price: 4899,
     currentStockLevel: 14,
-    category: "Jackets",
+    category: "Apparel",
     rating: 4.7,
     reviews: 17,
     imageUrl: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=800&auto=format&fit=crop&q=80",
-    description: "Water-resistant ripstop windbreaker featuring an adjustable hood, zippered pockets, and elasticized cuffs."
+    description: "Water-resistant ripstop windbreaker featuring an adjustable hood and zippered pockets."
   },
   {
-    id: "mock-13",
-    sku: "SEY-PLS-13",
-    title: "Plus Fit Chambray Shirt",
-    size: "2XL",
-    color: "Indigo Blue",
-    price: 3199,
-    currentStockLevel: 10,
-    category: "Plus Size",
-    rating: 4.7,
-    reviews: 10,
-    imageUrl: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&auto=format&fit=crop&q=80",
-    description: "A relaxed, generous cut chambray button-down shirt designed specifically for comfort and plus-size frames."
-  },
-  {
-    id: "mock-14",
-    sku: "SEY-PLS-14",
-    title: "Comfort Fit Stretch Chinos",
-    size: "3XL",
+    id: "mock-8",
+    sku: "MRC-TRS-08",
+    title: "Classic Tailored Chinos",
+    size: "32",
     color: "Sage Green",
-    price: 2999,
-    currentStockLevel: 8,
-    category: "Plus Size",
+    price: 2899,
+    currentStockLevel: 5,
+    category: "Apparel",
     rating: 4.6,
-    reviews: 8,
-    imageUrl: "https://images.unsplash.com/photo-1479064555552-3ef4979f8908?w=800&auto=format&fit=crop&q=80",
-    description: "Premium cotton twill chinos with integrated elastane stretch and an expandable comfort waistband."
-  },
-  {
-    id: "mock-15",
-    sku: "SEY-PLS-15",
-    title: "Relaxed Fit Khadi Kurta",
-    size: "2XL",
-    color: "Mustard Yellow",
-    price: 3599,
-    currentStockLevel: 12,
-    category: "Plus Size",
-    rating: 4.8,
-    reviews: 12,
-    imageUrl: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80",
-    description: "Traditional handcrafted Khadi cotton kurta styled with a loose, premium drape for maximum comfort."
+    reviews: 18,
+    imageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=800&auto=format&fit=crop&q=80",
+    description: "Versatile stretch chinos featuring clean tailoring and breathable comfort."
   }
 ];
 
@@ -468,8 +370,8 @@ function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: 
 }
 
 export default function StorefrontPage() {
-  const [erpAdminUrl, setErpAdminUrl] = useState("https://fabricvault.vercel.app/dashboard");
-  const [webhookUrl, setWebhookUrl] = useState("https://fabricvault.vercel.app/api/webhooks/shopify/orders-create");
+  const [erpAdminUrl, setErpAdminUrl] = useState("https://merchantvault.vercel.app/dashboard");
+  const [webhookUrl, setWebhookUrl] = useState("https://merchantvault.vercel.app/api/webhooks/shopify/orders-create");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -615,17 +517,16 @@ export default function StorefrontPage() {
           description: `Directly synced from Seyon ERP Database. Live stock tracking active with safety limit: ${v.safetyStockLimit || 5} units.`
         }));
 
-        // DEV: Actual Database Items + Fallback Items
-        // PROD: Only Actual Database Items
-        setProducts(isDev ? [...mapped, ...FALLBACK_PRODUCTS] : mapped);
+        // If database items exist, show actual DB items. Otherwise, show generic fallback catalog.
+        setProducts(mapped);
       } else {
-        // Database returned an empty list for this specific company
-        setProducts([]);
+        // Database returned zero items for this tenant catalog
+        setProducts(FALLBACK_PRODUCTS);
       }
     } catch (e) {
       console.error("Fetch products failed:", e);
-      // Network/Server Error handling
-      setProducts([]);
+      // Network/Server Error fallback to demo products
+      setProducts(FALLBACK_PRODUCTS);
     } finally {
       setLoading(false);
     }
@@ -1100,7 +1001,7 @@ export default function StorefrontPage() {
           )}
           <div>
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
-              {activeBrandObj?.name || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON"))}
+              {activeBrandObj?.name || company?.storeName || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "MerchantVault"))}
             </span>
             {process.env.NODE_ENV === "development" && (
               <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
@@ -1218,28 +1119,46 @@ export default function StorefrontPage() {
         </div>
       </header>
 
-      {/* Minimalist Hero section (Shadcn aesthetic) */}
-          <section style={{
-            padding: "4.5rem 1.5rem",
-            textAlign: "center",
-            borderBottom: "1px solid var(--border)",
-            backgroundColor: "#fafafa"
-          }}>
-            <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.375rem", border: "1px solid var(--border)", backgroundColor: "#ffffff", padding: "0.25rem 0.6rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginBottom: "1.25rem" }}>
-                <Sparkles style={{ width: "0.8rem", height: "0.8rem", color: "var(--primary)" }} />
-                <span>{activeTheme?.bannerText || "0% Commission Native Sales Channel"}</span>
+      {/* Modern Enhanced Hero Section */}
+          <section className="hero-section-container">
+            <div className="hero-ambient-glow" />
+            <div className="hero-grid-pattern" />
+
+            <div className="hero-content-wrapper">
+              <div className="hero-badge-pill">
+                <Sparkles style={{ width: "0.85rem", height: "0.85rem", color: "var(--primary, #0d9488)" }} />
+                <span>{activeTheme?.bannerText || "0% Commission Direct Checkout Channel"}</span>
               </div>
-              <h2 style={{ fontSize: "2.5rem", fontWeight: "700", letterSpacing: "-0.03em", color: "#09090b", margin: "0 0 1rem 0", lineHeight: "1.15" }}>
-                {activeTheme?.heroTitle || "Premium Garments, Synced in Real-Time"}
+
+              <h2 className="hero-main-heading">
+                <span className="hero-main-heading-gradient">
+                  {activeTheme?.heroTitle || "Premium Products, Synced in Real-Time"}
+                </span>
               </h2>
-              <p style={{ color: "#71717a", fontSize: "0.95rem", lineHeight: "1.5", maxWidth: "550px", margin: "0 auto 1.75rem auto" }}>
-                {activeTheme?.heroSubtitle || "Experience direct database checkout. Directly linked to the Seyon ERP registry for absolute stock guarantee and instant order fulfillment."}
+
+              <p className="hero-subtitle-text">
+                {activeTheme?.heroSubtitle || "Experience direct database checkout. Linked directly to real-time inventory registry for guaranteed stock and instant order fulfillment."}
               </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem" }}>
-                <a href="#catalog" style={{ textDecoration: "none", backgroundColor: "var(--primary)", color: "var(--primary-foreground)", padding: "0.55rem 1.25rem", borderRadius: "var(--radius)", fontWeight: "500", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
-                  Explore Catalog <ArrowRight style={{ width: "0.9rem", height: "0.9rem" }} />
+
+              <div className="hero-cta-group">
+                <a href="#catalog" className="hero-cta-btn-primary">
+                  Explore Catalog <ArrowRight style={{ width: "0.95rem", height: "0.95rem" }} />
                 </a>
+                <Link href="/cart" className="hero-cta-btn-secondary">
+                  <ShoppingBag style={{ width: "0.95rem", height: "0.95rem" }} /> Direct Cart
+                </Link>
+              </div>
+
+              <div className="hero-trust-bar">
+                <div className="hero-trust-item">
+                  <Zap style={{ width: "0.85rem", height: "0.85rem" }} /> Real-Time Stock Sync
+                </div>
+                <div className="hero-trust-item">
+                  <CheckCircle2 style={{ width: "0.85rem", height: "0.85rem" }} /> Zero Overselling Guarantee
+                </div>
+                <div className="hero-trust-item">
+                  <Truck style={{ width: "0.85rem", height: "0.85rem" }} /> Direct Fulfillment
+                </div>
               </div>
             </div>
           </section>
@@ -1563,9 +1482,9 @@ export default function StorefrontPage() {
         <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem", marginBottom: "2.5rem" }}>
           {/* Column 1: Store & Entity */}
           <div>
-            <h4 style={{ color: "#ffffff", fontSize: "1rem", fontWeight: "700", margin: "0 0 0.5rem 0" }}>{company?.name || "MerchantVault"}</h4>
+            <h4 style={{ color: "#ffffff", fontSize: "1rem", fontWeight: "700", margin: "0 0 0.5rem 0" }}>{company?.storeName || company?.name || "MerchantVault Store"}</h4>
             <p style={{ margin: 0, fontSize: "0.75rem", color: "#a1a1aa", lineHeight: 1.5 }}>
-              Registered Entity: <strong style={{ color: "#e4e4e7" }}>{company?.name ? `${company.name} Legal Operations` : "Seyon Nexa Labs Private Limited"}</strong>
+              Registered Entity: <strong style={{ color: "#e4e4e7" }}>{company?.name ? company.name : "Seyon Nexa Labs Private Limited"}</strong>
             </p>
             <p style={{ margin: "0.4rem 0 0 0", fontSize: "0.72rem", color: "#71717a" }}>
               Multi-Tenant Storefront Channel ({company?.code || "syn"})

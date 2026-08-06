@@ -1045,7 +1045,7 @@ export default function OrdersPage() {
                         {(() => {
                           const isDone = selectedOrder.deliveryStatus !== "PROCESSING";
                           let iconColor = isDone ? "bg-emerald-500" : "bg-blue-500";
-                          let title = isDone ? "Garments Checked & Packed" : "Picking & SKU Verification";
+                          let title = isDone ? "Items Checked & Packed" : "Picking & SKU Verification";
                           let subtitle = isDone ? "Barcode scan check passed." : "Awaiting warehouse operator scan.";
                           return (
                             <>
