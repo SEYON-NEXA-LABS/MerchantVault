@@ -74,10 +74,11 @@ npm run start
 
 ---
 
-## ☁️ Deployment & Domain Routing Documentation
+## ☁️ Deployment & Platform Architecture Documentation
 
-Detailed deployment guides for Vercel and Hostinger VPS (PM2 / NGINX):
+Detailed deployment & platform architecture guides:
 - 📄 [Custom Domain & Hostinger VPS Deployment SOP](docs/domain_routing_sop.md)
+- 📄 [Multi-Tenant Subscription & Competitive Pricing Strategy](docs/subscription_pricing_architecture.md)
 
 ---
 

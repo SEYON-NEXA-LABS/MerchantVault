@@ -4,12 +4,18 @@ import { getContextCompanyId } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const isSimulate = searchParams.get("simulate") === "true";
+    if (isSimulate) {
+      const { GET: handleSimulateOrder } = await import("@/app/api/webhooks/shopify/orders-create/route");
+      return handleSimulateOrder();
+    }
+
     const companyId = await getContextCompanyId();
     if (!companyId) {
       return NextResponse.json([]);
     }
 
-    const { searchParams } = new URL(request.url);
     const type = searchParams.get("type"); // "active" | "delivered" | "returns"
     const source = searchParams.get("source"); // "STOREFRONT" | "SHOPIFY" | "ALL"
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!, 10) : null;
@@ -79,6 +85,12 @@ export async function GET(request: NextRequest) {
     console.error("Fetch Orders Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+// POST /api/orders -> Delegate to unified order creation handler
+export async function POST(request: NextRequest) {
+  const { POST: handleCreateOrder } = await import("@/app/api/webhooks/shopify/orders-create/route");
+  return handleCreateOrder(request);
 }
 
 

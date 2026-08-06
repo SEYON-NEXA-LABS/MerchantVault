@@ -105,7 +105,9 @@ export default function DashboardLayout({
 
   const getStorefrontUrl = () => {
     const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-    const base = typeof window !== "undefined" ? window.location.origin : (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app");
+    const base = typeof window !== "undefined" 
+      ? window.location.origin 
+      : (process.env.NEXT_PUBLIC_APP_URL || (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app"));
     if (company?.id) {
       return `${base}/?companyId=${company.id}`;
     }

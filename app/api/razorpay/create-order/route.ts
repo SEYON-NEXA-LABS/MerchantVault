@@ -5,17 +5,20 @@ import { supabase } from "@repo/db";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { amount, currency = "INR", receipt } = body;
+    const { amount, currency = "INR", receipt, companyId } = body;
 
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
     }
 
-    const { data: company, error: compErr } = await supabase
-      .from("Company")
-      .select("razorpayEnabled, razorpayKeyId, razorpayKeySecret")
-      .limit(1)
-      .maybeSingle();
+    let companyQuery = supabase.from("Company").select("razorpayEnabled, razorpayKeyId, razorpayKeySecret");
+    if (companyId) {
+      companyQuery = companyQuery.eq("id", companyId);
+    } else {
+      companyQuery = companyQuery.limit(1);
+    }
+
+    const { data: company, error: compErr } = await companyQuery.maybeSingle();
 
     if (compErr || !company || !company.razorpayEnabled) {
       return NextResponse.json({ error: "Razorpay payment gateway is not enabled" }, { status: 400 });

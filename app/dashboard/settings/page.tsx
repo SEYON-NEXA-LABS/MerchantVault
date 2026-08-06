@@ -837,7 +837,7 @@ function SettingsContent() {
                       </span>
                     </div>
                     <p className="text-[11px] text-emerald-900 leading-relaxed font-medium">
-                      <strong>Your Shopify store data is completely safe.</strong> The FabricVault ERP integration performs <em>safe GET queries and passive webhook ingestion</em>. It <strong>never deletes, mutates, or overwrites</strong> your existing Shopify products, active orders, customer listings, or store settings.
+                      <strong>Your Shopify store data is completely safe.</strong> The Merchant Vault ERP integration performs <em>safe GET queries and passive webhook ingestion</em>. It <strong>never deletes, mutates, or overwrites</strong> your existing Shopify products, active orders, customer listings, or store settings.
                     </p>
                   </div>
 
@@ -883,7 +883,7 @@ function SettingsContent() {
                     <div className="bg-indigo-50/50 border border-indigo-100 rounded-lg p-3 text-xs space-y-1">
                       <p className="font-semibold text-indigo-950">Authentication Methods:</p>
                       <p className="text-indigo-900 text-[11px] leading-relaxed">
-                        • <strong>Method A (Partner Dev App)</strong>: Provide <strong>App Client ID</strong> + <strong>Client Secret</strong>. FabricVault automatically exchanges them for an Admin API token.<br />
+                        • <strong>Method A (Partner Dev App)</strong>: Provide <strong>App Client ID</strong> + <strong>Client Secret</strong>. Merchant Vault automatically exchanges them for an Admin API token.<br />
                         • <strong>Method B (Store Custom App)</strong>: Paste your <strong>Admin API Access Token</strong> (starts with <code>shpat_</code>) directly below.
                       </p>
                     </div>
@@ -1141,7 +1141,7 @@ function SettingsContent() {
                     </span>
                   </div>
                   <a
-                    href={process.env.NODE_ENV === "development" ? `http://localhost:3001/?companyId=${initialCompanySettings?.id || ""}` : `https://fabricvault-storefront.vercel.app/?companyId=${initialCompanySettings?.id || ""}`}
+                    href={`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/?companyId=${initialCompanySettings?.id || ""}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
@@ -1155,9 +1155,7 @@ function SettingsContent() {
                     <span>🔗</span> Dedicated Tenant Storefront Link:
                   </div>
                   <code className="block bg-white p-2 rounded border border-indigo-200 text-indigo-900 font-mono text-[11px] select-all break-all">
-                    {process.env.NODE_ENV === "development" 
-                      ? `http://localhost:3001/?companyCode=${initialCompanySettings?.code || "syn"}`
-                      : `https://fabricvault-storefront.vercel.app/?companyCode=${initialCompanySettings?.code || "syn"}`}
+                    {`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/?companyCode=${initialCompanySettings?.code || "syn"}`}
                   </code>
                 </div>
 

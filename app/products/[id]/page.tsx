@@ -256,7 +256,9 @@ function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: 
 }
 
 export default function ProductDetailPage() {
-  const [erpAdminUrl, setErpAdminUrl] = useState("https://merchantvault.vercel.app/dashboard");
+  const [erpAdminUrl, setErpAdminUrl] = useState(() => {
+    return process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` : "http://localhost:3000/dashboard";
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined") {

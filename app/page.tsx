@@ -370,15 +370,16 @@ function ProductImage({ prod, style, showGallery = true }: { prod: any; style?: 
 }
 
 export default function StorefrontPage() {
-  const [erpAdminUrl, setErpAdminUrl] = useState("https://merchantvault.vercel.app/dashboard");
-  const [webhookUrl, setWebhookUrl] = useState("https://merchantvault.vercel.app/api/webhooks/shopify/orders-create");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const [erpAdminUrl, setErpAdminUrl] = useState(`${baseUrl}/dashboard`);
+  const [webhookUrl, setWebhookUrl] = useState(`${baseUrl}/api/orders`);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
       if (isLocal) {
         setErpAdminUrl("http://localhost:3000/dashboard");
-        setWebhookUrl("http://localhost:3000/api/webhooks/shopify/orders-create");
+        setWebhookUrl("http://localhost:3000/api/orders");
       }
     }
   }, []);
@@ -911,6 +912,36 @@ export default function StorefrontPage() {
         </div>
       )}
       
+      {/* Active Campaign Sticky Announcement Banner (Big Billion Day / Wednesday Blitz / Festive Theme) */}
+      {!dismissBanner && (
+        <div className="relative overflow-hidden bg-slate-900 text-white border-b border-amber-500/20 shadow-md">
+          {/* Theme 1: Big Billion Day (Amber Gold Glow) */}
+          <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-700 text-slate-950 px-4 py-2 text-xs font-bold flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-2 flex-1 justify-center sm:justify-start">
+              <span className="bg-slate-950 text-amber-400 text-[10px] px-2 py-0.5 rounded font-black tracking-wider uppercase animate-pulse">
+                🔥 BIG BILLION SALE
+              </span>
+              <span className="font-extrabold text-slate-950 truncate">
+                Up to 50% OFF Storewide | Use Code: <code className="bg-slate-950/20 px-1.5 py-0.5 rounded font-mono">BBD50</code>
+              </span>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-2 text-[11px] font-mono font-bold bg-slate-950/15 px-3 py-1 rounded-full border border-slate-950/20">
+              <span className="text-slate-900 uppercase text-[9px]">Ends In:</span>
+              <span className="text-slate-950">04h 22m 15s</span>
+            </div>
+
+            <button 
+              onClick={() => setDismissBanner(true)}
+              aria-label="Dismiss campaign banner"
+              className="text-slate-900 hover:text-slate-950 p-1 rounded-full hover:bg-slate-950/10 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {process.env.NODE_ENV === "development" && !dismissBanner && (
         <div style={{
           background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%)",

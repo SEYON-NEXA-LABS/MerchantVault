@@ -4,7 +4,7 @@ import { supabase } from "@repo/db";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const headersList = await headers();
-  const host = headersList.get("host") || "fabricvault-storefront.vercel.app";
+  const host = headersList.get("host") || (process.env.NEXT_PUBLIC_APP_URL ? new URL(process.env.NEXT_PUBLIC_APP_URL).host : "localhost:3000");
   const protocol = host.includes("localhost") || host.includes("127.0.0.1") ? "http" : "https";
   const baseUrl = `${protocol}://${host}`;
 

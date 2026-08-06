@@ -222,16 +222,16 @@ export default function OrdersPage() {
   };  const simulateOrder = async () => {
     setSimulating(true);
     try {
-      const res = await fetch("/api/webhooks/shopify/orders-create");
+      const res = await fetch("/api/orders?simulate=true");
       const data = await res.json();
       if (data.success) {
-        toast.success(`New Shopify order ${data.order.orderNumber} ingested!`);
+        toast.success(`New order ${data.order.orderNumber} ingested!`);
         refreshCurrentTab(activeTab);
       } else {
         toast.error("Failed to ingest mock order");
       }
     } catch (err) {
-      toast.error("Error simulating order webhook");
+      toast.error("Error simulating order creation");
     } finally {
       setSimulating(false);
     }

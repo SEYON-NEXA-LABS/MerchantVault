@@ -176,6 +176,10 @@ function CRMContent() {
   // Launch a new promotional campaign broadcast
   const handleLaunchCampaign = (e: React.FormEvent) => {
     e.preventDefault();
+    if (launchingCampaign) {
+      toast.warning("A campaign broadcast is already in progress. Please wait for completion.");
+      return;
+    }
     if (!campaignName) {
       toast.error("Please specify a campaign name.");
       return;
@@ -728,7 +732,9 @@ function CRMContent() {
                     onChange={(e) => setCampaignTemplate(e.target.value)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none"
                   >
-                    <option value="FESTIVE_PROMO">Festive Sale Template (WhatsApp Approved)</option>
+                    <option value="BIG_BILLION_SALE">🔥 Big Billion Sale Special (50% OFF)</option>
+                    <option value="WEDNESDAY_MIDNIGHT_BLITZ">⚡ Wednesday Midnight Flash Sale (10 PM - 2 AM)</option>
+                    <option value="FESTIVE_PROMO">Festive Mega Sale Template (WhatsApp Approved)</option>
                     <option value="NEW_STYLE_LAUNCH">New Collection Catalog Broadcaster</option>
                     <option value="DISCOUNT_OFFER">Loyalty Reward Voucher Code</option>
                   </select>

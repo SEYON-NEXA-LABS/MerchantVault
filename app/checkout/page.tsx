@@ -192,7 +192,7 @@ export default function CheckoutPage() {
         const orderRes = await fetch("/api/razorpay/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: grandTotal })
+          body: JSON.stringify({ amount: grandTotal, companyId: company?.id })
         });
         const orderData = await orderRes.json();
         if (!orderData.success) {
@@ -265,9 +265,7 @@ export default function CheckoutPage() {
     const generatedOrderName = `#SF-${Math.floor(Math.random() * 9000) + 10000}${form.paymentMethod === "COD" ? "-COD" : ""}`;
     const trackingCode = `AWB-${Math.floor(Math.random() * 90000000) + 10000000}`;
 
-    const webhookUrl = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-      ? "http://localhost:3000/api/webhooks/shopify/orders-create"
-      : "https://merchantvault.vercel.app/api/webhooks/shopify/orders-create";
+    const webhookUrl = "/api/orders";
 
     const payload = {
       companyId: company?.id,

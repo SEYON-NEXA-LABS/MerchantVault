@@ -171,7 +171,7 @@ function ShopifySyncContent() {
             100% Non-Destructive Data Protection Guarantee
           </h3>
           <p className="text-xs text-emerald-900 leading-relaxed">
-            <strong>Your Shopify store database is completely untouched and safe.</strong> Syncing operates strictly as a <em>one-way read & passive webhook listener</em>. FabricVault ERP will <strong>never delete, overwrite, or modify</strong> your existing Shopify products, collections, customer records, or active store configuration.
+            <strong>Your Shopify store database is completely untouched and safe.</strong> Syncing operates strictly as a <em>one-way read & passive webhook listener</em>. Merchant Vault ERP will <strong>never delete, overwrite, or modify</strong> your existing Shopify products, collections, customer records, or active store configuration.
           </p>
         </div>
       </div>

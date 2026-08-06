@@ -1,6 +1,6 @@
 # Shopify Integration Setup Guide
 
-Follow this guide to connect your live Shopify Store with FabricVault ERP.
+Follow this guide to connect your live Shopify Store with Merchant Vault ERP.
 
 ---
 
@@ -20,7 +20,7 @@ Follow this guide to connect your live Shopify Store with FabricVault ERP.
    - Go to `https://your-store.myshopify.com/admin` (e.g. `https://wolfcabin.myshopify.com/admin`).
 2. **Navigate to App Development**:
    - Go to **Settings** &rarr; **Apps and sales channels** &rarr; **Develop apps**.
-   - Click **Create an app** and name it `FabricVault ERP Sync`.
+   - Click **Create an app** and name it `MerchantVault ERP Sync`.
 3. **Configure Access Scopes**:
    - Select **Configure Admin API scopes** and enable:
      - `read_products`, `write_products`
@@ -34,7 +34,7 @@ Follow this guide to connect your live Shopify Store with FabricVault ERP.
 
 ---
 
-## 3. Entering Credentials in FabricVault ERP
+## 3. Entering Credentials in Merchant Vault ERP
 
 1. Go to **ERP Dashboard** &rarr; **Settings** &rarr; **Shopify Integration** (or click **Configure Credentials** from the **Shopify Sync** board).
 2. Enter your `.myshopify.com` domain, Admin API token, and Webhook secret.

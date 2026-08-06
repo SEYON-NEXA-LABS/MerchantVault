@@ -73,3 +73,25 @@
 - **Edge Proxy Migration**: Created root `proxy.ts` with `export function proxy(request: NextRequest)` conforming to Next.js 16 edge routing specification.
 - **Clean Deprecation Fix**: Removed legacy `middleware.ts` to eliminate build conflicts and deprecation warnings.
 
+### 11. Multi-Tenant Subscription & Disruptive Pricing Strategy
+- **Architecture & Entitlement Matrix**: Designed comprehensive SaaS multi-tenant subscription engine documented in `docs/subscription_pricing_architecture.md`.
+- **Shopify Competitive Positioning**: Positioned Merchant Vault as a 0% platform fee alternative with tiers: Starter (₹999/mo), Growth (₹1,999/mo), Enterprise (₹4,999/mo).
+- **Database Schema Extensions**: Planned `SubscriptionPlan`, `TenantUsageMeter`, and `SubscriptionInvoice` tables in SQL schema.
+
+### 12. Merchant Vault Branding Standardization & `NEXT_PUBLIC_APP_URL` Refactoring
+- **Standardized Workspace Rules**: Configured `.agents/AGENTS.md` specifying official branding as **Merchant Vault** (`merchantvault`), mandatory relative file linking in documentation, and environment variable domain resolution.
+- **Removed Hardcoded Domain URLs**: Replaced all hardcoded `merchantvault.vercel.app` and `fabricvault-storefront` instances across `app/sitemap.ts`, `app/robots.ts`, `app/page.tsx`, `app/checkout/page.tsx`, `app/dashboard/layout.tsx`, and `app/dashboard/settings/page.tsx` with dynamic `process.env.NEXT_PUBLIC_APP_URL`.
+
+### 13. Hybrid Sales Channel Order Ingestion & Tenant Razorpay Integration
+- **Native Orders API**: Refactored `app/api/orders/route.ts` to include a native `POST` handler for direct storefront order placement (`/api/orders`), decoupling native checkout from the external Shopify webhook endpoint.
+- **Tenant Razorpay Credentials**: Updated `/api/razorpay/create-order` and `app/checkout/page.tsx` to dynamically parse `companyId` context, initializing payments using the active merchant's own Razorpay API keys (`razorpayKeyId` & `razorpayKeySecret`).
+### 14. High-Volume Promotional Campaigns & Flash Sales Engine (Big Billion Sale, Wednesday Midnight Blitz)
+- **Architectural Plan**: Created `implementation_plan.md` defining automated price drops, sticky countdown banners, WhatsApp broadcast triggers, and high-concurrency atomic stock locking for 10x-50x sales events.
+- **Database Schema Migration**: Created `supabase/migration_add_campaigns.sql` and appended `Campaign`, `CampaignProduct`, and `CampaignAnalytics` schemas to `supabase/schema.sql`.
+- **Backend API Routes**: Built `app/api/crm/campaigns/route.ts` with `GET` and `POST` handlers for querying active campaigns and dispatching promotional events.
+- **ERP Campaign Desk Integration**: Added Big Billion Sale (`🔥 Big Billion Sale Special`) and Wednesday Blitz (`⚡ Wednesday Midnight Flash Sale`) pre-configured message templates in `app/dashboard/crm/page.tsx`.
+- **Storefront Campaign Themes**: Added sticky promotional announcement banners in `app/page.tsx` with dynamic visual themes (`🔥 Big Billion Sale` Amber Gold, `⚡ Wednesday Flash Blitz` Electric Blue, `✨ Festive Mega Sale` Ruby Rose) complete with countdown timers, promo code snippets (`BBD50`), and dismissal controls.
+
+
+
+
