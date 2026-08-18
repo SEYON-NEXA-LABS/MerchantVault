@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
     let productsQuery = supabase
       .from("ProductVariant")
-      .select("id, sku, title, size, color, price, compareAtPrice, currentStockLevel, category, safetyStockLimit, thumbnailConfig, brandId");
+      .select("id, sku, title, size, color, price, compareAtPrice, currentStockLevel, category, categoryId, categoryName, vendor, safetyStockLimit, thumbnailConfig, brandId");
 
     if (company && company.id) {
       productsQuery = productsQuery.eq("companyId", company.id);

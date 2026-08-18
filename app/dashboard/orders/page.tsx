@@ -48,6 +48,8 @@ interface Order {
   orderSource?: "STOREFRONT" | "SHOPIFY" | "POS" | "MANUAL";
   customerId?: string | null;
   customerEmail?: string;
+  couponCode?: string | null;
+  discountAmount?: number | null;
 }
 
 interface Warehouse {
@@ -763,9 +765,16 @@ export default function OrdersPage() {
                                 risk = { label: "MEDIUM RISK", class: "bg-amber-50 text-amber-700 border border-amber-250/30" };
                               }
                               return (
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${risk.class}`}>
-                                  {risk.label}
-                                </span>
+                                <>
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${risk.class}`}>
+                                    {risk.label}
+                                  </span>
+                                  {ord.couponCode && (
+                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-teal-50 text-teal-700 border border-teal-200 flex items-center gap-1">
+                                      🏷️ {ord.couponCode} (-₹{ord.discountAmount || 0})
+                                    </span>
+                                  )}
+                                </>
                               );
                             })()}
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${

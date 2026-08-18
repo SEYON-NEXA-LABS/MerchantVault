@@ -178,9 +178,51 @@ export default function CheckoutPage() {
     return Object.keys(errors).length === 0;
   };
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/storefront/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponCode,
+          cartSubtotal: cartTotal,
+          companyId: company?.id
+        })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setAppliedCoupon(data);
+        setCouponError("");
+      } else {
+        setAppliedCoupon(null);
+        setCouponError(data.error || "Invalid coupon code");
+      }
+    } catch (err: any) {
+      setCouponError("Failed to validate coupon");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
+
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const subtotalAfterDiscount = Math.max(0, cartTotal - discountAmount);
   const shippingCost = zipResult && selectedCourier ? zipResult.options.find((o: any) => o.id === selectedCourier)?.price || 0 : 0;
-  const grandTotal = cartTotal * 1.18 + shippingCost;
+  const grandTotal = subtotalAfterDiscount * 1.18 + shippingCost;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,7 +316,10 @@ export default function CheckoutPage() {
       customerName: form.name,
       customerPhone: form.phone,
       customerEmail: form.email,
-      totalPrice: cartTotal,
+      totalPrice: grandTotal,
+      couponId: appliedCoupon ? appliedCoupon.couponId : null,
+      couponCode: appliedCoupon ? appliedCoupon.code : null,
+      discountAmount: discountAmount,
       financial_status: paymentStatus === "PAID" ? "paid" : "pending",
       currency: "INR",
       shippingAddressLine1: form.addressLine1,
@@ -686,6 +731,62 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
+              {/* Coupon Code Section */}
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "#3f3f46" }}>Promo / Coupon Code</span>
+                {appliedCoupon ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "rgba(13, 148, 136, 0.08)", padding: "0.5rem 0.75rem", borderRadius: "0.375rem", border: "1px solid var(--primary)" }}>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontSize: "0.8rem", fontWeight: "800", color: "var(--primary)" }}>🏷️ {appliedCoupon.code}</span>
+                      <span style={{ fontSize: "0.65rem", color: "#047857" }}>Saved ₹{appliedCoupon.discountAmount.toLocaleString()}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCoupon}
+                      style={{ background: "none", border: "none", color: "#ef4444", fontSize: "0.75rem", fontWeight: "700", cursor: "pointer" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <input
+                      type="text"
+                      placeholder="e.g. WELCOME10"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      style={{
+                        flex: 1,
+                        padding: "0.5rem",
+                        fontSize: "0.8rem",
+                        borderRadius: "0.375rem",
+                        border: "1px solid var(--border)",
+                        textTransform: "uppercase"
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={validatingCoupon || !couponCode.trim()}
+                      style={{
+                        backgroundColor: "var(--primary)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "0.375rem",
+                        padding: "0 0.85rem",
+                        fontSize: "0.8rem",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        opacity: validatingCoupon || !couponCode.trim() ? 0.6 : 1
+                      }}
+                    >
+                      {validatingCoupon ? "..." : "Apply"}
+                    </button>
+                  </div>
+                )}
+                {couponError && <span style={{ color: "#ef4444", fontSize: "0.7rem" }}>{couponError}</span>}
+              </div>
+
               {/* Totals */}
               <div style={{
                 borderTop: "1px solid var(--border)",
@@ -700,13 +801,19 @@ export default function CheckoutPage() {
                   <span>Cart Subtotal</span>
                   <span>₹{cartTotal.toLocaleString("en-IN")}</span>
                 </div>
+                {appliedCoupon && (
+                  <div style={{ display: "flex", justifyContent: "space-between", color: "#047857", fontWeight: "700" }}>
+                    <span>Coupon Discount ({appliedCoupon.code})</span>
+                    <span>-₹{discountAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>Courier Shipping</span>
                   <span>{shippingCost === 0 ? 'FREE' : `₹${shippingCost}`}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>Taxes & GST (18%)</span>
-                  <span>₹{(cartTotal * 0.18).toLocaleString("en-IN")}</span>
+                  <span>₹{(subtotalAfterDiscount * 0.18).toLocaleString("en-IN")}</span>
                 </div>
                 <div style={{
                   borderTop: "1px solid var(--border)",

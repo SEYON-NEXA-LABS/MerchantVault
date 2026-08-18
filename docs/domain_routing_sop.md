@@ -28,8 +28,10 @@ This document provides a step-by-step Standard Operating Procedure (SOP) for dep
 | Resolution Mode | URL Example | Technical Resolution Workflow | Target Use Case |
 | :--- | :--- | :--- | :--- |
 | **A. URL Query Parameter** | `https://merchantvault.com/?slug=wolfcabin`<br>`https://merchantvault.com/?companyId=UUID` | API endpoint `/api/products` directly queries Supabase `Company` by `code` or `id`. | Direct marketing links, WhatsApp shares, QR code tags. |
-| **B. Subdomain Alias** | `https://wolfcabin.merchantvault.com/` | `middleware.ts` extracts `wolfcabin` from Host header and auto-rewrites internally to `?slug=wolfcabin`. | Platform SaaS multi-tenant subdomains. |
-| **C. Custom Domain** | `https://wolfcabin.com/` | `middleware.ts` checks database custom domain mapping (`Company.customDomain = "wolfcabin.com"`). | White-label custom domain (Shopify-style). |
+| **B. Multi-Store Brand Parameter** | `https://merchantvault.com/?brand=ethnic`<br>`https://merchantvault.com/?brand=kids` | Resolves store branding, logos, theme colors, and category products by matching `Brand.code`. | Running multiple brand stores under 1 company context. |
+| **C. Subdomain Alias** | `https://wolfcabin.merchantvault.com/` | Edge proxy extracts `wolfcabin` from Host header and auto-rewrites internally to `?slug=wolfcabin`. | Platform SaaS multi-tenant subdomains. |
+| **D. Custom Domain** | `https://wolfcabin.com/` | Edge proxy checks database custom domain mapping (`Company.customDomain = "wolfcabin.com"`). | White-label custom domain (Shopify-style). |
+
 
 ---
 
@@ -161,3 +163,28 @@ sudo systemctl restart nginx
 sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d yourcustomdomain.com -d www.yourcustomdomain.com
 ```
+
+---
+
+## 4. Multi-Store Outlets, Manufacturer Brands & Categories SOP
+
+### Overview & 3-Tier Nomenclature
+Merchant Vault supports running multiple distinct sub-stores under a single `Company` context. Centralized inventory in shared warehouses prevents overselling across stores while maintaining isolated store branding, logos, theme colors, and product category displays.
+
+To ensure zero ambiguity, the system enforces a strict 3-tier hierarchy:
+1. **Store Outlet / Sales Channel** (`Brand` table in schema): The storefront destination (e.g. *Seyon Beauty Store*, *Seyon Fashion Outlet*). Stores own logos, theme colors, and custom subdomains (`?brand=code`).
+2. **Manufacturer / Label Brand** (`ProductVariant.vendor` column): The product maker (e.g. *L'Oréal*, *MAC*, *Maybelline*, *Nike*, *Zara*). Matches Shopify's `vendor` field.
+3. **Product Category** (`Category` table): The product type (e.g. *Cosmetics & Beauty*, *Apparel & Dresses*, *Baby & Kids*). Matches Shopify's `product_type` field.
+
+### Brand & Store Routing Resolution Rules
+1. **URL Store Query Parameter (`?brand=code`)**:
+   - `https://yourcustomdomain.com/?brand=ethnic` ➔ Renders Ethnic Store Outlet theme, logo, and Chanderi Silk / Sarees catalog.
+   - `https://yourcustomdomain.com/?brand=beauty` ➔ Renders Beauty Store Outlet theme, logo, and cosmetics catalog.
+2. **Subdomain Store Routing**:
+   - `ethnic.yourcustomdomain.com` ➔ Edge router maps Host header `ethnic` to `Brand.code = "ethnic"`.
+3. **Store Categories, Manufacturer Brands & Coupon Isolation**:
+   - Storefront categories (`Apparel & Dresses`, `Cosmetics & Beauty`, `Baby & Kids`, `Jewelry & Accessories`) adapt dynamically based on store outlet context.
+   - Products display their individual Manufacturer Brands (e.g. *by L'Oréal*) cleanly on product cards without confusing the store outlet theme.
+   - Merchant coupon codes (`/api/coupons` and `/api/storefront/coupons/validate`) evaluate against the active company and store brand context.
+
+

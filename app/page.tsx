@@ -97,11 +97,67 @@ const FALLBACK_PRODUCTS = [
     color: "Charcoal Black",
     price: 1899,
     currentStockLevel: 15,
-    category: "Accessories",
+    category: "Footwear & Bags",
     rating: 4.7,
     reviews: 14,
     imageUrl: "https://images.unsplash.com/photo-1624222247344-550fb8ec5507?w=800&auto=format&fit=crop&q=80",
     description: "Genuine top-grain leather dress belt with a clean brushed steel buckle."
+  },
+  {
+    id: "mock-cosmetic-1",
+    sku: "MRC-BEA-01",
+    title: "Botanical Radiance Vitamin C Serum",
+    size: "30ml",
+    color: "Warm Amber",
+    price: 1499,
+    currentStockLevel: 30,
+    category: "Cosmetics & Beauty",
+    rating: 4.9,
+    reviews: 86,
+    imageUrl: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop&q=80",
+    description: "🌿 100% Organic & Vegan. Brightens skin tone and restores youthful collagen radiance with Hyaluronic Acid."
+  },
+  {
+    id: "mock-baby-1",
+    sku: "MRC-BBY-01",
+    title: "Ultra-Soft Organic Bamboo Onesie Set",
+    size: "3-6M",
+    color: "Pastel Mint",
+    price: 1299,
+    currentStockLevel: 20,
+    category: "Baby & Kids",
+    rating: 4.9,
+    reviews: 42,
+    imageUrl: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&auto=format&fit=crop&q=80",
+    description: "👶 Hypoallergenic & BPA-Free. Breathable bamboo fabric designed specifically for delicate newborn skin."
+  },
+  {
+    id: "mock-jewel-1",
+    sku: "MRC-JWL-01",
+    title: "18K Gold Plated Heritage Pendant",
+    size: "One Size",
+    color: "Gold",
+    price: 2499,
+    currentStockLevel: 10,
+    category: "Jewelry & Accessories",
+    rating: 4.8,
+    reviews: 31,
+    imageUrl: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&auto=format&fit=crop&q=80",
+    description: "✨ Anti-tarnish waterproof gold pendant. Includes 1-year tarnish warranty & premium velvet gift box."
+  },
+  {
+    id: "mock-dress-1",
+    sku: "MRC-DRS-01",
+    title: "Handcrafted Chanderi Silk Ethnic Kurta",
+    size: "M",
+    color: "Royal Crimson",
+    price: 3899,
+    currentStockLevel: 12,
+    category: "Apparel & Dresses",
+    rating: 4.9,
+    reviews: 64,
+    imageUrl: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&auto=format&fit=crop&q=80",
+    description: "👗 Premium handloom Chanderi silk tunic featuring intricate zardozi embroidery and breathable lining."
   },
   {
     id: "mock-6",
@@ -515,6 +571,7 @@ export default function StorefrontPage() {
           reviews: 12,
           thumbnailConfig: v.thumbnailConfig,
           brandId: v.brandId,
+          vendor: v.vendor,
           description: `Directly synced from Seyon ERP Database. Live stock tracking active with safety limit: ${v.safetyStockLimit || 5} units.`
         }));
 
@@ -817,7 +874,15 @@ export default function StorefrontPage() {
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const categories = ["All", ...Array.from(new Set(products.map(p => p.category))).filter(Boolean)];
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    set.add("All");
+    const rawList = useSampleData ? FALLBACK_PRODUCTS : products;
+    rawList.forEach(p => {
+      if (p.category) set.add(p.category);
+    });
+    return Array.from(set);
+  }, [products, useSampleData]);
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#ffffff", color: "#09090b", fontFamily: "'Outfit', sans-serif" }}>
@@ -1373,12 +1438,49 @@ export default function StorefrontPage() {
 
                         {/* Specs */}
                         <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flex: 1 }}>
-                          <span style={{ fontSize: "0.7rem", color: "#a1a1aa", fontWeight: "500" }}>SKU: {prod.sku}</span>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "0.7rem", color: "#a1a1aa", fontWeight: "500" }}>SKU: {prod.sku}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                              {prod.vendor && (
+                                <span style={{ fontSize: "0.65rem", fontWeight: "700", color: "#6366f1", backgroundColor: "rgba(99, 102, 241, 0.08)", padding: "0.1rem 0.4rem", borderRadius: "0.25rem" }}>
+                                  {prod.vendor}
+                                </span>
+                              )}
+                              {prod.category && (
+                                <span style={{ fontSize: "0.65rem", fontWeight: "700", color: "#0d9488", backgroundColor: "rgba(13, 148, 136, 0.08)", padding: "0.1rem 0.4rem", borderRadius: "0.25rem" }}>
+                                  {prod.category}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                           <Link href={`/products/${prod.id}`} style={{ textDecoration: "none" }}>
                             <h4 className="product-title-hover" style={{ fontSize: "0.95rem", fontWeight: "600", color: "#09090b", margin: "0.25rem 0 0.5rem 0", lineHeight: "1.35" }}>
                               {prod.title}
                             </h4>
                           </Link>
+
+                          {/* Category Specific Spec Badges */}
+                          {prod.category === "Cosmetics & Beauty" && (
+                            <div style={{ fontSize: "0.68rem", fontWeight: "600", color: "#047857", marginBottom: "0.5rem", display: "flex", gap: "0.4rem" }}>
+                              <span>🌿 100% Organic</span>
+                              <span>•</span>
+                              <span>🧪 Derm Tested</span>
+                            </div>
+                          )}
+                          {prod.category === "Baby & Kids" && (
+                            <div style={{ fontSize: "0.68rem", fontWeight: "600", color: "#be185d", marginBottom: "0.5rem", display: "flex", gap: "0.4rem" }}>
+                              <span>👶 Hypoallergenic</span>
+                              <span>•</span>
+                              <span>🛡️ BPA-Free</span>
+                            </div>
+                          )}
+                          {prod.category === "Jewelry & Accessories" && (
+                            <div style={{ fontSize: "0.68rem", fontWeight: "600", color: "#b45309", marginBottom: "0.5rem", display: "flex", gap: "0.4rem" }}>
+                              <span>✨ Anti-Tarnish</span>
+                              <span>•</span>
+                              <span>💎 1-Yr Warranty</span>
+                            </div>
+                          )}
 
                           {/* Sizes Selector */}
                           <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.75rem", flexWrap: "wrap" }}>

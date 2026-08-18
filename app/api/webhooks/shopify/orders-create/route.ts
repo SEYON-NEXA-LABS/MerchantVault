@@ -263,6 +263,12 @@ export async function POST(request: Request) {
     const currency = body.currency || "INR";
     const lineItems = body.line_items || body.lineItems || [];
 
+    // Parse discount codes & discount amounts (Shopify format or native storefront format)
+    const discountCodes = body.discount_codes || body.discountCodes || [];
+    const couponCode = body.couponCode || (discountCodes.length > 0 ? discountCodes.map((d: any) => d.code).join(", ") : null);
+    const discountAmount = parseFloat(body.total_discounts || body.discountAmount || (discountCodes.length > 0 ? discountCodes.reduce((sum: number, d: any) => sum + (parseFloat(d.amount) || 0), 0) : 0));
+    const couponId = body.couponId || null;
+
     if (!shopifyOrderId || !orderNumber) {
       return NextResponse.json(
         { error: "Missing required fields (id, name)" },
@@ -377,6 +383,7 @@ export async function POST(request: Request) {
         .update({
           orderNumber,
           totalPrice,
+          discountAmount,
           paymentStatus: body.financial_status === "paid" ? "PAID" : "PENDING",
           orderSource,
           rawPayload: body,
@@ -398,6 +405,7 @@ export async function POST(request: Request) {
           paymentStatus: body.financial_status === "paid" ? "PAID" : "PENDING",
           fulfillmentStatus: "UNFULFILLED",
           totalPrice,
+          discountAmount,
           currency,
           orderSource,
           rawPayload: body
@@ -485,7 +493,23 @@ export async function POST(request: Request) {
       }
     }
 
-    // 4. Upsert OrderFulfillment record
+    // 4. Increment coupon usage if native coupon was used
+    if (couponId) {
+      const { data: couponData } = await supabaseAdmin
+        .from("Coupons")
+        .select("usedCount")
+        .eq("id", couponId)
+        .maybeSingle();
+
+      if (couponData) {
+        await supabaseAdmin
+          .from("Coupons")
+          .update({ usedCount: (couponData.usedCount || 0) + 1 })
+          .eq("id", couponId);
+      }
+    }
+
+    // 5. Upsert OrderFulfillment record
     const { data: existingFulfillment } = await supabaseAdmin
       .from("OrderFulfillment")
       .select("id")
@@ -508,6 +532,9 @@ export async function POST(request: Request) {
           shippingZip,
           shippingCountry,
           orderSource,
+          couponId,
+          couponCode,
+          discountAmount,
           updatedAt: new Date().toISOString()
         })
         .eq("id", existingFulfillment.id)
@@ -533,6 +560,9 @@ export async function POST(request: Request) {
           shippingCountry,
           totalWeightKg: 0.35,
           orderSource,
+          couponId,
+          couponCode,
+          discountAmount,
           deliveryStatus: "PROCESSING",
           warehouseId: warehouse ? warehouse.id : null
         })

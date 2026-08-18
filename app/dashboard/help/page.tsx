@@ -762,6 +762,83 @@ function HelpContent() {
           </div>
         </div>
       )
+    },
+    {
+      id: "coupon-guide",
+      title: "Creating Coupons & Discount Codes",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Creating Coupons & Promo Codes</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Boost store sales and reward your shoppers by launching discount codes for your online store and checkout counters.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">How to Create a Coupon Code (Simple Steps)</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Go to <strong>CRM & Marketing &rarr; Coupons & Promo Codes</strong> tab in your dashboard.</li>
+            <li>Click <strong>+ Create Coupon Code</strong>.</li>
+            <li>Type your code name (e.g. <code>WELCOME10</code> or <code>FESTIVE500</code>).</li>
+            <li>Choose your discount type:
+              <ul className="list-disc list-inside text-[11px] text-slate-600 pl-4 mt-1 space-y-1">
+                <li><strong>Percentage (%)</strong>: Offers a percent discount (e.g. 10% OFF up to ₹500).</li>
+                <li><strong>Flat Amount (₹)</strong>: Offers a fixed cash discount (e.g. Flat ₹200 OFF).</li>
+              </ul>
+            </li>
+            <li>(Optional) Set a <strong>Minimum Order Amount</strong> (e.g. Only valid on orders above ₹1,000).</li>
+            <li>Click <strong>Create Coupon</strong>. Your customers can now enter this code on the checkout page to receive their discount!</li>
+          </ol>
+
+          <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-teal-950">💡 Automatic Usage Counter & Shopify Sync</h4>
+            <p className="text-xs text-teal-900 mt-1">
+              Every time a customer uses your coupon code during checkout, your dashboard automatically updates the usage count. If you connect your Shopify store, discount codes created on Shopify sync automatically with your Merchant Vault orders directory.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "store-categories-guide",
+      title: "Store Categories & Custom Displays",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Organizing Store Categories</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Organize your catalog into easy-to-browse categories so shoppers can find their favorite products in seconds.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Built-in Store Category Presets</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 text-xs block">👗 Apparel & Dresses</span>
+              <span className="text-[11px] text-slate-600 block mt-1">Displays size selector chips (`S`, `M`, `L`, `XL`) and fabric care details.</span>
+            </div>
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 text-xs block">💄 Cosmetics & Beauty</span>
+              <span className="text-[11px] text-slate-600 block mt-1">Highlights `🌿 100% Organic` and `🧪 Dermatologically Tested` safety badges.</span>
+            </div>
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 text-xs block">👶 Baby & Kids Products</span>
+              <span className="text-[11px] text-slate-600 block mt-1">Highlights `👶 Hypoallergenic` and `🛡️ BPA-Free` badges for parents.</span>
+            </div>
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 text-xs block">💎 Jewelry & Accessories</span>
+              <span className="text-[11px] text-slate-600 block mt-1">Displays `✨ Anti-Tarnish` and `💎 1-Year Warranty` guarantees.</span>
+            </div>
+          </div>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-indigo-950">🛍️ Understanding Stores vs Brands vs Categories</h4>
+            <p className="text-xs text-indigo-900 mt-1 space-y-1">
+              <span className="block">• <strong>Store Outlet / Channel</strong>: The website where your customer shops (e.g. <i>Seyon Beauty Store</i> or <i>Seyon Fashion Store</i>). Controls store logo & theme colors.</span>
+              <span className="block">• <strong>Manufacturer / Label Brand</strong>: Who manufactured the product (e.g. <i>L'Oréal</i>, <i>MAC</i>, <i>Nike</i>, <i>Zara</i>).</span>
+              <span className="block">• <strong>Category</strong>: What kind of product it is (e.g. <i>Cosmetics</i>, <i>Dresses</i>, <i>Baby Products</i>).</span>
+            </p>
+          </div>
+        </div>
+      )
     }
   ];
 

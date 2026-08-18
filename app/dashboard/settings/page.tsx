@@ -799,6 +799,16 @@ function SettingsContent() {
         >
           <Palette className="w-4 h-4 text-gray-500" /> Storefront Theme
         </button>
+        <button
+          onClick={() => setActiveTab("brands" as any)}
+          className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/20 disabled:pointer-events-none disabled:opacity-50 gap-2 ${
+            (activeTab as string) === "brands"
+              ? "bg-white text-indigo-900 shadow-sm font-bold border border-indigo-200"
+              : "text-gray-550 hover:text-gray-900 hover:bg-gray-55/50"
+          }`}
+        >
+          <Globe className="w-4 h-4 text-indigo-600" /> Stores & Outlets
+        </button>
       </div>
 
       {/* Dynamic Settings Pane */}
@@ -2216,6 +2226,11 @@ function SettingsContent() {
             </div>
           )}
 
+          {/* Multi-Store Brands & Per-Store Theme Settings Tab */}
+          {(activeTab as string) === "brands" && (
+            <MultiStoreBrandsSection />
+          )}
+
         </div>
 
       {/* Warehouse Modal */}
@@ -2352,6 +2367,364 @@ function SettingsContent() {
                 >
                   {savingWarehouse && <RefreshCw className="w-3 h-3 animate-spin" />}
                   Save Facility
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MultiStoreBrandsSection() {
+  const [brands, setBrands] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editingBrand, setEditingBrand] = useState<any>(null);
+
+  const [form, setForm] = useState({
+    name: "",
+    code: "",
+    logoUrl: "",
+    primaryColor: "#0d9488",
+    accentColor: "#fbbf24",
+    announcementText: "⚡ Welcome to our Store!"
+  });
+
+  const fetchBrands = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/brands");
+      const data = await res.json();
+      if (data.success) {
+        setBrands(data.brands || []);
+      }
+    } catch (err) {
+      toast.error("Failed to load store brands");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  const handleOpenModal = (b?: any) => {
+    if (b) {
+      setEditingBrand(b);
+      let parsedTheme: any = {};
+      try {
+        parsedTheme = typeof b.themeConfig === "string" ? JSON.parse(b.themeConfig) : (b.themeConfig || {});
+      } catch (e) {}
+      setForm({
+        name: b.name,
+        code: b.code,
+        logoUrl: b.logoUrl || "",
+        primaryColor: parsedTheme.primaryColor || "#0d9488",
+        accentColor: parsedTheme.accentColor || "#fbbf24",
+        announcementText: parsedTheme.bannerText || "⚡ Welcome to our Store!"
+      });
+    } else {
+      setEditingBrand(null);
+      setForm({
+        name: "",
+        code: "",
+        logoUrl: "",
+        primaryColor: "#0d9488",
+        accentColor: "#fbbf24",
+        announcementText: "⚡ Welcome to our Store!"
+      });
+    }
+    setShowModal(true);
+  };
+
+  const handleSaveBrand = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.code.trim()) {
+      toast.error("Store name and store code are required");
+      return;
+    }
+    setSaving(true);
+    try {
+      const themeConfig = {
+        primaryColor: form.primaryColor,
+        accentColor: form.accentColor,
+        bannerText: form.announcementText
+      };
+
+      const res = await fetch("/api/brands", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingBrand?.id,
+          name: form.name,
+          code: form.code,
+          logoUrl: form.logoUrl,
+          themeConfig
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Store brand '${data.brand.name}' saved!`);
+        setShowModal(false);
+        fetchBrands();
+      } else {
+        toast.error(data.error || "Failed to save store brand");
+      }
+    } catch (err) {
+      toast.error("Error saving store brand");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteBrand = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete store brand '${name}'?`)) return;
+    try {
+      const res = await fetch(`/api/brands?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Store '${name}' deleted`);
+        fetchBrands();
+      } else {
+        toast.error(data.error || "Failed to delete store");
+      }
+    } catch (err) {
+      toast.error("Error deleting store");
+    }
+  };
+
+  const appBaseUrl = (process.env.NEXT_PUBLIC_STOREFRONT_URL || "").replace(/\/$/, "") || (typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ""}`
+    : "https://merchantvault.vercel.app");
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-indigo-600" /> Multi-Store Brands & Per-Store Themes
+          </h3>
+          <p className="text-xs text-gray-500 mt-1">
+            Manage multiple distinct storefront brands (e.g. Ethnic Wear, Cosmetics, Kids Wear) with custom logos & color themes under 1 account.
+          </p>
+        </div>
+        <button
+          onClick={() => handleOpenModal()}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+        >
+          + Add New Store Brand
+        </button>
+      </div>
+
+      {/* Stores List Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading ? (
+          <div className="col-span-full py-12 text-center text-gray-400 text-xs">Loading multi-store brands...</div>
+        ) : brands.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-gray-400 text-xs">
+            No custom sub-stores configured yet. Click "+ Add New Store Brand" to set up your first store!
+          </div>
+        ) : (
+          brands.map((b) => {
+            let themeObj: any = {};
+            try {
+              themeObj = typeof b.themeConfig === "string" ? JSON.parse(b.themeConfig) : (b.themeConfig || {});
+            } catch (e) {}
+
+            const storeUrl = `${appBaseUrl}/?brand=${b.code}`;
+
+            return (
+              <div key={b.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {b.logoUrl ? (
+                        <img src={b.logoUrl} alt={b.name} className="w-8 h-8 rounded-lg object-contain border border-gray-200" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                          {b.name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-sm">{b.name}</h4>
+                        <span className="text-[10px] font-mono text-gray-400">Code: ?brand={b.code}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleOpenModal(b)}
+                        className="p-1.5 text-gray-400 hover:text-indigo-600 rounded hover:bg-gray-50"
+                        title="Edit Theme & Settings"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBrand(b.id, b.name)}
+                        className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-gray-50"
+                        title="Delete Store"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Visual Theme Badge */}
+                  <div className="p-3 rounded-lg border border-gray-100 bg-gray-50 space-y-1.5 text-xs">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Storefront Color Theme</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full border border-gray-300 shadow-2xs" style={{ backgroundColor: themeObj.primaryColor || "#0d9488" }} />
+                      <span className="font-mono text-[11px] text-gray-700">Primary: {themeObj.primaryColor || "#0d9488"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full border border-gray-300 shadow-2xs" style={{ backgroundColor: themeObj.accentColor || "#fbbf24" }} />
+                      <span className="font-mono text-[11px] text-gray-700">Accent: {themeObj.accentColor || "#fbbf24"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                  <a
+                    href={storeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1"
+                  >
+                    Visit Storefront ↗
+                  </a>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(storeUrl);
+                      toast.success(`Copied link for ${b.name}!`);
+                    }}
+                    className="text-gray-500 hover:text-gray-800 font-medium"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Create / Edit Store Brand Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h4 className="font-bold text-gray-900 text-base">
+                {editingBrand ? `Edit Store: ${editingBrand.name}` : "Add New Storefront Brand"}
+              </h4>
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBrand} className="space-y-3.5">
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase">Store Brand Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Seyon Ethnic, Seyon Beauty, Seyon Kids"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg text-sm font-semibold"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase">Store Code (URL Parameter)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. ethnic, beauty, kids"
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-") })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg text-sm font-mono"
+                  required
+                />
+                <span className="text-[10px] text-gray-400 mt-1 block">URL link: ?brand={form.code || "code"}</span>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase">Logo Image URL (Optional)</label>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/... or logo image URL"
+                  value={form.logoUrl}
+                  onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="text-xs font-bold text-gray-700 uppercase">Primary Color</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={form.primaryColor}
+                      onChange={(e) => setForm({ ...form, primaryColor: e.target.value })}
+                      className="w-8 h-8 rounded border border-gray-300 cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={form.primaryColor}
+                      onChange={(e) => setForm({ ...form, primaryColor: e.target.value })}
+                      className="w-full p-1.5 border border-gray-300 rounded text-xs font-mono uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-gray-700 uppercase">Accent Color</label>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={form.accentColor}
+                      onChange={(e) => setForm({ ...form, accentColor: e.target.value })}
+                      className="w-8 h-8 rounded border border-gray-300 cursor-pointer p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={form.accentColor}
+                      onChange={(e) => setForm({ ...form, accentColor: e.target.value })}
+                      className="w-full p-1.5 border border-gray-300 rounded text-xs font-mono uppercase"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-gray-700 uppercase">Store Announcement Banner</label>
+                <input
+                  type="text"
+                  placeholder="e.g. ⚡ Free Express Delivery on orders over ₹1,999!"
+                  value={form.announcementText}
+                  onChange={(e) => setForm({ ...form, announcementText: e.target.value })}
+                  className="w-full mt-1 p-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 rounded-lg text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-xs disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save Store Brand"}
                 </button>
               </div>
             </form>

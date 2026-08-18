@@ -101,11 +101,28 @@
 - **Physical Lifecycle Flow Ordering**: Organized sidebar sections chronologically (Inbound Procurement $\rightarrow$ Inventory $\rightarrow$ Sales Dispatch $\rightarrow$ Logistics $\rightarrow$ CRM $\rightarrow$ Admin).
 - **Role Permission Matrix & Subtle Glassmorphic Themes**: Updated [RoleGuard.tsx](file:///d:/seyon_nexa_labs/projects/fabricvault/components/RoleGuard.tsx) and dashboard layout supporting `MANAGER` with subtle pastel glassmorphism themes (Rose, Purple, Emerald, Indigo).
 
-### 17. Upcoming Merchant Modules (Marked as "Coming Soon" in Sidebar Navigation)
-- **GST Invoicing & Auto E-Way Bill Generation**: Tax-compliant CGST/SGST/IGST invoicing and 1-click E-Way Bill filings (`Receipt` icon, marked *Soon*).
-- **Auto WhatsApp Webhook Workflows**: Automated WhatsApp notifications for COD call verification, shipment tracking links, and abandoned cart recoveries (`MessageSquare` icon, marked *Soon*).
-- **Merchant Discount Codes & Coupon Desk**: Flexible percentage & flat rupee promo codes for both Storefront & POS billing (`Star` icon, marked *Soon*).
-- **COGS & Profit Margin Analytics**: Real-time margin reports comparing product unit costs vs shipping costs vs net profit margins (`PieChart` icon, marked *Soon*).
+### 18. Storefront & Shopify Compatible Coupon & Discount Code System
+- **Database Schema**: Created `migration_add_coupons.sql` and updated `schema.sql` adding `Coupons` table and adding `couponId`, `couponCode`, `discountAmount` columns to `OrderFulfillment` and `Order`.
+- **Merchant Admin API** (`app/api/coupons/route.ts`): Built full CRUD endpoints for merchants to create percentage (% off) or flat rupee (₹ off) coupon codes with min order values, max discount caps, and usage limits.
+- **Storefront Validation API** (`app/api/storefront/coupons/validate/route.ts`): Public checkout endpoint validating active dates, min order requirements, and remaining global usage counts.
+- **Shopify Webhook Integration**: Updated `/api/webhooks/shopify/orders-create` to parse Shopify `discount_codes` arrays and `total_discounts`, syncing applied promo codes into `OrderFulfillment`.
+- **Storefront Checkout & CRM Desk UI**: Added Promo Code input field on storefront checkout (`app/checkout/page.tsx`), a Coupon Manager tab in CRM (`app/dashboard/crm/page.tsx`), and applied coupon badges (`🏷️ CODE (-₹Val)`) in the orders directory (`app/dashboard/orders/page.tsx`).
+
+### 19. Multi-Tenant Store Categories & Category-Specific Dynamic Product Displays
+- **Database Schema**: Created `migration_add_categories.sql` and updated `schema.sql` adding `Category` table and `categoryId`, `categoryName`, `targetGroup` to `ProductVariant`.
+- **Categories API** (`app/api/categories/route.ts`): Built API serving tenant categories with automatic pre-configured presets (*Apparel & Dresses*, *Cosmetics & Beauty*, *Baby & Kids*, *Footwear & Bags*, *Jewelry & Accessories*).
+- **Shopify `product_type` Compatibility**: Integrated automatic 2-way mapping between Shopify `product_type` and Merchant Vault `Category.name` during product sync.
+- **Dynamic Storefront Category Chips & Badges**: Added dynamic Category Filter Chips to `app/page.tsx` and tailored category spec badges:
+  - 👗 **Apparel & Dresses**: Size chips (`S`, `M`, `L`, `XL`) & fabric details.
+  - 💄 **Cosmetics & Beauty**: `🌿 100% Organic • 🧪 Derm Tested`.
+  - 👶 **Baby & Kids**: `👶 Hypoallergenic • 🛡️ BPA-Free`.
+  - 💎 **Jewelry & Accessories**: `✨ Anti-Tarnish • 💎 1-Yr Warranty`.
+
+### 20. Single-Company Multi-Storefront & Multi-Brand Architecture
+- **Multi-Brand Catalog Isolation**: Configured `Brand` schema enabling a single company to run multiple distinct sub-stores (e.g. *Seyon Fashion*, *Seyon Cosmetics*, *Seyon Kids*).
+- **Unified Inventory, Isolated Branding**: Shared warehouse stock levels prevent overselling across stores while maintaining custom subdomains, logos (`logoUrl`), themes (`themeConfig`), and product displays per store.
+- **Documentation & Agent Rules**: Updated `.agents/AGENTS.md` and project SOPs defining multi-store routing rules (`?brand=code`).
+
 
 
 

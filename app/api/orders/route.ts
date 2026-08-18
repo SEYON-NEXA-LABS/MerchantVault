@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from("OrderFulfillment")
-      .select("id, orderNumber, shopifyOrderId, customerId, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, orderSource, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee")
+      .select("id, orderNumber, shopifyOrderId, customerId, customerName, customerPhone, shippingAddressLine1, shippingAddressLine2, shippingCity, shippingState, shippingZip, shippingCountry, awbNumber, courierPartner, deliveryStatus, orderSource, createdAt, totalWeightKg, codVerificationStatus, rtoRiskScore, shippingCost, customerShippingFee, couponCode, discountAmount")
       .eq("companyId", companyId);
 
     if (source && source !== "ALL") {

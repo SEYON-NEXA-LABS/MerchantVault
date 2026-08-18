@@ -368,7 +368,9 @@ ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "category" TEXT DEFAULT 'T
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "targetGroup" TEXT DEFAULT 'Adults' NOT NULL;
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "ageRange" TEXT;
 
--- Idempotent adjustments for Multi-Brand Setup
+-- Idempotent adjustments for Multi-Store / Multi-Brand Setup
+-- Note: 'Brand' table represents Storefront Channels / Sub-Store Outlets (e.g. Seyon Beauty Store, Seyon Fashion)
+-- Note: 'vendor' column on ProductVariant represents Manufacturer / Label Brand (e.g. L'Oréal, MAC, Nike, Zara)
 CREATE TABLE IF NOT EXISTS "Brand" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
@@ -380,11 +382,16 @@ CREATE TABLE IF NOT EXISTS "Brand" (
 
 CREATE INDEX IF NOT EXISTS "idx_brand_company" ON "Brand" ("companyId");
 
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "logoUrl" TEXT;
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "themeConfig" TEXT;
+
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "brandId" UUID REFERENCES "Brand"("id") ON DELETE SET NULL;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "vendor" TEXT;
 CREATE INDEX IF NOT EXISTS "idx_product_variant_brand" ON "ProductVariant" ("brandId");
 
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "brandId" UUID REFERENCES "Brand"("id") ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS "idx_user_brand" ON "User" ("brandId");
+
 
 -- Campaign, CampaignProduct, and CampaignAnalytics Tables
 CREATE TABLE IF NOT EXISTS "Campaign" (
@@ -425,6 +432,60 @@ CREATE TABLE IF NOT EXISTS "CampaignAnalytics" (
 CREATE INDEX IF NOT EXISTS "idx_campaign_company" ON "Campaign"("companyId");
 CREATE INDEX IF NOT EXISTS "idx_campaign_active" ON "Campaign"("isActive", "startTime", "endTime");
 CREATE INDEX IF NOT EXISTS "idx_campaign_product" ON "CampaignProduct"("campaignId", "variantId");
+
+-- Coupons Table
+CREATE TABLE IF NOT EXISTS "Coupons" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "code" TEXT NOT NULL,
+    "discountType" TEXT NOT NULL CHECK ("discountType" IN ('PERCENTAGE', 'FIXED')),
+    "discountValue" DOUBLE PRECISION NOT NULL,
+    "minOrderValue" DOUBLE PRECISION DEFAULT 0.0 NOT NULL,
+    "maxDiscountAmount" DOUBLE PRECISION,
+    "usageLimit" INTEGER,
+    "usedCount" INTEGER DEFAULT 0 NOT NULL,
+    "startsAt" TIMESTAMP WITH TIME ZONE,
+    "expiresAt" TIMESTAMP WITH TIME ZONE,
+    "isActive" BOOLEAN DEFAULT true NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "Coupons_companyId_code_key" UNIQUE ("companyId", "code")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_coupons_company_code" ON "Coupons" ("companyId", "code");
+
+-- Category Table
+CREATE TABLE IF NOT EXISTS "Category" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "icon" TEXT DEFAULT 'Package' NOT NULL,
+    "description" TEXT,
+    "imageUrl" TEXT,
+    "displayOrder" INTEGER DEFAULT 0 NOT NULL,
+    "isActive" BOOLEAN DEFAULT true NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "Category_companyId_slug_key" UNIQUE ("companyId", "slug")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_category_company_slug" ON "Category" ("companyId", "slug");
+
+-- Order & OrderFulfillment Discount ALTER Statements
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "discountAmount" DOUBLE PRECISION DEFAULT 0.0 NOT NULL;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "couponId" UUID REFERENCES "Coupons"("id") ON DELETE SET NULL;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "couponCode" TEXT;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "discountAmount" DOUBLE PRECISION DEFAULT 0.0 NOT NULL;
+
+-- ProductVariant Category ALTER Statements
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "categoryId" UUID REFERENCES "Category"("id") ON DELETE SET NULL;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "categoryName" TEXT;
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "targetGroup" TEXT;
+CREATE INDEX IF NOT EXISTS "idx_product_variant_category" ON "ProductVariant" ("categoryId");
+
+
+
 
 
 

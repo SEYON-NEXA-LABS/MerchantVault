@@ -19,3 +19,10 @@
 - **Tenant Razorpay (Merchant Storefront Payments)**: Tenant credentials stored per-company in Supabase (`Company.razorpayKeyId`, `Company.razorpayKeySecret`) are used EXCLUSIVELY for receiving customer order payments on merchant storefronts/POS.
 - **Platform Razorpay (SaaS Subscriptions)**: Platform credentials stored in root `.env.local` (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) are used EXCLUSIVELY for billing merchant subscription plans (Starter ₹999/mo, Growth ₹1,999/mo, Enterprise ₹4,999/mo) and generating platform invoices.
 - Do NOT mix or confuse merchant store checkout credentials with platform subscription billing credentials.
+
+## 6. Multi-Store & Multi-Brand Architecture
+- Merchant Vault supports single-tenant multi-storefront operations under one company context.
+- Each `Company` can create multiple `Brand` / Store records (`Brand` table in schema).
+- Storefront routes dynamically resolve brand context using `Brand.code` URL query parameter (`?brand=code`) or custom subdomains.
+- Inventory stock levels in central warehouses are shared across stores to prevent overselling while maintaining isolated store branding, logos, themes, and product category displays.
+
