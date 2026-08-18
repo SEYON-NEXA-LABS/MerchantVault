@@ -8,6 +8,8 @@ const outfit = Outfit({
   variable: "--font-outfit",
 });
 
+
+
 export const metadata: Metadata = {
   title: "Seyon Shopping ERP - Retail Inventory & D2C Storefront",
   description: "Multi-Tenant Retail Inventory, POS Counter & Order Management System",
@@ -37,6 +39,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} font-sans antialiased`}>
+
+
         {children}
         <Toaster position="top-right" richColors />
       </body>

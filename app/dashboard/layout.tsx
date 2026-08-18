@@ -484,30 +484,30 @@ export default function DashboardLayout({
         {/* Main Content Area with Dynamic Role Canvas */}
         <div className={`flex-1 flex flex-col h-full overflow-hidden ${currentTheme.mainBg} transition-colors duration-300`}>
           {/* Top Navbar with Glassmorphism */}
-          <header className={`relative z-30 h-16 border-b flex items-center justify-between px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder}`}>
+          <header className={`relative z-30 min-h-16 py-2 border-b flex items-center justify-between px-4 sm:px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder} overflow-x-auto no-scrollbar`}>
 
-            <div className="flex items-center gap-4 flex-1">
-              <div className="relative w-96">
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-max">
+              <div className="relative w-48 sm:w-72 md:w-96">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
                   type="text" 
                   placeholder="Search anything..." 
-                  className={`w-full bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl py-1.5 pl-9 pr-12 text-sm focus:outline-none focus:ring-2 ${currentTheme.searchFocus} transition-all shadow-xs`}
+                  className={`w-full bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl py-1.5 pl-9 pr-12 text-xs sm:text-sm focus:outline-none focus:ring-2 ${currentTheme.searchFocus} transition-all shadow-xs`}
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1">
                   <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 font-mono shadow-xs">⌘</kbd>
                   <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 font-mono shadow-xs">K</kbd>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 min-w-max">
               {/* Scanner Connectivity Status */}
               <div 
                 title="USB Keyboard-Emulation scanner ready. Place cursor in any scan field to begin."
-                className={`flex items-center gap-2 text-xs font-bold ${currentTheme.scannerText} ${currentTheme.scannerBg} border ${currentTheme.scannerBorder} px-3 py-1.5 rounded-xl select-none cursor-help shadow-xs backdrop-blur-md`}
+                className={`flex items-center gap-1.5 text-[11px] sm:text-xs font-bold ${currentTheme.scannerText} ${currentTheme.scannerBg} border ${currentTheme.scannerBorder} px-2.5 sm:px-3 py-1.5 rounded-xl select-none cursor-help shadow-xs backdrop-blur-md`}
               >
                 <Scan className="w-3.5 h-3.5 animate-pulse" />
-                <span>Scanner: Ready</span>
+                <span className="hidden xs:inline">Scanner: Ready</span>
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
@@ -517,21 +517,22 @@ export default function DashboardLayout({
               {/* Active Warehouse Indicator & Switcher */}
               <button 
                 onClick={() => setShowWhModal(true)}
-                className={`flex items-center gap-2 text-xs font-bold ${currentTheme.whText} ${currentTheme.whBg} border ${currentTheme.whBorder} px-3 py-1.5 rounded-xl transition-all shadow-xs backdrop-blur-md select-none`}
+                className={`flex items-center gap-1.5 text-[11px] sm:text-xs font-bold ${currentTheme.whText} ${currentTheme.whBg} border ${currentTheme.whBorder} px-2.5 sm:px-3 py-1.5 rounded-xl transition-all shadow-xs backdrop-blur-md select-none`}
               >
                 <span>📍 {activeWarehouseName}</span>
                 <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500" />
               </button>
 
-              <button className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-full hover:bg-emerald-100/90 transition-colors backdrop-blur-xs">
+              <button className="hidden md:flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50/80 border border-emerald-200/80 px-3 py-1.5 rounded-full hover:bg-emerald-100/90 transition-colors backdrop-blur-xs">
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
                 WhatsApp
               </button>
 
-              <Link href="/dashboard/help" target="_blank" className="flex items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-200/80 px-3 py-1.5 rounded-full hover:bg-indigo-100/90 transition-colors backdrop-blur-xs">
+              <Link href="/dashboard/help" target="_blank" className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-200/80 px-3 py-1.5 rounded-full hover:bg-indigo-100/90 transition-colors backdrop-blur-xs">
                 <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
                 Help Center
               </Link>
+
               
               <div className="relative">
                 <button 

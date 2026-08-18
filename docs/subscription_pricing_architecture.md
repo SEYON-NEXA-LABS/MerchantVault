@@ -22,17 +22,18 @@ To aggressively compete against and disrupt legacy platforms like Shopify, Merch
 
 Seyon Shopping operates a **Low Base ERP (₹499/mo) + Modular A La Carte Add-On Architecture**:
 
-| Feature / Limit | MICRO / BASE ERP | STARTER BUNDLE | GROWTH BUNDLE | ENTERPRISE HUB |
-| :--- | :---: | :---: | :---: | :---: |
-| **Monthly Price** | **₹499 / mo** | **₹999 / mo** | **₹1,999 / mo** | **₹4,999 / mo** |
-| **Annual Price (2 Mo Free)** | **₹4,990 / yr** | **₹9,990 / yr** | **₹19,990 / yr** | **₹49,990 / yr** |
-| **Platform Transaction Fee** | **0%** | **0%** | **0%** | **0%** |
-| **POS Billing Terminal** | Included | Included | Included | Included |
-| **Multi-Location Inventory** | 1 Warehouse | 1 Warehouse | 3 Warehouses | Unlimited |
-| **1. Storefront & Domain Pack (₹499/mo)** | Add-On | Included | Included | Included |
-| **2. Marketplace Sync Pack (₹699/mo)** | Add-On | Add-On | Included | Included |
-| **3. GST Engine & Tally Pack (₹299/mo)** | Add-On | Included | Included | Included |
-| **4. B2B & TDS Compliance (₹499/mo)** | Add-On | Add-On | Add-On | Included |
+| Feature / Limit | MICRO (POS ERP) | BASIC (STOREFRONT LITE) | STARTER BUNDLE | GROWTH BUNDLE | ENTERPRISE HUB |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Monthly Price** | **₹499 / mo** | **₹799 / mo** | **₹999 / mo** | **₹1,999 / mo** | **₹4,999 / mo** |
+| **Annual Price (2 Mo Free)** | **₹4,990 / yr** | **₹7,990 / yr** | **₹9,990 / yr** | **₹19,990 / yr** | **₹49,990 / yr** |
+| **Platform Transaction Fee** | **0%** | **0%** | **0%** | **0%** | **0%** |
+| **POS Billing Terminal** | Included | Included | Included | Included | Included |
+| **Multi-Location Inventory** | 1 Warehouse | 1 Warehouse | 1 Warehouse | 3 Warehouses | Unlimited |
+| **1. Storefront & Domain Pack (₹499/mo)** | Add-On | **Included** | **Included** | **Included** | **Included** |
+| **2. GST Engine & Tally Pack (₹299/mo)** | Add-On | Add-On | **Included** | **Included** | **Included** |
+| **3. Marketplace Sync Pack (₹699/mo)** | Add-On | Add-On | Add-On | **Included** | **Included** |
+| **4. B2B & TDS Compliance (₹499/mo)** | Add-On | Add-On | Add-On | Add-On | **Included** |
+
 
 ---
 

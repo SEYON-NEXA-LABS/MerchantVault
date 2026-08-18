@@ -39,11 +39,13 @@ function HelpContent() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
     "Getting Started": true,
+    "Modular Add-On Packs": true,
     "Operating SOPs": true,
     "Inventory & Barcodes": true,
     "Orders & Logistics": true,
     "Brand Customization & Storefront Channels": true
   });
+
   const [activeTopicId, setActiveTopicId] = useState("sop-workflows");
 
   useEffect(() => {
@@ -163,7 +165,7 @@ function HelpContent() {
             <li>Click **Reconcile & Close** to commit counts, overwrite database levels, and log adjustment details.</li>
           </ol>
 
-          <h3 className="text-base font-bold text-slate-900 mt-6">10. Handling Customer Returns (RTO)</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-6">10. Handling Customer Returns & Restocking</h3>
           <p className="text-xs text-slate-655 leading-relaxed">
             If a package is returned (Return to Origin) or returned by a customer:
           </p>
@@ -173,9 +175,28 @@ function HelpContent() {
             <li>Select the destination warehouse node to restock the return.</li>
             <li>Submit the RMA to increment the catalog stock levels and update the Shopify status automatically.</li>
           </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">11. Direct Razorpay Settlements, Refunds & Zero Balance SOP</h3>
+          <p className="text-xs text-slate-655 leading-relaxed">
+            Manage customer payment collections, Razorpay refunds, and zero-balance fallback options:
+          </p>
+          <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
+            <li><strong>Direct Payouts</strong>: 100% of customer order payments flow directly into your own configured Razorpay merchant bank account (`Company.razorpayKeyId`). Seyon Shopping holds 0% funds.</li>
+            <li><strong>Triggering Refunds</strong>: In <strong>Orders &rarr; View Order</strong>, click <strong>Initiate Return / Refund</strong>. The system calls your Razorpay API key to issue an immediate gateway refund.</li>
+
+            <li><strong>Handling Zero / Insufficient Razorpay Balance</strong>: If Razorpay rejects a refund due to insufficient merchant balance, select from 3 instant resolution options:
+              <ul className="list-disc list-inside pl-4 pt-1 text-[11px] text-slate-600 space-y-1">
+                <li><strong>Store Credit / Loyalty Wallet (Recommended)</strong>: Issues an instant store credit code to the customer's phone number (keeps revenue inside your brand).</li>
+                <li><strong>Queued Gateway Refund</strong>: Retries Razorpay refund automatically as soon as new customer orders credit your balance.</li>
+                <li><strong>Manual IMPS / UPI Transfer</strong>: Input the customer's UPI ID (`customer@upi`) for direct bank transfer and log the reference code.</li>
+              </ul>
+            </li>
+            <li><strong>GST Credit Note Auto-Filing</strong>: The system automatically generates a GSTR-1 Credit Note to reduce your monthly tax liability and exports the entry to Tally Prime.</li>
+          </ol>
         </div>
       )
     },
+
     {
       id: "intro",
       title: "Introduction to SEYON Operations",
@@ -187,23 +208,23 @@ function HelpContent() {
             Welcome to the <strong>SEYON Operations Portal</strong>, the centralized control center for managing your D2C clothing brand's logistics and fulfillment. This system connects your active Shopify store with real-time warehouse scanning, stock movements, and courier partner dispatch.
           </p>
 
-          <h3 className="text-base font-bold text-slate-900 mt-6">Core System Architecture</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-6">How Seyon Shopping Empowers Your Business</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Seyon operates as a multi-tenant enterprise resource planning (ERP) platform. The server bridges inventory modifications directly into the database, synchronizes catalog updates, and processes real-time transaction webhooks.
+            Seyon Shopping brings your online store, physical retail POS counters, and central warehouse inventory into one single dashboard. Stock updates instantly across Shopify, Amazon, and Flipkart with 0% platform transaction fees.
           </p>
 
           <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg">
-            <h4 className="text-sm font-bold text-indigo-950">Quick Start Checklist</h4>
+            <h4 className="text-sm font-bold text-indigo-950">Quick Start Checklist for Store Managers</h4>
             <ul className="list-disc list-inside text-xs text-indigo-800 mt-2 space-y-1">
-              <li>Select your active **Warehouse Location** from the global footer selector.</li>
-              <li>Verify that the **Shopify Sync Bridge** status bar reads "Connected".</li>
-              <li>Ensure USB Keyboard-Emulation scanners are plugged into terminal ports.</li>
+              <li>Select your active <strong>Warehouse Location</strong> from the top bar selector.</li>
+              <li>Verify that your <strong>Marketplace & Storefront Sync</strong> status reads "Connected".</li>
+              <li>Plug in standard USB barcode scanners into your billing terminal.</li>
             </ul>
           </div>
 
           <h3 className="text-base font-bold text-slate-900 mt-6">Product Lifecycle Navigation Flow</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            The ERP sidebar menu is structured chronologically according to the physical life cycle of products entering inventory through to customer delivery, using hierarchical decimal menu codes:
+            The ERP sidebar menu is structured chronologically according to the physical life cycle of products entering inventory through to customer delivery:
           </p>
           <ul className="list-disc list-inside text-xs text-slate-700 pl-2 space-y-2 mt-2">
             <li><strong>1. Inbound & Procurement</strong>: Suppliers (1.1), Purchase Orders (1.2), Barcode Generation (1.3), Inward Receiving (1.4).</li>
@@ -211,35 +232,120 @@ function HelpContent() {
             <li><strong>3. Sales & Dispatch</strong>: Orders Directory (3.1), Outward Dispatch (3.2), Discounts & Coupons (3.3).</li>
             <li><strong>4. Logistics & Delivery</strong>: Shipping & Manifests (4.1), GST & E-Way Bill Filing (4.2).</li>
             <li><strong>5. Customer Management (CRM)</strong>: Customer Directory (5.1), Abandoned Cart Recalls (5.2), WhatsApp Broadcasts (5.3), Social & Ads Leads (5.4).</li>
-            <li><strong>6. Administration & System</strong>: Staff & RBAC Permissions (6.1), Tenant Configurations (6.2).</li>
-            <li><strong>Platform Superadmin</strong>: Superadmin Control Center (7.1).</li>
+            <li><strong>6. Administration & Store Settings</strong>: Staff Profiles & Roles (6.1), Store Configurations & Razorpay (6.2).</li>
           </ul>
 
-          <h3 className="text-base font-bold text-slate-900 mt-6">User Access Control (RBAC)</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-6">Staff Access Roles</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Permission scopes are enforced strictly depending on your operator account credentials:
+            Every staff member gets a tailored workspace based on their job role:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <span className="font-bold text-xs text-indigo-900 block">SUPERADMIN</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Platform billing, index adjustments, tenant company creations, and system-wide overrides.</span>
+              <span className="font-bold text-xs text-indigo-900 block">STORE OWNER / ADMIN</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Full control over store settings, payment gateways, GST reports, and staff management.</span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <span className="font-bold text-xs text-amber-800 block">TENANTADMIN</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Shopify bridge webhooks, API token changes, warehouse additions, and staff role assignments.</span>
+              <span className="font-bold text-xs text-emerald-800 block">WAREHOUSE MANAGER</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Manages purchase orders, vendor invoices, stock audits, barcode printing, and CRM.</span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <span className="font-bold text-xs text-emerald-800 block">MANAGER</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Full operational control: POs, vendors, stock adjustments, audits, barcode printing, orders & CRM.</span>
+              <span className="font-bold text-xs text-slate-800 block">BILLING & DISPATCH OPERATOR</span>
+              <span className="text-[11px] text-slate-500 block mt-1">Floor execution: barcode scanning, inward stock check-in, order picking, and shipping.</span>
             </div>
-            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50/50">
-              <span className="font-bold text-xs text-slate-800 block">STAFF (OPERATOR)</span>
-              <span className="text-[11px] text-slate-500 block mt-1">Floor execution: barcode generation, inward/outward scanning, cycle counts, and shipping.</span>
-            </div>
+          </div>
+
+        </div>
+      )
+    },
+    {
+      id: "addon-packs-overview",
+      title: "5 Modular A La Carte Add-On Packs Guide",
+      category: "Modular Add-On Packs",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">5 Modular "A La Carte" Add-On Packs Guide</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon Shopping features 5 optional modular add-on packs. Merchants on Micro or Starter plans can activate individual packs a la carte as needed, while Growth & Enterprise plans include pre-bundled packs out-of-the-box.
+          </p>
+
+          {/* Pack 1 */}
+          <div className="border border-blue-200 bg-blue-50/50 p-5 rounded-2xl space-y-2">
+            <h3 className="text-base font-bold text-blue-900 flex items-center gap-2">
+              🌐 Pack 1: Storefront, Custom Domain & SEO (₹499 / mo)
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Enables online e-commerce selling under your own brand identity:
+            </p>
+            <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 pl-2">
+              <li><strong>Custom Domain Mapping</strong>: Connect `yourbrand.in` with automated SSL certificate generation.</li>
+              <li><strong>White-Label Footer Removal</strong>: Hides platform references for clean merchant branding.</li>
+              <li><strong>Dynamic SEO Suite</strong>: Auto-generated `sitemap.xml`, `robots.txt`, schema markup, and metadata.</li>
+              <li><strong>WhatsApp OpenGraph Share Cards</strong>: Generates high-converting rich product preview cards when sharing links on WhatsApp.</li>
+            </ul>
+          </div>
+
+          {/* Pack 2 */}
+          <div className="border border-amber-200 bg-amber-50/50 p-5 rounded-2xl space-y-2">
+            <h3 className="text-base font-bold text-amber-900 flex items-center gap-2">
+              🔄 Pack 2: Omnichannel Marketplace Sync (₹699 / mo)
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Connect external sales channels for centralized inventory control:
+            </p>
+            <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 pl-2">
+              <li><strong>Multi-Channel Stock Pooling</strong>: Auto-syncs warehouse inventory across Shopify, Amazon, Flipkart, & Myntra.</li>
+              <li><strong>Order Consolidation</strong>: Pulls orders from all marketplaces into a single unified dispatch queue.</li>
+              <li><strong>Overselling Protection</strong>: Instantly depletes stock across all channels within sub-50ms of sale.</li>
+            </ul>
+          </div>
+
+          {/* Pack 3 */}
+          <div className="border border-emerald-200 bg-emerald-50/50 p-5 rounded-2xl space-y-2">
+            <h3 className="text-base font-bold text-emerald-900 flex items-center gap-2">
+              📜 Pack 3: Indian GST Engine & Tally Export (₹299 / mo)
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Native Indian tax compliance and accounting synchronization:
+            </p>
+            <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 pl-2">
+              <li><strong>Place of Supply Auto-Matching</strong>: Calculates CGST+SGST (In-State) vs IGST (Interstate) based on customer PIN code.</li>
+              <li><strong>GSTR-1 Reports</strong>: Exports ready-to-file GSTR-1 B2B & B2C CSV spreadsheets for your accountant.</li>
+              <li><strong>Tally Prime Integration</strong>: Generates 1-click Tally XML vouchers for seamless sales & return entry imports.</li>
+            </ul>
+          </div>
+
+          {/* Pack 4 */}
+          <div className="border border-indigo-200 bg-indigo-50/50 p-5 rounded-2xl space-y-2">
+            <h3 className="text-base font-bold text-indigo-900 flex items-center gap-2">
+              🏢 Pack 4: B2B Wholesale & TDS Compliance (₹499 / mo)
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Enterprise B2B billing and tax deduction compliance:
+            </p>
+            <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 pl-2">
+              <li><strong>TDS Tax Withholding</strong>: Handles Section 194C / 194Q TDS deductions and Section 206C(1H) TCS collections.</li>
+              <li><strong>B2B Credit Limits</strong>: Set wholesale customer credit accounts, net-30 payment terms, and purchase ledger tracking.</li>
+            </ul>
+          </div>
+
+          {/* Pack 5 */}
+          <div className="border border-purple-200 bg-purple-50/50 p-5 rounded-2xl space-y-2">
+            <h3 className="text-base font-bold text-purple-900 flex items-center gap-2">
+              💬 Pack 5: WhatsApp & AI Marketing Engine (₹599 / mo)
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Automated customer recovery and marketing broadcast targeting:
+            </p>
+            <ul className="list-disc list-inside text-xs text-slate-700 space-y-1 pl-2">
+              <li><strong>Abandoned Cart Recovery</strong>: Sends automated WhatsApp recovery messages with 1-click checkout links.</li>
+              <li><strong>Segment Targeting</strong>: AI customer segmentation for repeat purchases and promotional broadcasts.</li>
+              <li><strong>Meta Lead Ads Sync</strong>: Auto-imports lead forms from Facebook and Instagram ads directly into CRM.</li>
+            </ul>
           </div>
         </div>
       )
     },
+
     {
       id: "barcodes",
       title: "Print & Generate Barcodes",

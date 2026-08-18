@@ -1722,11 +1722,17 @@ export default function StorefrontPage() {
             <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>
               © {new Date().getFullYear()} {company?.name || "Seyon Shopping"}. All rights reserved.
             </p>
-            {!company?.hasWhiteLabelAddon && (
-              <span style={{ fontSize: "0.65rem", color: "#52525b", borderLeft: "1px solid #27272a", paddingLeft: "0.5rem" }}>
-                Powered by <strong style={{ color: "#a1a1aa" }}>Seyon Shopping</strong>
-              </span>
-            )}
+            <Link 
+              href="/platform" 
+              target="_blank"
+              style={{ fontSize: "0.65rem", color: "#71717a", borderLeft: "1px solid #27272a", paddingLeft: "0.5rem", textDecoration: "none", transition: "color 0.15s ease" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#a1a1aa")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#71717a")}
+            >
+              Powered by <strong style={{ color: "#e4e4e7" }}>Seyon Shopping</strong> ↗
+            </Link>
+
+
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.75rem", color: "#71717a" }}>
             <span>Privacy Policy</span>

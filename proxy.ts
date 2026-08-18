@@ -8,16 +8,20 @@ export function proxy(request: NextRequest) {
   // Extract subdomain or custom hostname (excluding standard app domains & localhost)
   const isLocal = hostname.includes("localhost") || hostname.includes("127.0.0.1");
 
-  // Allow /admin and proxied ERP /api paths to bypass subdomain rewrites
+  // Allow /admin, /platform, and proxied ERP /api paths to bypass subdomain rewrites
   if (
     url.pathname.startsWith("/admin") ||
+    url.pathname.startsWith("/platform") ||
+    url.pathname.startsWith("/help") ||
     url.pathname.startsWith("/api/auth") ||
     url.pathname.startsWith("/api/settings") ||
     url.pathname.startsWith("/api/warehouses") ||
     url.pathname.startsWith("/api/pos")
   ) {
+
     return NextResponse.next();
   }
+
 
   if (!isLocal) {
     const mainAppUrl = process.env.NEXT_PUBLIC_APP_URL || "";
