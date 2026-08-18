@@ -1,0 +1,542 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { RoleGuard } from "@/components/RoleGuard";
+import {
+  Share2,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  ExternalLink,
+  ShieldCheck,
+  ShoppingBag,
+  Zap,
+  ArrowUpRight,
+  Sliders,
+  Store,
+  Layers,
+  Sparkles,
+  Eye,
+  EyeOff
+} from "lucide-react";
+
+
+
+
+interface MarketplaceConfig {
+  id: string;
+  companyId: string;
+  channel: "SHOPIFY" | "AMAZON" | "FLIPKART" | "MYNTRA";
+  storeName: string;
+  sellerId?: string | null;
+  shopUrl?: string | null;
+  accessToken?: string | null;
+  autoSyncInventory: boolean;
+
+  autoIngestOrders: boolean;
+  lastSyncedAt?: string | null;
+  syncStatus: "IDLE" | "SYNCING" | "SUCCESS" | "ERROR";
+  errorMessage?: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export default function MarketplaceSyncPage() {
+  return (
+    <RoleGuard allowedRoles={["SUPERADMIN", "TENANTADMIN", "MANAGER"]}>
+      <MarketplaceContent />
+    </RoleGuard>
+  );
+}
+
+function MarketplaceContent() {
+  const [configs, setConfigs] = useState<MarketplaceConfig[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [syncingChannel, setSyncingChannel] = useState<string | null>(null);
+
+  // Modal / Form state
+  const [selectedChannel, setSelectedChannel] = useState<"SHOPIFY" | "AMAZON" | "FLIPKART" | "MYNTRA" | null>(null);
+  const [storeName, setStoreName] = useState("");
+  const [sellerId, setSellerId] = useState("");
+  const [shopUrl, setShopUrl] = useState("");
+  const [accessToken, setAccessToken] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [apiSecret, setApiSecret] = useState("");
+  const [showToken, setShowToken] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+
+
+  const fetchConfigs = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/marketplaces");
+      if (res.ok) {
+        const data = await res.json();
+        setConfigs(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch marketplace channels:", err);
+      alert("Failed to load marketplace channels.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
+
+  const handleManualSync = async (channel: string) => {
+    try {
+      setSyncingChannel(channel);
+      const res = await fetch("/api/marketplaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "SYNC_NOW", channel })
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert(data.message || `Successfully synced ${channel}!`);
+        fetchConfigs();
+      }
+    } catch (err) {
+      alert("Sync request failed.");
+    } finally {
+      setSyncingChannel(null);
+    }
+  };
+
+  const handleSaveChannel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChannel || !storeName.trim()) {
+      alert("Please provide Store Name");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const res = await fetch("/api/marketplaces", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: selectedChannel,
+          storeName: storeName.trim(),
+          sellerId: sellerId.trim() || null,
+          shopUrl: shopUrl.trim() || null,
+          accessToken: accessToken.trim() || null,
+          apiKey: apiKey.trim() || null,
+          apiSecret: apiSecret.trim() || null,
+          autoSyncInventory: true,
+          autoIngestOrders: true
+        })
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        alert(data.error);
+      } else {
+        alert(`Successfully connected ${selectedChannel} channel!`);
+        setSelectedChannel(null);
+        setStoreName("");
+        setSellerId("");
+        setShopUrl("");
+        setAccessToken("");
+        setApiKey("");
+        setApiSecret("");
+        fetchConfigs();
+      }
+
+    } catch (err) {
+      alert("Failed to save channel connection.");
+
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const channelMap = {
+    SHOPIFY: {
+      name: "Shopify Storefront",
+      logoBg: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600",
+      accentColor: "emerald",
+      badge: "Real-time Webhook Sync",
+      desc: "Auto-sync stock levels, pull orders, & emit fulfillment status."
+    },
+    AMAZON: {
+      name: "Amazon India (SP-API)",
+      logoBg: "bg-amber-500/10 border-amber-500/30 text-amber-600",
+      accentColor: "amber",
+      badge: "FBA & Merchant Fulfillment",
+      desc: "Ingest Amazon IN seller orders and sync central warehouse stock."
+    },
+    FLIPKART: {
+      name: "Flipkart Seller Hub",
+      logoBg: "bg-blue-500/10 border-blue-500/30 text-blue-600",
+      accentColor: "blue",
+      badge: "Assured Stock Sync",
+      desc: "Connect Flipkart v3 API for instant inventory reservation."
+    },
+    MYNTRA: {
+      name: "Myntra Partner Portal",
+      logoBg: "bg-pink-500/10 border-pink-500/30 text-pink-600",
+      accentColor: "pink",
+      badge: "Fashion B2C Integration",
+      desc: "Sync high-velocity apparel stock with Myntra omni-channel."
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-8 font-sans">
+      {/* Header Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl">
+        <div className="absolute right-0 top-0 h-full w-1/3 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.25),transparent_70%)] pointer-events-none" />
+        <div className="relative z-10 space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-300 border border-indigo-500/30 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5" /> Omnichannel Inventory Engine
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Marketplace Channel Sync</h1>
+          <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
+            Synchronize warehouse stock levels seamlessly across Shopify, Amazon India, and Flipkart Seller Hub. Prevent overselling and manage multi-channel orders from a central dashboard.
+          </p>
+        </div>
+      </div>
+
+      {/* Channel Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {(["SHOPIFY", "AMAZON", "FLIPKART", "MYNTRA"] as const).map((chanKey) => {
+          const info = channelMap[chanKey];
+          const activeConfig = configs.find((c: MarketplaceConfig) => c.channel === chanKey);
+          const isSyncing = syncingChannel === chanKey;
+
+
+          return (
+            <div
+              key={chanKey}
+              className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-5 relative"
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center font-bold text-xl ${info.logoBg}`}>
+                    {chanKey.charAt(0)}
+                  </div>
+                  {activeConfig?.isActive ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-full">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Connected
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+                      Not Configured
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">{info.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">{info.desc}</p>
+                </div>
+
+                {activeConfig && (
+                  <div className="pt-3 border-t border-slate-100 space-y-2 text-xs">
+                    <div className="flex justify-between text-slate-600">
+                      <span>Account / Store:</span>
+                      <span className="font-semibold text-slate-900 truncate max-w-[130px]">{activeConfig.storeName}</span>
+                    </div>
+                    {activeConfig.sellerId && (
+                      <div className="flex justify-between text-slate-600">
+                        <span>Seller / Merchant ID:</span>
+                        <span className="font-mono font-semibold text-indigo-700 truncate max-w-[130px]">{activeConfig.sellerId}</span>
+                      </div>
+                    )}
+                    {activeConfig.shopUrl && (
+                      <div className="flex justify-between text-slate-600">
+                        <span>Store URL:</span>
+                        <a
+                          href={activeConfig.shopUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-indigo-600 hover:underline truncate max-w-[130px]"
+                        >
+                          {activeConfig.shopUrl.replace(/^https?:\/\//, "")}
+                        </a>
+                      </div>
+                    )}
+                    {activeConfig.accessToken && (
+                      <div className="flex justify-between text-slate-600">
+                        <span>API Access Token:</span>
+                        <span className="font-mono text-slate-500 font-semibold truncate max-w-[130px]">
+                          {activeConfig.accessToken.substring(0, 7)}••••••••
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-slate-600">
+                      <span>Auto Stock Sync:</span>
+                      <span className="font-semibold text-emerald-600">Active</span>
+                    </div>
+                    <div className="flex justify-between text-slate-500 text-[11px]">
+                      <span>Last Synced:</span>
+                      <span>
+                        {activeConfig.lastSyncedAt
+                          ? new Date(activeConfig.lastSyncedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                          : "Never"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              <div className="pt-2">
+                {activeConfig ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleManualSync(chanKey)}
+                      disabled={isSyncing}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
+                      {isSyncing ? "Syncing..." : "Trigger Sync"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedChannel(chanKey);
+                        setStoreName(activeConfig.storeName);
+                        setSellerId(activeConfig.sellerId || "");
+                        setShopUrl(activeConfig.shopUrl || "");
+                        setAccessToken(activeConfig.accessToken || "");
+                      }}
+                      className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+                      title="Edit Settings"
+                    >
+                      <Sliders className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setSelectedChannel(chanKey);
+                      setStoreName("");
+                      setSellerId("");
+                      setShopUrl("");
+                      setAccessToken("");
+                    }}
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition-colors cursor-pointer"
+                  >
+                    Connect Channel <ArrowUpRight className="w-3.5 h-3.5" />
+                  </button>
+
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Sync Ledger / Activity Log */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-base text-slate-900 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-indigo-600" /> Channel Connection Ledger
+          </h2>
+          <button
+            onClick={fetchConfigs}
+            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Refresh Status
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="py-8 text-center text-xs text-slate-400 font-medium">Loading connected channels...</div>
+        ) : configs.length === 0 ? (
+          <div className="py-8 text-center text-xs text-slate-500 font-medium border border-dashed border-slate-200 rounded-xl">
+            No marketplace channels connected yet. Click "Connect Channel" above to link Shopify, Amazon, or Flipkart.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">Channel</th>
+                  <th className="py-3 px-4">Store / Seller Name</th>
+                  <th className="py-3 px-4">Sync Status</th>
+                  <th className="py-3 px-4">Last Synced</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {configs.map((c: MarketplaceConfig) => (
+                  <tr key={c.id} className="hover:bg-slate-50/60 transition-colors">
+
+                    <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
+                      <Store className="w-4 h-4 text-indigo-600" /> {c.channel}
+                    </td>
+                    <td className="py-3 px-4 text-slate-700 font-medium">{c.storeName}</td>
+                    <td className="py-3 px-4">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> ACTIVE
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-500">
+                      {c.lastSyncedAt ? new Date(c.lastSyncedAt).toLocaleString() : "Never"}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => handleManualSync(c.channel)}
+                        className="text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
+                      >
+                        Force Sync
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Connect Modal */}
+      {selectedChannel && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-lg text-slate-900">Connect {selectedChannel} Channel</h3>
+              <button
+                onClick={() => setSelectedChannel(null)}
+                className="text-slate-400 hover:text-slate-600 text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveChannel} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  {selectedChannel === "SHOPIFY" ? "Storefront Name *" : "Account / Store Name *"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder={selectedChannel === "SHOPIFY" ? "e.g. Seyon D2C Store" : "e.g. Seyon Official Seller Account"}
+                  value={storeName}
+                  onChange={(e) => setStoreName(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-600 text-xs"
+                />
+              </div>
+
+              {selectedChannel !== "SHOPIFY" && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Seller ID / Merchant Code</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. A21XXXXXXX (Amazon) or FK_SEYON (Flipkart)"
+                    value={sellerId}
+                    onChange={(e) => setSellerId(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-600 text-xs font-mono"
+                  />
+                </div>
+              )}
+
+              {selectedChannel === "SHOPIFY" && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Shopify Store URL *</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://seyon-store.myshopify.com"
+                    value={shopUrl}
+                    onChange={(e) => setShopUrl(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-600 text-xs font-mono"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  {selectedChannel === "SHOPIFY"
+                    ? "Admin API Access Token"
+                    : selectedChannel === "AMAZON"
+                    ? "SP-API LWA Refresh Token / Access Token"
+                    : "Channel Access Token / API Key"}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showToken ? "text" : "password"}
+                    placeholder={
+                      selectedChannel === "SHOPIFY"
+                        ? "shpat_••••••••••••••••"
+                        : selectedChannel === "AMAZON"
+                        ? "Atzr|••••••••••••••••"
+                        : "api_key_••••••••••••••••"
+                    }
+                    value={accessToken}
+                    onChange={(e) => setAccessToken(e.target.value)}
+                    className="w-full px-3 py-2 pr-10 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-600 text-xs font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowToken(!showToken)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                  >
+                    {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {selectedChannel !== "SHOPIFY" && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">API Secret / Client Secret</label>
+                  <div className="relative">
+                    <input
+                      type={showSecret ? "text" : "password"}
+                      placeholder="amzn1.oa2-cs.v1.••••••••••••••••"
+                      value={apiSecret}
+                      onChange={(e) => setApiSecret(e.target.value)}
+                      className="w-full px-3 py-2 pr-10 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-600 text-xs font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSecret(!showSecret)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                    >
+                      {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+
+
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedChannel(null)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save Connection"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

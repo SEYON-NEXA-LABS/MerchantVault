@@ -45,11 +45,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Associated company profile not found" }, { status: 404 });
     }
 
-    const { shopifyStoreUrl, shopifyAccessToken } = company;
+    let shopifyStoreUrl = company?.shopifyStoreUrl;
+    let shopifyAccessToken = company?.shopifyAccessToken;
+
+    // Fallback: If not in Company, check MarketplaceConfig
+    if (!shopifyStoreUrl || !shopifyAccessToken) {
+      const { data: mpConfig } = await supabase
+        .from("MarketplaceConfig")
+        .select("shopUrl, accessToken")
+        .eq("companyId", companyId)
+        .eq("channel", "SHOPIFY")
+        .maybeSingle();
+
+      if (mpConfig) {
+        shopifyStoreUrl = shopifyStoreUrl || mpConfig.shopUrl;
+        shopifyAccessToken = shopifyAccessToken || mpConfig.accessToken;
+      }
+    }
 
     if (!shopifyStoreUrl || !shopifyAccessToken) {
       return NextResponse.json({ error: "Shopify Store integration is not configured. Go to settings to set up credentials." }, { status: 400 });
     }
+
 
     const isMockToken = 
       shopifyAccessToken === "shpat_mockaccesstoken12345" || 

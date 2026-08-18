@@ -20,9 +20,15 @@ export function proxy(request: NextRequest) {
   }
 
   if (!isLocal) {
+    const mainAppUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+    let mainAppHost = "localhost";
+    try {
+      if (mainAppUrl) mainAppHost = new URL(mainAppUrl).hostname;
+    } catch (e) {}
+
     const parts = hostname.split(".");
-    // If tenant visits via subdomain e.g. wolfcabin.merchantvault.vercel.app
-    if (parts.length > 2 && parts[0] !== "www" && parts[0] !== "merchantvault") {
+    // If tenant visits via subdomain e.g. wolfcabin.<YOUR_PLATFORM_DOMAIN>
+    if (parts.length > 2 && parts[0] !== "www" && !hostname.includes(mainAppHost)) {
       const subdomainSlug = parts[0];
       if (!url.searchParams.has("slug")) {
         url.searchParams.set("slug", subdomainSlug);
@@ -30,6 +36,7 @@ export function proxy(request: NextRequest) {
       }
     }
   }
+
 
   return NextResponse.next();
 }

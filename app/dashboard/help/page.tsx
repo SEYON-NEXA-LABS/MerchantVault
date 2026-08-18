@@ -790,14 +790,115 @@ function HelpContent() {
           </ol>
 
           <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg mt-4">
-            <h4 className="text-sm font-bold text-teal-950">💡 Automatic Usage Counter & Shopify Sync</h4>
+            <h4 className="text-sm font-bold text-teal-950">💡 Automatic Usage Counter & Seyon Sync</h4>
             <p className="text-xs text-teal-900 mt-1">
-              Every time a customer uses your coupon code during checkout, your dashboard automatically updates the usage count. If you connect your Shopify store, discount codes created on Shopify sync automatically with your Merchant Vault orders directory.
+              Every time a customer uses your coupon code during checkout or POS billing, your dashboard automatically updates the usage count. If you connect your Shopify store, discount codes created on Shopify sync automatically with your Seyon Shopping orders directory.
             </p>
           </div>
         </div>
       )
     },
+    {
+      id: "crm-operations",
+      title: "CRM Customer Intelligence & WhatsApp Recalls",
+      category: "Operating SOPs",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Customer Management & WhatsApp Marketing SOP</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon Shopping includes a built-in Customer Relationship Management (CRM) suite to track buyer Lifetime Value (LTV), recover abandoned storefront checkouts, and launch WhatsApp campaigns.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">1. Customer Directory & Auto-Segmentation</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            The CRM engine automatically compiles buyer profiles from both online storefront orders and POS counter sales:
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-700 space-y-1.5 mt-2">
+            <li><strong>VIP Tier</strong>: Automatically tags buyers with LTV ≥ ₹6,000 or 3+ completed orders.</li>
+            <li><strong>Repeat Buyers</strong>: Flags buyers who have placed more than 1 order.</li>
+            <li><strong>New Customers</strong>: First-time shoppers tagged for onboarding welcome offers.</li>
+          </ul>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">2. Abandoned Checkout Recovery via WhatsApp</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Go to <strong>Customer Management (CRM) → Abandoned Cart Recalls</strong>.</li>
+            <li>Review pending cart items and customer phone numbers.</li>
+            <li>Click <strong>Send Recovery WhatsApp</strong> to transmit an automated recall template containing direct checkout links.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">3. Storefront Campaign Banners & Themes</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Switch your storefront visual theme without writing code under <strong>CRM → Banners & Themes</strong>:
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-700 space-y-1.5 mt-2">
+            <li><strong>🔥 Big Billion Day Theme</strong>: Amber Gold mesh marquee banner featuring 50% strike-through discount badges.</li>
+            <li><strong>⚡ Wednesday Midnight Blitz</strong>: Electric Cyan/Blue banner for 10 PM - 2 AM flash sales.</li>
+            <li><strong>✨ Festive Mega Sale</strong>: Deep Violet/Rose theme for Diwali and holiday festival promotions.</li>
+          </ul>
+
+          <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-purple-950">Multi-Tenant Data Privacy Guarantee</h4>
+            <p className="text-xs text-purple-900 mt-1">
+              Customer profiles, LTV stats, and phone numbers are strictly isolated per company using PostgreSQL Row Level Security (RLS). No other tenant can access your customer contacts.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "gst-tax-engine",
+      title: "GST Billing, Tax Engine & Tally/GSTR-1 Export",
+      category: "Orders & Logistics",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">GST Tax Calculation & Tally/GSTR-1 Export Guide</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon Shopping includes a Indian GST Tax Engine that calculates CGST, SGST, and IGST for B2C & B2B orders and generates instant exports for GSTR-1 filing and Tally Prime accounting software.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">1. How Intra-State vs. Inter-State GST Works</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Tax rates are calculated based on your merchant warehouse state vs. customer delivery state:
+          </p>
+          <div className="space-y-3 text-xs text-slate-700 mt-2">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <span className="font-bold text-emerald-950 block">• Intra-State (Same State) → CGST + SGST</span>
+              <span className="text-[11px] text-slate-600 block mt-1">
+                If warehouse and customer are in the same state (e.g. Gujarat to Gujarat), a 5% GST rate splits equally into <strong>2.5% CGST</strong> + <strong>2.5% SGST</strong>.
+              </span>
+            </div>
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <span className="font-bold text-indigo-950 block">• Inter-State (Different State) → IGST</span>
+              <span className="text-[11px] text-slate-600 block mt-1">
+                If customer is in another state (e.g. Gujarat to Maharashtra), the full <strong>5% IGST</strong> rate applies.
+              </span>
+            </div>
+          </div>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">2. B2B Checkout & Input Tax Credit (ITC)</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Wholesale buyers can check **"Add Business GSTIN for B2B Tax Credit"** during checkout. The system records their 15-digit GSTIN, legal business name, and generates a valid B2B tax invoice.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">3. Exporting GSTR-1 CSV & Tally Prime XML</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Go to <strong>Logistics & Delivery → GST & Tally Export</strong> (`/dashboard/reports/gst`).</li>
+            <li>Select the date range or billing month.</li>
+            <li>Click <strong>Export GSTR-1 CSV</strong> to download a portal-ready CSV formatted for government GST offline tool upload.</li>
+            <li>Click <strong>Export Tally XML</strong> to generate XML vouchers ready for 1-click import into Tally Prime / Tally.ERP 9.</li>
+          </ol>
+
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-amber-950">E-Way Bill Threshold Warning</h4>
+            <p className="text-xs text-amber-900 mt-1">
+              Inter-state consignments with order invoice value exceeding ₹50,000 automatically flag an E-Way Bill requirement badge in your Outward Dispatch queue.
+            </p>
+          </div>
+        </div>
+      )
+    },
+
+
     {
       id: "store-categories-guide",
       title: "Store Categories & Custom Displays",
@@ -839,8 +940,71 @@ function HelpContent() {
           </div>
         </div>
       )
+    },
+    {
+      id: "marketplace-sync-guide",
+      title: "Marketplace Sync (Shopify, Amazon, Flipkart)",
+      category: "Brand Customization & Storefront Channels",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Omnichannel Marketplace Integration Guide</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Seyon Shopping connects your central warehouse inventory directly with external sales channels including <strong>Shopify, Amazon India (SP-API), Flipkart Seller Hub, and Myntra</strong> to prevent overselling and automate order fulfillments.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">1. Connecting Marketplace Channels</h3>
+          <ol className="list-decimal list-inside text-xs text-slate-700 space-y-2 mt-2">
+            <li>Go to <strong>Sales & Dispatch → Marketplace Sync</strong> (`/dashboard/marketplaces`).</li>
+            <li>Click <strong>Connect Channel</strong> on your target platform (e.g., Shopify, Amazon, or Flipkart).</li>
+            <li>Input your Store Name, Seller ID, and API Access Credentials.</li>
+            <li>Click <strong>Save Connection</strong>. The system status will update to <span className="text-emerald-700 font-bold">CONNECTED</span>.</li>
+          </ol>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">2. Automated Stock & Order Normalization</h3>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            When orders arrive from external marketplaces, Seyon Shopping automatically normalizes shipping addresses, customer contacts, GSTIN tax details, and Place of Supply (PoS) strings into your central <strong>Orders Directory</strong> (`/dashboard/orders`).
+          </p>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
+            <h4 className="text-sm font-bold text-indigo-950">Real-Time Stock Reservation</h4>
+            <p className="text-xs text-indigo-900 mt-1">
+              Whenever an order is placed on any channel or billed at a physical POS counter, central stock levels decrement across all connected marketplaces instantly.
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "tds-tax-withholding",
+      title: "Tax Withholding (TDS & TCS) Compliance",
+      category: "Orders & Logistics",
+      content: (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Indian Tax Withholding (TDS & TCS) Guide</h1>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            For B2B wholesalers and textile manufacturers, Seyon Shopping includes a Tax Withholding module to deduct Statutory TDS on purchase orders and collect TCS on high-value sales.
+          </p>
+
+          <h3 className="text-base font-bold text-slate-900 mt-6">Supported Income Tax Sections</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2 text-xs">
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 block">• Section 194C (Contractors / Processing)</span>
+              <span className="text-[11px] text-slate-600 block mt-1">1% (Individual) or 2% (Company) TDS on job-work & processing orders.</span>
+            </div>
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 block">• Section 194Q (Purchase of Goods &gt; ₹50L)</span>
+              <span className="text-[11px] text-slate-600 block mt-1">0.1% TDS on cumulative vendor purchases exceeding ₹50 Lakhs in a financial year.</span>
+            </div>
+            <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+              <span className="font-bold text-slate-900 block">• Section 206C(1H) (TCS on Sales &gt; ₹50L)</span>
+              <span className="text-[11px] text-slate-600 block mt-1">0.1% Tax Collected at Source on high-value buyer sales receipts.</span>
+            </div>
+          </div>
+        </div>
+      )
     }
   ];
+
 
   // Helper to construct the Table of Contents Tree
   const categories = Array.from(new Set(topics.map(t => t.category)));

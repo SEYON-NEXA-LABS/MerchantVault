@@ -115,9 +115,25 @@ export async function POST(req: Request) {
       result = data;
     }
 
+    // If planType is ONETIME_AMC (Perpetual License) or ENTERPRISE, automatically enable ALL add-on feature flags for the company
+    if (planType === "ONETIME_AMC" || planType === "ENTERPRISE") {
+      await supabase
+        .from("Company")
+        .update({
+          hasWhiteLabelAddon: true,
+          hasMarketplaceSyncAddon: true,
+          hasGstEngineAddon: true,
+          hasTdsAddon: true,
+          hasMarketingAiAddon: true
+        })
+        .eq("id", companyId);
+    }
+
+
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Superadmin Save Subscription Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

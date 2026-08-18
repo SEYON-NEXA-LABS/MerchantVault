@@ -369,10 +369,21 @@ export async function POST() {
       });
     if (manifestErr) throw manifestErr;
 
+    // 11b. Seed Marketplace Configurations
+    const { error: mpErr } = await supabase
+      .from("MarketplaceConfig")
+      .insert([
+        { companyId, channel: "SHOPIFY", storeName: "Seyon Shopify Flagship", shopUrl: "https://seyon-clothing.myshopify.com", accessToken: "shpat_mockaccesstoken12345", syncStatus: "SUCCESS", autoSyncInventory: true, autoIngestOrders: true },
+        { companyId, channel: "AMAZON", storeName: "Seyon Amazon Store", sellerId: "A3IN89012345", syncStatus: "SUCCESS", autoSyncInventory: true, autoIngestOrders: true },
+        { companyId, channel: "FLIPKART", storeName: "Seyon Flipkart Hub", sellerId: "FK_SEYON_OFFICIAL", syncStatus: "SUCCESS", autoSyncInventory: true, autoIngestOrders: true }
+      ]);
+    if (mpErr) console.warn("Marketplace seed notice:", mpErr.message);
+
     // 12. Seed Subscription details
     const { error: subErr } = await supabase
       .from("Subscription")
       .insert({
+
         companyId,
         planType: "MONTHLY",
         amount: 4999.0,

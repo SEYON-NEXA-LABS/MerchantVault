@@ -93,14 +93,15 @@ function CRMContent() {
   const [abandonedCarts, setAbandonedCarts] = useState<AbandonedCart[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "whatsapp" | "social" | "storefront">("directory");
+  const [activeTab, setActiveTab] = useState<"directory" | "abandoned" | "whatsapp" | "social" | "storefront" | "coupons">("directory");
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
 
   useEffect(() => {
-    if (tabParam && ["directory", "abandoned", "whatsapp", "social", "storefront"].includes(tabParam)) {
-      setActiveTab(tabParam);
+    if (tabParam && ["directory", "abandoned", "whatsapp", "social", "storefront", "coupons"].includes(tabParam)) {
+      setActiveTab(tabParam as any);
     }
   }, [tabParam]);
+
 
   // Pagination & Filter states for Customer Directory
   const [currentPage, setCurrentPage] = useState(1);

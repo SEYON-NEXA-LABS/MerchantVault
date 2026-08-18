@@ -87,53 +87,57 @@ export async function loginUser(formData: FormData) {
     console.warn("Database lookup failed/skipped during login:", err.message || err);
   }
 
-  // 2. In-memory developer accounts fallback (for empty database seeding)
-  const devAccounts: Record<string, { role: "SUPERADMIN" | "TENANTADMIN" | "STAFF"; email: string; pass: string }> = {
-    superadmin: { role: "SUPERADMIN", email: "seyonnexalabs@gmail.com", pass: "super123" },
-    admin: { role: "TENANTADMIN", email: "admin@seyon.local", pass: "admin123" },
-    operator: { role: "STAFF", email: "operator@seyon.local", pass: "operator123" }
-  };
+  // 2. In-memory developer accounts fallback (ONLY for local development / empty DB testing)
+  if (process.env.NODE_ENV === "development") {
+    const devAccounts: Record<string, { role: "SUPERADMIN" | "TENANTADMIN" | "STAFF"; email: string; pass: string }> = {
+      superadmin: { role: "SUPERADMIN", email: "seyonnexalabs@gmail.com", pass: "super123" },
+      "seyonnexalabs@gmail.com": { role: "SUPERADMIN", email: "seyonnexalabs@gmail.com", pass: "super123" },
+      admin: { role: "TENANTADMIN", email: "admin@seyon.local", pass: "admin123" },
+      operator: { role: "STAFF", email: "operator@seyon.local", pass: "operator123" }
+    };
 
-  if (devAccounts[username]) {
-    const match = devAccounts[username];
-    if (match.pass === password) {
-      const mockUserIdMap: Record<string, string> = {
-        superadmin: "00000000-0000-0000-0000-000000000001",
-        admin: "00000000-0000-0000-0000-000000000002",
-        operator: "00000000-0000-0000-0000-000000000003"
-      };
+    if (devAccounts[username]) {
+      const match = devAccounts[username];
+      if (match.pass === password) {
+        const mockUserIdMap: Record<string, string> = {
+          superadmin: "00000000-0000-0000-0000-000000000001",
+          "seyonnexalabs@gmail.com": "00000000-0000-0000-0000-000000000001",
+          admin: "00000000-0000-0000-0000-000000000002",
+          operator: "00000000-0000-0000-0000-000000000003"
+        };
 
-      // Query database company to get the real companyId, fall back to "seyon"
-      const { data: dbCompany } = await supabaseAdmin
-        .from("Company")
-        .select("id, name, code")
-        .eq("code", "seyon")
-        .maybeSingle();
+        // Query database company to get the real companyId, fall back to "seyon"
+        const { data: dbCompany } = await supabaseAdmin
+          .from("Company")
+          .select("id, name, code")
+          .eq("code", "seyon")
+          .maybeSingle();
 
+        const companyCode = dbCompany?.code || "seyon";
+        const sessionData = {
+          id: mockUserIdMap[username] || "00000000-0000-0000-0000-000000000000",
+          username: username,
+          email: match.email,
+          role: match.role,
+          companyId: dbCompany?.id || "00000000-0000-0000-0000-000000000000",
+          companyCode: companyCode,
+          companyName: dbCompany?.name || "Seyon Merchant (Mock Fallback)"
+        };
 
-      const companyCode = dbCompany?.code || "seyon";
-      const sessionData = {
-        id: mockUserIdMap[username] || "00000000-0000-0000-0000-000000000000",
-        username: username,
-        email: match.email,
-        role: match.role,
-        companyId: dbCompany?.id || "00000000-0000-0000-0000-000000000000",
-        companyCode: companyCode,
-        companyName: dbCompany?.name || "Seyon Merchant (Mock Fallback)"
-      };
-
-      const token = Buffer.from(JSON.stringify(sessionData)).toString("base64");
-      const cookieStore = await cookies();
-      cookieStore.set("sb-access-token", token, {
-        path: "/",
-        maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days vs 1 day
-        httpOnly: false,
-        sameSite: "lax"
-      });
-      
-      return { success: true };
+        const token = Buffer.from(JSON.stringify(sessionData)).toString("base64");
+        const cookieStore = await cookies();
+        cookieStore.set("sb-access-token", token, {
+          path: "/",
+          maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24, // 30 days vs 1 day
+          httpOnly: false,
+          sameSite: "lax"
+        });
+        
+        return { success: true };
+      }
     }
   }
+
 
   return { error: "Invalid username or password" };
 }

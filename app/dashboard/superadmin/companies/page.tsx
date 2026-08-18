@@ -56,11 +56,16 @@ interface Company {
   timezone: string | null;
   currency: string;
   isActive: boolean;
+  customDomain?: string | null;
+  customSubdomain?: string | null;
+  customDomainStatus?: string | null;
+  hasWhiteLabelAddon?: boolean;
   createdAt: string;
   subscription: Subscription | null;
   Warehouse: Warehouse[];
   Brand: Brand[];
 }
+
 
 export default function SuperadminCompaniesPage() {
   return (
@@ -86,7 +91,11 @@ function CompaniesContent() {
   const [compIsActive, setCompIsActive] = useState(true);
   const [compTimezone, setCompTimezone] = useState("IST");
   const [compCurrency, setCompCurrency] = useState("INR");
+  const [compCustomDomain, setCompCustomDomain] = useState("");
+  const [compCustomSubdomain, setCompCustomSubdomain] = useState("");
+  const [compHasWhiteLabel, setCompHasWhiteLabel] = useState(false);
   const [savingComp, setSavingComp] = useState(false);
+
 
   // Warehouse CRUD states
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -154,8 +163,12 @@ function CompaniesContent() {
     setCompIsActive(company.isActive);
     setCompTimezone(company.timezone || "IST");
     setCompCurrency(company.currency || "INR");
+    setCompCustomDomain(company.customDomain || "");
+    setCompCustomSubdomain(company.customSubdomain || "");
+    setCompHasWhiteLabel(company.hasWhiteLabelAddon || false);
 
     setWarehouses(company.Warehouse || []);
+
     setBrands(company.Brand || []);
 
     setSelectedWarehouse(null);
@@ -180,9 +193,13 @@ function CompaniesContent() {
           name: compName,
           contactEmail: compEmail,
           timezone: compTimezone,
-          currency: compCurrency
+          currency: compCurrency,
+          customDomain: compCustomDomain ? compCustomDomain.toLowerCase().trim() : null,
+          customSubdomain: compCustomSubdomain ? compCustomSubdomain.toLowerCase().trim() : null,
+          hasWhiteLabelAddon: compHasWhiteLabel
         })
       });
+
 
       const dataMeta = await resMeta.json();
       if (dataMeta.error) {
@@ -730,6 +747,55 @@ function CompaniesContent() {
                     </div>
                   </div>
 
+                  {/* Domain & White Label Settings Section */}
+                  <div className="border border-teal-150 bg-teal-50/40 p-4 rounded-xl space-y-3">
+                    <h4 className="font-bold text-teal-950 text-xs flex items-center gap-1.5">
+                      <span>🌐</span> Custom Domain & Subdomain Add-On Settings
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="font-bold text-stone-600 text-[11px]">Custom Domain (TLD)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. wolfcabin.com"
+                          value={compCustomDomain}
+                          onChange={(e) => setCompCustomDomain(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-2 px-3 text-xs font-mono focus:outline-none"
+                        />
+                        <span className="text-[9px] text-stone-450 block">Points via CNAME to platform</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="font-bold text-stone-600 text-[11px]">Custom Subdomain Alias</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. wolfcabin.merchantvault.com"
+                          value={compCustomSubdomain}
+                          onChange={(e) => setCompCustomSubdomain(e.target.value)}
+                          className="w-full bg-white border border-stone-200 rounded-lg py-2 px-3 text-xs font-mono focus:outline-none"
+                        />
+                        <span className="text-[9px] text-stone-450 block">Platform subdomain alias</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-teal-100 pt-2.5 mt-2">
+                      <div>
+                        <span className="block font-bold text-stone-850 text-xs">White-Label Branding Add-On</span>
+                        <span className="block text-[9px] text-stone-500">Remove 'Powered by Merchant Vault' storefront footer.</span>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={compHasWhiteLabel}
+                          onChange={(e) => setCompHasWhiteLabel(e.target.checked)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-600"></div>
+                      </label>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between bg-stone-50 p-3.5 border border-stone-200 rounded-xl">
                     <div>
                       <span className="block font-bold text-stone-850">Company Activation State</span>
@@ -747,6 +813,7 @@ function CompaniesContent() {
                       {compIsActive ? "Active / Enabled" : "Suspended / Off"}
                     </button>
                   </div>
+
                 </div>
 
                 <div className="flex gap-3 justify-end pt-3 border-t border-stone-100">

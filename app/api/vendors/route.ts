@@ -11,7 +11,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("Vendor")
-      .select("id, companyId, name, email, phone, address, gstin, notes, isActive, createdAt, updatedAt")
+      .select("id, companyId, name, email, phone, address, state, gstin, notes, isActive, createdAt, updatedAt")
       .eq("companyId", companyId)
       .order("name", { ascending: true });
 
@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, phone, address, gstin, notes } = body;
+    const { name, email, phone, address, state, gstin, notes } = body;
 
     if (!name || name.trim().length === 0) {
       return NextResponse.json({ error: "Vendor name is required" }, { status: 400 });
@@ -46,12 +46,15 @@ export async function POST(req: Request) {
         email: email || null,
         phone: phone || null,
         address: address || null,
+        state: state || "Tamil Nadu",
         gstin: gstin || null,
+
         notes: notes || null,
         isActive: true,
       })
-      .select("id, name, email, phone, address, gstin, notes, isActive, createdAt")
+      .select("id, name, email, phone, address, state, gstin, notes, isActive, createdAt")
       .single();
+
 
     if (error) throw error;
 

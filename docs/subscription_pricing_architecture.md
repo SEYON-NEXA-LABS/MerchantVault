@@ -18,22 +18,48 @@ To aggressively compete against and disrupt legacy platforms like Shopify, Merch
   * POS Billing Pro: $89/mo (~₹7,400/mo)
 * **Total Monthly Shopify Cost**: **₹7,000 – ₹15,000+ / month**
 
-### Merchant Vault Disruptive Subscription Matrix
+### Seyon Shopping Disruptive Subscription & Add-On Matrix
 
-| Feature / Limit | STARTER (Micro-Brands) | GROWTH (D2C Scaler) | ENTERPRISE (Hub / Multi-Store) | **Shopify + Apps Equivalent** |
-| :--- | :--- | :--- | :--- | :--- |
-| **Monthly Price** | **₹999 / mo** | **₹1,999 / mo** | **₹4,999 / mo** | ~₹6,000 - ₹15,000+ / mo |
-| **Annual Price (2 Mo Free)** | **₹9,990 / yr** | **₹19,990 / yr** | **₹49,990 / yr** | — |
-| **Platform Transaction Fee** | **0%** | **0%** | **0%** | **2.0% + Gateway** |
-| **Storefront & POS Module** | Included | Included | Included | Paid App ($89/mo) |
-| **WhatsApp CRM & Recall** | Included | Included | Included | Paid App (~₹2,000/mo) |
-| **Multi-Location Inventory** | Included | Included | Included | Paid App (~₹3,000/mo) |
-| **Max SKU Items** | 1,000 | 10,000 | Unlimited | Unlimited |
-| **Max Orders / mo** | 1,000 | 5,000 | Unlimited | Unlimited |
-| **Staff Accounts** | 3 | 10 | Unlimited | Limited by Plan |
-| **Warehouses** | 1 | 3 | Unlimited | Limited by Plan |
+Seyon Shopping operates a **Low Base ERP (₹499/mo) + Modular A La Carte Add-On Architecture**:
+
+| Feature / Limit | MICRO / BASE ERP | STARTER BUNDLE | GROWTH BUNDLE | ENTERPRISE HUB |
+| :--- | :---: | :---: | :---: | :---: |
+| **Monthly Price** | **₹499 / mo** | **₹999 / mo** | **₹1,999 / mo** | **₹4,999 / mo** |
+| **Annual Price (2 Mo Free)** | **₹4,990 / yr** | **₹9,990 / yr** | **₹19,990 / yr** | **₹49,990 / yr** |
+| **Platform Transaction Fee** | **0%** | **0%** | **0%** | **0%** |
+| **POS Billing Terminal** | Included | Included | Included | Included |
+| **Multi-Location Inventory** | 1 Warehouse | 1 Warehouse | 3 Warehouses | Unlimited |
+| **1. Storefront & Domain Pack (₹499/mo)** | Add-On | Included | Included | Included |
+| **2. Marketplace Sync Pack (₹699/mo)** | Add-On | Add-On | Included | Included |
+| **3. GST Engine & Tally Pack (₹299/mo)** | Add-On | Included | Included | Included |
+| **4. B2B & TDS Compliance (₹499/mo)** | Add-On | Add-On | Add-On | Included |
 
 ---
+
+### 5 Modular "A La Carte" Add-On Bundles
+
+1. 🌐 **Storefront & Custom Domain Pack (₹499 / mo)**: Custom domain (`brand.com`), custom subdomains (`brand.seyon.app`), white-labeling (removes "Powered by"), and storefront themes (`Company.customDomain`, `Company.hasWhiteLabelAddon`).
+2. 🔄 **Marketplace Sync Pack (₹699 / mo)**: Automated Shopify, Amazon, and Flipkart multi-channel inventory sync (`Company.hasMarketplaceSyncAddon`).
+3. 📜 **GST Tax Engine & Tally Pack (₹299 / mo)**: Dynamic CGST/SGST/IGST splits, GSTR-1 CSV reports, and one-click Tally Prime XML export (`Company.hasGstEngineAddon`).
+4. 🏢 **B2B & TDS Compliance Pack (₹499 / mo)**: Section 194C/194Q TDS deductions, Section 206C(1H) TCS collections, and B2B credit limits (`Company.hasTdsAddon`).
+5. 💬 **WhatsApp & AI Marketing Campaign Pack (₹599 / mo)**: Automated WhatsApp abandoned cart recovery, AI broadcast targeting, VIP customer segments, and automated Meta/Instagram leads integration (`Company.hasMarketingAiAddon`).
+
+---
+
+### Perpetual License Rule (₹75,000 + ₹15,000/yr AMC)
+
+When a merchant is assigned the **Perpetual License (`ONETIME_AMC`)** or **ENTERPRISE** plan:
+* **All 5 Add-On Modules are automatically activated (`true`)**:
+  * `hasWhiteLabelAddon = true` (Full White-Labeling)
+  * `hasMarketplaceSyncAddon = true` (Shopify/Amazon Multi-Channel Sync)
+  * `hasGstEngineAddon = true` (Full GST & Tally Export)
+  * `hasTdsAddon = true` (Section 194C/194Q TDS Withholding)
+  * `hasMarketingAiAddon = true` (WhatsApp & AI Marketing Engine)
+* Unlimited Warehouses, Products, Staff Accounts, and Storefront Outlets.
+
+
+
+
 
 ## 3. Database Schema Specification (`supabase/schema.sql`)
 

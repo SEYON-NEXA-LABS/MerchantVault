@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -9,8 +9,24 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "MerchantVault ERP - Retail Inventory & D2C Storefront",
+  title: "Seyon Shopping ERP - Retail Inventory & D2C Storefront",
   description: "Multi-Tenant Retail Inventory, POS Counter & Order Management System",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Seyon Shopping",
+  },
+};
+
+
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

@@ -112,17 +112,34 @@ export default function DashboardLayout({
 
   const getStorefrontUrl = () => {
     const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+    // 1. Custom Domain Priority (e.g., https://wolfcabin.in)
+    if (company?.customDomain) {
+      return company.customDomain.startsWith("http") ? company.customDomain : `https://${company.customDomain}`;
+    }
+
+    // 2. Custom Subdomain Priority (e.g., https://wolfcabin.seyon.app)
+    if (company?.customSubdomain && !isLocal) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://merchantvault.vercel.app";
+      let host = "merchantvault.vercel.app";
+      try { host = new URL(appUrl).hostname; } catch (e) {}
+      return `https://${company.customSubdomain}.${host}`;
+    }
+
+    // 3. Fallback for Local Dev or Unconfigured Domains (?companyCode=syn)
     const base = typeof window !== "undefined" 
       ? window.location.origin 
       : (process.env.NEXT_PUBLIC_APP_URL || (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app"));
-    if (company?.id) {
-      return `${base}/?companyId=${company.id}`;
-    }
+
     if (company?.code) {
       return `${base}/?companyCode=${company.code}`;
     }
+    if (company?.id) {
+      return `${base}/?companyId=${company.id}`;
+    }
     return base;
   };
+
 
   useEffect(() => {
     setMounted(true);
@@ -314,7 +331,8 @@ export default function DashboardLayout({
     { 
       name: "Shopify Integration", 
       icon: RefreshCw, 
-      href: "/dashboard/shopify-sync", 
+      href: "/dashboard/marketplaces",
+ 
       roles: ["SUPERADMIN", "TENANTADMIN"],
       badge: company && (!company.shopifyStoreUrl || (!company.shopifyAccessToken && !company.hasShopifyAccessToken)) ? "Alert" : null
     },
@@ -466,7 +484,8 @@ export default function DashboardLayout({
         {/* Main Content Area with Dynamic Role Canvas */}
         <div className={`flex-1 flex flex-col h-full overflow-hidden ${currentTheme.mainBg} transition-colors duration-300`}>
           {/* Top Navbar with Glassmorphism */}
-          <header className={`h-16 border-b flex items-center justify-between px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder}`}>
+          <header className={`relative z-30 h-16 border-b flex items-center justify-between px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder}`}>
+
             <div className="flex items-center gap-4 flex-1">
               <div className="relative w-96">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -689,8 +708,9 @@ export default function DashboardLayout({
                 rel="noreferrer"
                 className="font-bold hover:underline flex items-center gap-1 text-indigo-700"
               >
-                <span>Storefront:</span> {process.env.NEXT_PUBLIC_APP_URL ? new URL(process.env.NEXT_PUBLIC_APP_URL).host : "merchantvault.vercel.app"} ↗
+                <span>Storefront:</span> {process.env.NEXT_PUBLIC_APP_URL ? new URL(process.env.NEXT_PUBLIC_APP_URL).host : (typeof window !== "undefined" ? window.location.host : "Live Store")} ↗
               </a>
+
             </div>
 
             <div className="flex items-center gap-3">

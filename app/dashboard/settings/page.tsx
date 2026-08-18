@@ -695,11 +695,10 @@ function SettingsContent() {
 
         {/* Public Storefront URL Share Widget */}
         {(() => {
-          const baseUrl = (process.env.NEXT_PUBLIC_STOREFRONT_URL || "").replace(/\/$/, "") || (typeof window !== "undefined"
-            ? (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-                ? `${window.location.protocol}//${window.location.hostname}:3000`
-                : "https://merchantvault.vercel.app")
-            : "https://merchantvault.vercel.app");
+          const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+          const baseUrl = typeof window !== "undefined" 
+            ? window.location.origin 
+            : (process.env.NEXT_PUBLIC_APP_URL || (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app"));
           const storefrontUrl = `${baseUrl}/?slug=${companyCode || "syn"}`;
 
           return (

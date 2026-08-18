@@ -30,6 +30,10 @@ import {
   Info,
   User
 } from "lucide-react";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { generateOrganizationSchema, generateProductSchema } from "./utils/seo";
+
+
 
 // Mock Fallback Products for a premium retail aesthetic
 const FALLBACK_PRODUCTS = [
@@ -887,7 +891,27 @@ export default function StorefrontPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#ffffff", color: "#09090b", fontFamily: "'Outfit', sans-serif" }}>
       
+      {/* Structured Data (JSON-LD) Rich Snippets for Google Search */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateOrganizationSchema(company))
+        }}
+      />
+      {products.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              products.slice(0, 10).map((p: any) => generateProductSchema(p, company))
+            )
+          }}
+        />
+      )}
+
+
       {/* Dev Header Info Bar (Visible in Development Mode Only) */}
+
       {process.env.NODE_ENV === "development" && (
         <div style={{
           backgroundColor: "#09090b",
@@ -1694,9 +1718,16 @@ export default function StorefrontPage() {
         </div>
 
         <div style={{ maxWidth: "1200px", margin: "0 auto", borderTop: "1px solid #18181b", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", paddingTop: "1.5rem" }}>
-          <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>
-            © {new Date().getFullYear()} {company?.name || "MerchantVault"}. All rights reserved.
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>
+              © {new Date().getFullYear()} {company?.name || "Seyon Shopping"}. All rights reserved.
+            </p>
+            {!company?.hasWhiteLabelAddon && (
+              <span style={{ fontSize: "0.65rem", color: "#52525b", borderLeft: "1px solid #27272a", paddingLeft: "0.5rem" }}>
+                Powered by <strong style={{ color: "#a1a1aa" }}>Seyon Shopping</strong>
+              </span>
+            )}
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.75rem", color: "#71717a" }}>
             <span>Privacy Policy</span>
             <span>Terms of Service</span>
@@ -1707,11 +1738,13 @@ export default function StorefrontPage() {
               onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "#71717a")}
             >
-              Merchant Admin ↗
+              Admin Portal ↗
             </a>
           </div>
         </div>
       </footer>
+
+
 
 
       {/* QUICK VIEW MODAL OVERLAY */}
@@ -2199,6 +2232,10 @@ export default function StorefrontPage() {
         </div>
       )}
 
+      {/* App-like Native Mobile Bottom Navigation Bar */}
+      <MobileBottomNav cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} favoritesCount={favorites.length} />
+
     </div>
   );
 }
+

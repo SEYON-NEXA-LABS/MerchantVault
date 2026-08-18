@@ -79,12 +79,13 @@ export default function AdminLoginPage() {
             <Store className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           </div>
           <span className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-700 dark:from-white dark:via-slate-200 dark:to-indigo-200 bg-clip-text text-transparent">
-            MerchantVault
+            Seyon Shopping
           </span>
         </div>
         <h2 className="mt-4 text-center text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Merchant & Staff Access Portal
         </h2>
+
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">

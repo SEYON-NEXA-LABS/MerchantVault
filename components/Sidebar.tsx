@@ -152,12 +152,13 @@ export function Sidebar({
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
     { name: "POS Counter Sales", icon: ShoppingBag, href: "/dashboard/pos", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
     {
-      name: "Shopify Integration",
+      name: "Marketplaces & Shopify Sync",
       icon: RefreshCw,
-      href: "/dashboard/shopify-sync",
+      href: "/dashboard/marketplaces",
       roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[],
       badge: company && (!company.shopifyStoreUrl || (!company.shopifyAccessToken && !company.hasShopifyAccessToken)) ? "Alert" : null
     },
+
   ];
 
   // Lifecycle-Based Operational Menu Sections with distinct, vibrant section header color themes
@@ -201,7 +202,9 @@ export function Sidebar({
       items: [
         { code: "3.1", name: "Orders Directory", icon: OrderIcon, href: "/dashboard/orders", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
         { code: "3.2", name: "Outward Dispatch", icon: ArrowUpRight, href: "/dashboard/outward", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
-        { code: "3.3", name: "Discounts & Coupons", icon: Star, href: "#", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[], comingSoon: true },
+        { code: "3.3", name: "Discounts & Coupons", icon: Star, href: "/dashboard/crm?tab=coupons", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
+
+
       ]
     },
     {
@@ -211,7 +214,8 @@ export function Sidebar({
       dotColor: "bg-blue-500",
       items: [
         { code: "4.1", name: "Logistics & Shipping", icon: Truck, href: "/dashboard/logistics", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
-        { code: "4.2", name: "GST & E-Way Bill Auto", icon: Receipt, href: "#", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[], comingSoon: true },
+        { code: "4.2", name: "GST & Tally Export", icon: Receipt, href: "/dashboard/reports/gst", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
+
       ]
     },
     {
@@ -224,8 +228,11 @@ export function Sidebar({
         { code: "5.2", name: "Abandoned Cart Recalls", icon: Clock, href: "/dashboard/crm?tab=abandoned", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
         { code: "5.3", name: "WhatsApp Broadcasts", icon: MessageSquare, href: "/dashboard/crm?tab=whatsapp", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
         { code: "5.4", name: "Social Media & Ads Leads", icon: Share2, href: "/dashboard/crm?tab=social", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
+        { code: "5.5", name: "Banners & Storefront Themes", icon: Star, href: "/dashboard/crm?tab=storefront", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
+        { code: "5.6", name: "Coupons & Promo Codes", icon: Receipt, href: "/dashboard/crm?tab=coupons", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
       ]
     },
+
     {
       title: "6. Administration & System",
       roles: ["SUPERADMIN", "TENANTADMIN"] as UserRole[],
@@ -257,9 +264,10 @@ export function Sidebar({
           </div>
           <div className="overflow-hidden">
             <h1 className="font-bold text-sm uppercase tracking-wide text-slate-900 truncate max-w-[170px]">
-              {company?.name || "MerchantVault ERP"}
+              {company?.name || "Seyon Shopping ERP"}
             </h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Merchant Vault ERP</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Seyon Shopping ERP</p>
+
           </div>
         </div>
 

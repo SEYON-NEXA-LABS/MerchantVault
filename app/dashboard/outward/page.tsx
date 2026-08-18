@@ -194,17 +194,25 @@ export default function OutwardDispatchPage() {
     setScannedQueue(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Post batch outward dispatch to inventory API
-  const handleCommitBatch = async () => {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Trigger Confirmation Modal before dispatching batch
+  const handleCommitBatchTrigger = () => {
     if (scannedQueue.length === 0) return;
     if (!selectedWarehouseId) {
       toast.error("Please select a dispatching warehouse.");
       return;
     }
+    setShowConfirmModal(true);
+  };
 
+  // Post batch outward dispatch to inventory API after confirmation
+  const handleCommitBatch = async () => {
+    setShowConfirmModal(false);
     setSubmitting(true);
     let successCount = 0;
     const targetWh = warehouses.find(w => w.id === selectedWarehouseId);
+
 
     try {
       for (const item of scannedQueue) {
@@ -407,7 +415,7 @@ export default function OutwardDispatchPage() {
 
               {scannedQueue.length > 0 && (
                 <button
-                  onClick={handleCommitBatch}
+                  onClick={handleCommitBatchTrigger}
                   disabled={submitting}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 >
@@ -420,6 +428,7 @@ export default function OutwardDispatchPage() {
                 </button>
               )}
             </div>
+
 
             {scannedQueue.length === 0 ? (
               <div className="text-center py-12 text-gray-400 border border-dashed border-gray-200 rounded-lg bg-gray-50/50">
@@ -529,6 +538,75 @@ export default function OutwardDispatchPage() {
           </div>
         </div>
       )}
+
+      {/* Pickup Address & Dispatch Confirmation Modal */}
+      {showConfirmModal && (
+
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-indigo-600" /> Confirm Pickup & Dispatch Address
+              </h3>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="bg-indigo-50/80 border border-indigo-200/80 p-4 rounded-xl space-y-2">
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="font-semibold text-slate-700">Dispatching Hub:</span>
+                  <span className="font-bold text-indigo-950">
+                    {warehouses.find(w => w.id === selectedWarehouseId)?.name || "Default Warehouse"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-600">
+                  <span className="font-semibold text-slate-700">Total Dispatch Items:</span>
+                  <span className="font-bold text-slate-900">{scannedQueue.length} Line Items</span>
+                </div>
+                {carrierName && (
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="font-semibold text-slate-700">Assigned Logistics Carrier:</span>
+                    <span className="font-bold text-emerald-700">{carrierName}</span>
+                  </div>
+                )}
+                {orderNumber && (
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span className="font-semibold text-slate-700">Order Reference:</span>
+                    <span className="font-mono font-bold text-slate-900">{orderNumber}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 leading-relaxed">
+                ℹ️ Please verify that parcel packages are labeled and ready at the selected warehouse loading dock for courier driver pickup.
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCommitBatch}
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm cursor-pointer"
+                >
+                  Confirm & Deplete Stock
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

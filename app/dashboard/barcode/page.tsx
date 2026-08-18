@@ -298,7 +298,8 @@ export default function BarcodePage() {
             Go to Inventory
           </a>
           <a
-            href="/dashboard/shopify-sync"
+            href="/dashboard/marketplaces"
+
             className="inline-flex items-center justify-center bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs px-4 py-2.5 rounded-lg transition-colors shadow-sm"
           >
             Sync Shopify

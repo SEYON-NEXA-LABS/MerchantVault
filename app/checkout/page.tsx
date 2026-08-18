@@ -69,8 +69,12 @@ export default function CheckoutPage() {
     state: "Tamil Nadu",
     zip: "600002",
     country: "India",
-    paymentMethod: "COD"
+    paymentMethod: "COD",
+    isB2b: false,
+    buyerGstin: "",
+    buyerCompanyName: ""
   });
+
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [zipResult, setZipResult] = useState<any | null>(null);
@@ -316,6 +320,8 @@ export default function CheckoutPage() {
       customerName: form.name,
       customerPhone: form.phone,
       customerEmail: form.email,
+      buyerGstin: form.isB2b ? form.buyerGstin : null,
+      buyerCompanyName: form.isB2b ? form.buyerCompanyName : null,
       totalPrice: grandTotal,
       couponId: appliedCoupon ? appliedCoupon.couponId : null,
       couponCode: appliedCoupon ? appliedCoupon.code : null,
@@ -560,8 +566,48 @@ export default function CheckoutPage() {
                 {(formErrors.city || formErrors.state || formErrors.zip) && (
                   <span style={{ color: "#ef4444", fontSize: "0.7rem" }}>Please verify Pincode, City, and State.</span>
                 )}
+
+                {/* B2B GSTIN Input Option */}
+                <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1rem", marginTop: "0.5rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem", fontWeight: "700" }}>
+                    <input
+                      type="checkbox"
+                      checked={form.isB2b}
+                      onChange={e => setForm(prev => ({ ...prev, isB2b: e.target.checked }))}
+                      style={{ accentColor: "var(--primary)" }}
+                    />
+                    <span>🏢 Purchasing for a Registered Business? (Claim GST Input Credit)</span>
+                  </label>
+
+                  {form.isB2b && (
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.85rem", padding: "0.85rem", backgroundColor: "rgba(13, 148, 136, 0.03)", borderRadius: "0.375rem", border: "1px border-indigo-100" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        <label style={{ fontSize: "0.7rem", fontWeight: "700", textTransform: "uppercase", color: "#52525b" }}>Buyer GSTIN Number</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 33AAAAA0000A1Z5"
+                          maxLength={15}
+                          value={form.buyerGstin}
+                          onChange={e => handleInputChange("buyerGstin", e.target.value.toUpperCase())}
+                          style={{ padding: "0.5rem", borderRadius: "0.375rem", border: "1px solid var(--border)", fontSize: "0.85rem", textTransform: "uppercase" }}
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                        <label style={{ fontSize: "0.7rem", fontWeight: "700", textTransform: "uppercase", color: "#52525b" }}>Registered Company Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Seyon Textile Pvt Ltd"
+                          value={form.buyerCompanyName}
+                          onChange={e => handleInputChange("buyerCompanyName", e.target.value)}
+                          style={{ padding: "0.5rem", borderRadius: "0.375rem", border: "1px solid var(--border)", fontSize: "0.85rem" }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
 
             {/* Step 2: Shipping Method */}
             <div style={{ border: "1px solid var(--border)", borderRadius: "var(--radius)", padding: "1.5rem", backgroundColor: "#ffffff" }}>

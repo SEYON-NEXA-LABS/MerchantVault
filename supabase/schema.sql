@@ -65,7 +65,7 @@ CREATE TABLE "User" (
 CREATE TABLE "ProductVariant" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
-    "shopifyVariantId" TEXT NOT NULL,
+    "shopifyVariantId" TEXT, -- Channel Variant ID (Shopify, Amazon ASIN, Flipkart FSN)
     "sku" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "size" TEXT NOT NULL,
@@ -78,12 +78,14 @@ CREATE TABLE "ProductVariant" (
     "averageDailySales" DOUBLE PRECISION DEFAULT 0.0 NOT NULL,
     "thumbnailConfig" TEXT,
     "price" DOUBLE PRECISION DEFAULT 0.0 NOT NULL,
+    "hsnCode" TEXT DEFAULT '6109',
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    CONSTRAINT "ProductVariant_companyId_shopifyVariantId_key" UNIQUE ("companyId", "shopifyVariantId"),
     CONSTRAINT "ProductVariant_companyId_sku_key" UNIQUE ("companyId", "sku"),
     CONSTRAINT "ProductVariant_companyId_barcodeString_key" UNIQUE ("companyId", "barcodeString")
 );
+
+
 
 -- Create WarehouseStock Table
 CREATE TABLE "WarehouseStock" (
@@ -114,7 +116,7 @@ CREATE TABLE "StockMovement" (
 CREATE TABLE "OrderFulfillment" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
-    "shopifyOrderId" TEXT NOT NULL,
+    "shopifyOrderId" TEXT, -- Channel Order ID (Shopify, Amazon, Flipkart, Myntra)
     "orderNumber" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
     "customerPhone" TEXT NOT NULL,
@@ -131,9 +133,10 @@ CREATE TABLE "OrderFulfillment" (
     "orderSource" "OrderSource" DEFAULT 'STOREFRONT' NOT NULL,
     "warehouseId" UUID REFERENCES "Warehouse"("id") ON DELETE SET NULL,
     "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    CONSTRAINT "OrderFulfillment_companyId_shopifyOrderId_key" UNIQUE ("companyId", "shopifyOrderId")
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+
 
 -- Create AbandonedCheckout Table
 CREATE TABLE "AbandonedCheckout" (
@@ -483,6 +486,100 @@ ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "categoryId" UUID REFERENC
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "categoryName" TEXT;
 ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "targetGroup" TEXT;
 CREATE INDEX IF NOT EXISTS "idx_product_variant_category" ON "ProductVariant" ("categoryId");
+
+-- GST Billing & Tax Engine Enhancements
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "hsnCode" TEXT DEFAULT '6204';
+ALTER TABLE "ProductVariant" ADD COLUMN IF NOT EXISTS "gstRate" DOUBLE PRECISION DEFAULT 12.0;
+
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "buyerGstin" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "buyerCompanyName" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "placeOfSupply" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "taxType" TEXT DEFAULT 'INTRA_STATE';
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "cgstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "sgstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "igstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "taxableAmount" DOUBLE PRECISION DEFAULT 0.0;
+
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "buyerGstin" TEXT;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "buyerCompanyName" TEXT;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "placeOfSupply" TEXT;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "taxType" TEXT DEFAULT 'INTRA_STATE';
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "cgstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "sgstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "igstAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "taxableAmount" DOUBLE PRECISION DEFAULT 0.0;
+
+CREATE INDEX IF NOT EXISTS "idx_order_buyer_gstin" ON "Order"("buyerGstin");
+CREATE INDEX IF NOT EXISTS "idx_order_place_of_supply" ON "Order"("placeOfSupply");
+CREATE INDEX IF NOT EXISTS "idx_fulfillment_buyer_gstin" ON "OrderFulfillment"("buyerGstin");
+
+-- Custom Domains & MICRO Budget Plan Add-ons
+ALTER TYPE "BillingPlan" ADD VALUE IF NOT EXISTS 'MICRO';
+
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "customDomain" TEXT UNIQUE;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "customSubdomain" TEXT UNIQUE;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "customDomainStatus" TEXT DEFAULT 'NONE';
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasWhiteLabelAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasMarketplaceSyncAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasGstEngineAddon" BOOLEAN DEFAULT TRUE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasTdsAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasMarketingAiAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+
+
+
+-- Tax Withholding (TDS / TCS) Add-On Columns
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "tdsSection" TEXT; -- e.g., '194C', '194Q', '206C(1H)'
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "tdsRate" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "tdsAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "tcsAmount" DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE "PurchaseOrder" ADD COLUMN IF NOT EXISTS "netPayableAmount" DOUBLE PRECISION DEFAULT 0.0;
+
+CREATE INDEX IF NOT EXISTS "idx_company_custom_domain" ON "Company"("customDomain");
+CREATE INDEX IF NOT EXISTS "idx_company_custom_subdomain" ON "Company"("customSubdomain");
+
+-- Vendor Table Definition & State Column for GST Input Tax Credit (ITC)
+CREATE TABLE IF NOT EXISTS "Vendor" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "name" TEXT NOT NULL,
+    "email" TEXT,
+    "phone" TEXT,
+    "address" TEXT,
+    "state" TEXT DEFAULT 'Tamil Nadu',
+    "gstin" TEXT,
+    "notes" TEXT,
+    "isActive" BOOLEAN DEFAULT TRUE NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "Vendor_companyId_name_key" UNIQUE ("companyId", "name")
+);
+
+ALTER TABLE "Vendor" ADD COLUMN IF NOT EXISTS "state" TEXT DEFAULT 'Tamil Nadu';
+CREATE INDEX IF NOT EXISTS "idx_vendor_company" ON "Vendor"("companyId");
+
+-- Marketplace Channel Integration Table (Shopify, Amazon, Flipkart, Myntra)
+CREATE TABLE IF NOT EXISTS "MarketplaceConfig" (
+    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "companyId" UUID NOT NULL REFERENCES "Company"("id") ON DELETE CASCADE,
+    "channel" TEXT NOT NULL, -- 'SHOPIFY', 'AMAZON', 'FLIPKART', 'MYNTRA'
+    "storeName" TEXT NOT NULL,
+    "sellerId" TEXT,
+    "shopUrl" TEXT,
+    "accessToken" TEXT,
+    "apiKey" TEXT,
+    "apiSecret" TEXT,
+    "autoSyncInventory" BOOLEAN DEFAULT TRUE NOT NULL,
+    "autoIngestOrders" BOOLEAN DEFAULT TRUE NOT NULL,
+    "lastSyncedAt" TIMESTAMP WITH TIME ZONE,
+    "syncStatus" TEXT DEFAULT 'IDLE', -- 'IDLE', 'SYNCING', 'SUCCESS', 'ERROR'
+    "errorMessage" TEXT,
+    "isActive" BOOLEAN DEFAULT TRUE NOT NULL,
+    "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    CONSTRAINT "MarketplaceConfig_companyId_channel_key" UNIQUE ("companyId", "channel")
+);
+
+CREATE INDEX IF NOT EXISTS "idx_marketplace_config_company" ON "MarketplaceConfig"("companyId");
 
 
 

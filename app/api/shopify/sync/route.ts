@@ -32,10 +32,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Company integration profile not found" }, { status: 404 });
     }
 
-    const { shopifyStoreUrl, shopifyAccessToken, shopifyClientId } = company;
+    let shopifyStoreUrl = company?.shopifyStoreUrl;
+    let shopifyAccessToken = company?.shopifyAccessToken;
+    let shopifyClientId = company?.shopifyClientId;
+
+    // Fallback: If not in Company, check MarketplaceConfig
+    if (!shopifyStoreUrl || !shopifyAccessToken) {
+      const { data: mpConfig } = await supabase
+        .from("MarketplaceConfig")
+        .select("shopUrl, accessToken, apiKey")
+        .eq("companyId", companyId)
+        .eq("channel", "SHOPIFY")
+        .maybeSingle();
+
+      if (mpConfig) {
+        shopifyStoreUrl = shopifyStoreUrl || mpConfig.shopUrl;
+        shopifyAccessToken = shopifyAccessToken || mpConfig.accessToken;
+        shopifyClientId = shopifyClientId || mpConfig.apiKey;
+      }
+    }
+
     if (!shopifyStoreUrl || (!shopifyAccessToken && !shopifyClientId)) {
       return NextResponse.json({ error: "Shopify credentials are not configured in settings." }, { status: 400 });
     }
+
 
     const effectiveToken = shopifyAccessToken || shopifyClientId || "";
 

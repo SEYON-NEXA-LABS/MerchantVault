@@ -259,12 +259,37 @@ export async function POST(request: Request) {
     const shippingZip = shippingAddress.zip || body.shippingZip || "";
     const shippingCountry = shippingAddress.country || body.shippingCountry || "";
 
-    const totalPrice = parseFloat(body.total_price || body.totalPrice || "0.0");
-    const currency = body.currency || "INR";
     const lineItems = body.line_items || body.lineItems || [];
+    let totalPrice = parseFloat(body.total_price || body.totalPrice || "0.0");
+    const currency = body.currency || "INR";
+
+
+    // If totalPrice is 0, calculate sum from line items
+    if (totalPrice === 0 && lineItems.length > 0) {
+      totalPrice = lineItems.reduce((sum: number, item: any) => {
+        const itemPrice = parseFloat(item.price || "0.0");
+        const itemQty = parseInt(item.quantity || "1");
+        return sum + (itemPrice * itemQty);
+      }, 0);
+    }
+
+    // Extract B2B GSTIN and Buyer Company Name if provided
+    const buyerGstin = body.buyerGstin || body.gstin || (body.note_attributes ? body.note_attributes.find((a: any) => a.name === "GSTIN")?.value : null) || null;
+
+    const buyerCompanyName = body.buyerCompanyName || body.companyName || null;
+
+    // Calculate GST Tax Split (Default 12% apparel GST rate unless specified)
+    const merchantState = "Tamil Nadu"; // Default fulfillment state
+    const { calculateGstBreakdown } = await import("@/app/utils/gst");
+    const gstInfo = calculateGstBreakdown({
+      amount: totalPrice,
+      merchantState,
+      shippingState: shippingState || "Tamil Nadu"
+    });
 
     // Parse discount codes & discount amounts (Shopify format or native storefront format)
     const discountCodes = body.discount_codes || body.discountCodes || [];
+
     const couponCode = body.couponCode || (discountCodes.length > 0 ? discountCodes.map((d: any) => d.code).join(", ") : null);
     const discountAmount = parseFloat(body.total_discounts || body.discountAmount || (discountCodes.length > 0 ? discountCodes.reduce((sum: number, d: any) => sum + (parseFloat(d.amount) || 0), 0) : 0));
     const couponId = body.couponId || null;
@@ -386,6 +411,14 @@ export async function POST(request: Request) {
           discountAmount,
           paymentStatus: body.financial_status === "paid" ? "PAID" : "PENDING",
           orderSource,
+          buyerGstin,
+          buyerCompanyName,
+          placeOfSupply: gstInfo.placeOfSupply,
+          taxType: gstInfo.taxType,
+          cgstAmount: gstInfo.cgstAmount,
+          sgstAmount: gstInfo.sgstAmount,
+          igstAmount: gstInfo.igstAmount,
+          taxableAmount: gstInfo.taxableAmount,
           rawPayload: body,
           updatedAt: new Date().toISOString()
         })
@@ -408,6 +441,14 @@ export async function POST(request: Request) {
           discountAmount,
           currency,
           orderSource,
+          buyerGstin,
+          buyerCompanyName,
+          placeOfSupply: gstInfo.placeOfSupply,
+          taxType: gstInfo.taxType,
+          cgstAmount: gstInfo.cgstAmount,
+          sgstAmount: gstInfo.sgstAmount,
+          igstAmount: gstInfo.igstAmount,
+          taxableAmount: gstInfo.taxableAmount,
           rawPayload: body
         })
         .select()
@@ -535,6 +576,14 @@ export async function POST(request: Request) {
           couponId,
           couponCode,
           discountAmount,
+          buyerGstin,
+          buyerCompanyName,
+          placeOfSupply: gstInfo.placeOfSupply,
+          taxType: gstInfo.taxType,
+          cgstAmount: gstInfo.cgstAmount,
+          sgstAmount: gstInfo.sgstAmount,
+          igstAmount: gstInfo.igstAmount,
+          taxableAmount: gstInfo.taxableAmount,
           updatedAt: new Date().toISOString()
         })
         .eq("id", existingFulfillment.id)
@@ -563,6 +612,14 @@ export async function POST(request: Request) {
           couponId,
           couponCode,
           discountAmount,
+          buyerGstin,
+          buyerCompanyName,
+          placeOfSupply: gstInfo.placeOfSupply,
+          taxType: gstInfo.taxType,
+          cgstAmount: gstInfo.cgstAmount,
+          sgstAmount: gstInfo.sgstAmount,
+          igstAmount: gstInfo.igstAmount,
+          taxableAmount: gstInfo.taxableAmount,
           deliveryStatus: "PROCESSING",
           warehouseId: warehouse ? warehouse.id : null
         })

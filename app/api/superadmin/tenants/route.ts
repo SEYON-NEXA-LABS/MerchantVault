@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     }
 
     if (action === "UPDATE_COMPANY_METADATA") {
-      const { companyId, name, contactEmail, logoUrl, timezone, currency, themeConfig } = body;
+      const { companyId, name, contactEmail, logoUrl, timezone, currency, themeConfig, customDomain, customSubdomain, hasWhiteLabelAddon } = body;
       if (!companyId) {
         return NextResponse.json({ error: "Company ID is required" }, { status: 400 });
       }
@@ -67,7 +67,9 @@ export async function POST(req: Request) {
       if (timezone) updates.timezone = timezone;
       if (currency) updates.currency = currency;
       if (themeConfig !== undefined) updates.themeConfig = themeConfig;
-
+      if (customDomain !== undefined) updates.customDomain = customDomain;
+      if (customSubdomain !== undefined) updates.customSubdomain = customSubdomain;
+      if (hasWhiteLabelAddon !== undefined) updates.hasWhiteLabelAddon = !!hasWhiteLabelAddon;
 
       const { data, error } = await supabase
         .from("Company")
@@ -79,6 +81,7 @@ export async function POST(req: Request) {
       if (error) throw error;
       return NextResponse.json({ success: true, company: data });
     }
+
 
     if (action === "CREATE_WAREHOUSE") {
       const { companyId, name, code, addressLine1, city, state, zip, country, isDefaultPickup } = body;

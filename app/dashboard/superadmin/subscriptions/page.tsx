@@ -184,7 +184,8 @@ function SubscriptionsContent() {
   );
 
   const formatPlan = (plan: string) => {
-    if (plan === "ONETIME_AMC") return "One-time + AMC";
+    if (plan === "MICRO") return "Micro / Budget (₹299)";
+    if (plan === "ONETIME_AMC") return "Perpetual + AMC";
     if (plan === "PAY_PER_ORDER") return "Pay Per Order";
     if (plan === "ENTERPRISE_CUSTOM") return "Enterprise Custom";
     if (plan === "FREE_TRIAL") return "Free Trial";
@@ -192,6 +193,7 @@ function SubscriptionsContent() {
     if (plan === "YEARLY") return "Yearly Sub";
     return plan;
   };
+
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto p-4 md:p-6 bg-gradient-to-br from-[#f0fdfa] via-[#f5f6f3] to-[#e4eae6] min-h-screen rounded-2xl relative">
@@ -350,15 +352,17 @@ function SubscriptionsContent() {
                   <select
                     value={planType}
                     onChange={(e) => setPlanType(e.target.value as any)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-lg py-2 px-3 text-xs focus:outline-none"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-lg py-2 px-3 text-xs focus:outline-none font-bold"
                   >
+                    <option value="MICRO">Micro / Budget Plan (₹299/mo)</option>
                     <option value="FREE_TRIAL">Free Trial</option>
-                    <option value="MONTHLY">Monthly Subscription</option>
+                    <option value="MONTHLY">Monthly Starter (₹999/mo)</option>
                     <option value="YEARLY">Yearly Subscription</option>
-                    <option value="ONETIME_AMC">One-time Setup + AMC</option>
+                    <option value="ONETIME_AMC">Perpetual Setup + AMC (₹1.5L + ₹30k/yr)</option>
                     <option value="PAY_PER_ORDER">Pay Per Order (Usage-based)</option>
                     <option value="ENTERPRISE_CUSTOM">Enterprise Custom</option>
                   </select>
+
                 </div>
 
                 <div className="space-y-1">
