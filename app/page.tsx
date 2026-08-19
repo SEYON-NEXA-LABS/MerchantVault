@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { applyBrandingStyles } from "./utils/branding";
+import { ProductVariant } from "@/types/inventory";
 import { 
   Scissors, 
   ShoppingCart, 
@@ -544,8 +545,20 @@ export default function StorefrontPage() {
 
     try {
       let url = `/api/products`;
+      const queryParams = new URLSearchParams();
       if (companyId) {
-        url += `?companyId=${encodeURIComponent(companyId)}`;
+        queryParams.set("companyId", companyId);
+      }
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const urlBrand = params.get("brand") ?? selectedBrand;
+        if (urlBrand) {
+          queryParams.set("brand", urlBrand);
+        }
+      }
+      const queryString = queryParams.toString();
+      if (queryString) {
+        url += `?${queryString}`;
       }
       
       const res = await fetch(url);
@@ -561,7 +574,7 @@ export default function StorefrontPage() {
 
       if (productList.length > 0) {
         setDbVariants(productList);
-        const mapped = productList.map((v: any) => ({
+        const mapped = productList.map((v: ProductVariant) => ({
           id: v.id,
           sku: v.sku,
           title: v.title,
@@ -595,31 +608,41 @@ export default function StorefrontPage() {
   };
 
   useEffect(() => {
-    let companyIdVal: string | null = null;
-    let brandVal: string = "";
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const urlSlug = params.get("slug") || params.get("code") || params.get("companyId");
-      const urlBrand = params.get("brand");
-      if (urlSlug) {
-        companyIdVal = urlSlug;
-        localStorage.setItem("seyon:storefront:companyId", urlSlug);
-        setCompanyIdMissing(false);
-      } else {
-        companyIdVal = localStorage.getItem("seyon:storefront:companyId");
-        setCompanyIdMissing(!companyIdVal);
-      }
-      if (urlBrand !== null) {
-        brandVal = urlBrand;
-        setSelectedBrand(urlBrand);
-        localStorage.setItem("seyon:storefront:brand", urlBrand);
-      } else {
-        brandVal = localStorage.getItem("seyon:storefront:brand") || "";
-        setSelectedBrand(brandVal);
-      }
-    }
+    const handleUrlSync = () => {
+      let companyIdVal: string | null = null;
+      let brandVal: string = "";
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const urlSlug = params.get("slug") || params.get("code") || params.get("companyCode") || params.get("companyId");
+        const urlBrand = params.get("brand");
 
-    fetchProducts(companyIdVal);
+        if (urlSlug) {
+          companyIdVal = urlSlug;
+          localStorage.setItem("seyon:storefront:companyId", urlSlug);
+          setCompanyIdMissing(false);
+        } else {
+          companyIdVal = localStorage.getItem("seyon:storefront:companyId");
+          setCompanyIdMissing(!companyIdVal);
+        }
+
+        if (urlBrand !== null) {
+          brandVal = urlBrand;
+          setSelectedBrand(urlBrand);
+          if (urlBrand) {
+            localStorage.setItem("seyon:storefront:brand", urlBrand);
+          } else {
+            localStorage.removeItem("seyon:storefront:brand");
+          }
+        } else {
+          brandVal = localStorage.getItem("seyon:storefront:brand") || "";
+          setSelectedBrand(brandVal);
+        }
+      }
+
+      fetchProducts(companyIdVal);
+    };
+
+    handleUrlSync();
 
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("seyon:storefront:cart");
@@ -648,6 +671,11 @@ export default function StorefrontPage() {
       if (params.get("checkout") === "true") {
         window.location.href = "/checkout";
       }
+
+      window.addEventListener("popstate", handleUrlSync);
+      return () => {
+        window.removeEventListener("popstate", handleUrlSync);
+      };
     }
   }, []);
 
@@ -1678,18 +1706,53 @@ export default function StorefrontPage() {
             <h5 style={{ color: "#ffffff", fontSize: "0.85rem", fontWeight: "600", margin: "0 0 0.5rem 0" }}>Store Brands</h5>
             {brands && brands.length > 0 ? (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                {brands.map((b: any) => (
-                  <span key={b.id || b.code} style={{
-                    backgroundColor: "#18181b",
-                    color: "#d4d4d8",
+                <button
+                  onClick={() => {
+                    setSelectedBrand("");
+                    localStorage.removeItem("seyon:storefront:brand");
+                    fetchProducts(company?.id || company?.code);
+                  }}
+                  style={{
+                    backgroundColor: !selectedBrand ? "var(--primary)" : "#18181b",
+                    color: !selectedBrand ? "#ffffff" : "#d4d4d8",
                     fontSize: "0.7rem",
                     padding: "0.2rem 0.5rem",
                     borderRadius: "0.25rem",
-                    border: "1px solid #27272a"
-                  }}>
-                    {b.name}
-                  </span>
-                ))}
+                    border: "1px solid #27272a",
+                    cursor: "pointer"
+                  }}
+                >
+                  All Brands
+                </button>
+                {brands.map((b: any) => {
+                  const isSelected = selectedBrand?.toLowerCase() === b.code?.toLowerCase();
+                  return (
+                    <button
+                      key={b.id || b.code}
+                      onClick={() => {
+                        const newBrand = isSelected ? "" : b.code;
+                        setSelectedBrand(newBrand);
+                        if (newBrand) {
+                          localStorage.setItem("seyon:storefront:brand", newBrand);
+                        } else {
+                          localStorage.removeItem("seyon:storefront:brand");
+                        }
+                        fetchProducts(company?.id || company?.code);
+                      }}
+                      style={{
+                        backgroundColor: isSelected ? "var(--primary)" : "#18181b",
+                        color: isSelected ? "#ffffff" : "#d4d4d8",
+                        fontSize: "0.7rem",
+                        padding: "0.2rem 0.5rem",
+                        borderRadius: "0.25rem",
+                        border: "1px solid #27272a",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {b.name}
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>Direct Merchandise Catalog</p>

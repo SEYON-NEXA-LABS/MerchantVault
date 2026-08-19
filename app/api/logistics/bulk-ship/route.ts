@@ -1,34 +1,12 @@
 import { NextResponse } from "next/server";
 import { getContextCompanyId } from "@/lib/session";
-import { Client } from "pg";
 import { supabase } from "@/lib/supabase";
 
-// Run self-healing schema migrations
-async function ensureSchema() {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) return;
-
-  const client = new Client({ connectionString: dbUrl });
-  try {
-    await client.connect();
-    await client.query(`
-      ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "codVerificationStatus" TEXT DEFAULT 'PENDING';
-      ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "rtoRiskScore" TEXT DEFAULT 'LOW';
-      ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "shippingCost" DOUBLE PRECISION DEFAULT 0.0;
-      ALTER TABLE "OrderFulfillment" ADD COLUMN IF NOT EXISTS "customerShippingFee" DOUBLE PRECISION DEFAULT 0.0;
-    `);
-  } catch (err) {
-    console.error("Migration Error:", err);
-  } finally {
-    await client.end();
-  }
-}
 
 export async function POST(request: Request) {
   try {
-    await ensureSchema();
-
     const companyId = await getContextCompanyId();
+
     if (!companyId) {
       return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }

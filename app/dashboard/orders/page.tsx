@@ -21,42 +21,9 @@ import {
   Plus
 } from "lucide-react";
 import { toast } from "sonner";
+import { Order, Warehouse } from "@/types/all";
 
-interface Order {
-  id: string;
-  shopifyOrderId: string;
-  orderNumber: string;
-  customerName: string;
-  customerPhone: string;
-  shippingAddressLine1: string | null;
-  shippingAddressLine2: string | null;
-  shippingCity: string | null;
-  shippingState: string | null;
-  shippingZip: string | null;
-  shippingCountry: string | null;
-  totalWeightKg: number;
-  awbNumber: string | null;
-  courierPartner: string | null;
-  deliveryStatus: "PROCESSING" | "SHIPPED" | "DELIVERED" | "RTO_INITIATED" | "RTO_RECEIVED";
-  warehouseId: string | null;
-  createdAt: string;
-  codVerificationStatus?: string | null;
-  rtoRiskScore?: string | null;
-  shippingCost?: number | null;
-  customerShippingFee?: number | null;
-  paymentStatus?: string;
-  orderSource?: "STOREFRONT" | "SHOPIFY" | "POS" | "MANUAL";
-  customerId?: string | null;
-  customerEmail?: string;
-  couponCode?: string | null;
-  discountAmount?: number | null;
-}
 
-interface Warehouse {
-  id: string;
-  name: string;
-  code: string;
-}
 
 interface StockTransfer {
   id: string;
@@ -268,8 +235,9 @@ export default function OrdersPage() {
       if (data.success) {
         toast.success(`COD status updated to ${status}`);
         if (selectedOrder?.id === orderId) {
-          setSelectedOrder(prev => prev ? { ...prev, codVerificationStatus: status } : null);
+          setSelectedOrder((prev: Order | null) => prev ? { ...prev, codVerificationStatus: status } : null);
         }
+
         refreshCurrentTab(activeTab);
       } else {
         toast.error(data.error || "Failed to update COD verification");

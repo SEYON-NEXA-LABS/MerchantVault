@@ -38,44 +38,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ProductThumbnail from "@/components/ProductThumbnail";
-
-
-interface VariantStock {
-  id: string;
-  size: "S" | "M" | "L" | "XL" | "XXL";
-  color: string;
-  sku: string;
-  qty: number;
-  thumbnailConfig?: string | null;
-  price: number;
-  shopifyVariantId?: string | null;
-
-  stocks: Array<{
-    id: string;
-    warehouseId: string;
-    currentStockLevel: number;
-  }>;
-}
-
-interface ProductInventory {
-  id: string;
-  name: string;
-  baseSku: string;
-  category: string;
-  targetGroup: string;
-  ageRange?: string | null;
-  totalQty: number;
-  threshold: number;
-  skuColor?: string;
-  thumbnailConfig?: string | null;
-  variants: VariantStock[];
-}
-
-interface Warehouse {
-  id: string;
-  name: string;
-  code: string;
-}
+import { compressImageBeforeUpload } from "@/utils/imageCompressor";
+import { ProductInventory, Warehouse } from "@/types/all";
 
 export default function StockInventoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -1778,19 +1742,56 @@ export default function StockInventoryPage() {
                     />
                   </div>
 
-                  {/* Image URLs */}
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="text-xs font-semibold text-gray-600 block">Image URL (Comma-separated for multiple)</label>
-                    <input
-                      type="url"
-                      value={productForm.imageUrl}
-                      onChange={(e) => setProductForm(prev => ({ ...prev, imageUrl: e.target.value }))}
-                      placeholder="https://images.unsplash.com/...jpg"
-                      className="w-full bg-white border border-gray-255 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                    />
+                  {/* Image URLs & Compression File Picker */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-xs font-semibold text-gray-600 block">Product Media & Images *</label>
+                    
+                    <div className="flex flex-col md:flex-row gap-3 items-stretch">
+                      {/* Direct File Picker with Auto-WebP Compression */}
+                      <div className="flex-1 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 rounded-xl p-3 text-center flex flex-col items-center justify-center transition-colors relative cursor-pointer">
+                        <Upload className="w-5 h-5 text-indigo-600 mb-1" />
+                        <span className="text-xs font-bold text-slate-800">Upload & Compress Photo</span>
+                        <span className="text-[10px] text-slate-500 mt-0.5">Auto-compresses to tiny WebP (Saves 95% storage)</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const result = await compressImageBeforeUpload(file);
+                              toast.success(`⚡ Compressed ${result.originalSizeKB}KB to ${result.compressedSizeKB}KB (${result.savingsPercentage}% saved!)`);
+                              
+                              // Convert blob to Data URL for instant local preview
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setProductForm(prev => ({ ...prev, imageUrl: reader.result as string }));
+                              };
+                              reader.readAsDataURL(result.blob);
+                            } catch (err) {
+                              toast.error("Failed to compress image");
+                            }
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Manual Image URL Input fallback */}
+                      <div className="flex-1 space-y-1">
+                        <span className="text-[10px] font-semibold text-gray-400 block uppercase">Or Paste Image URL</span>
+                        <input
+                          type="url"
+                          value={productForm.imageUrl}
+                          onChange={(e) => setProductForm(prev => ({ ...prev, imageUrl: e.target.value }))}
+                          placeholder="https://images.unsplash.com/...jpg"
+                          className="w-full bg-white border border-gray-255 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Warehouse Inventory Seeding Settings */}
               <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-5 space-y-4">

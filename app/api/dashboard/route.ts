@@ -2,31 +2,54 @@ import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getContextCompanyId } from "@/lib/session";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
+
     // Get company
     const companyId = await getContextCompanyId();
     if (!companyId) {
       return NextResponse.json({ error: "Company context not found" }, { status: 404 });
     }
 
+    let ordersQuery = supabase
+      .from("OrderFulfillment")
+      .select("id, orderNumber, customerName, customerPhone, deliveryStatus, awbNumber, courierPartner, createdAt, totalWeightKg, shippingState, shippingCity, shippingCost, customerShippingFee")
+      .eq("companyId", companyId)
+      .order("createdAt", { ascending: false });
+
+
+    let movementsQuery = supabase
+      .from("StockMovement")
+      .select("id, type, quantity, createdAt")
+      .eq("companyId", companyId)
+      .order("createdAt", { ascending: false });
+
+    if (startDateParam) {
+      const startISO = new Date(`${startDateParam}T00:00:00.000Z`).toISOString();
+      ordersQuery = ordersQuery.gte("createdAt", startISO);
+      movementsQuery = movementsQuery.gte("createdAt", startISO);
+    }
+
+    if (endDateParam) {
+      const endISO = new Date(`${endDateParam}T23:59:59.999Z`).toISOString();
+      ordersQuery = ordersQuery.lte("createdAt", endISO);
+      movementsQuery = movementsQuery.lte("createdAt", endISO);
+    }
+
     // Parallel fetch all data we need
     const [ordersRes, variantsRes, movementsRes] = await Promise.all([
-      supabase
-        .from("OrderFulfillment")
-        .select("id, orderNumber, customerName, customerPhone, deliveryStatus, awbNumber, courierPartner, createdAt, totalWeightKg")
-        .eq("companyId", companyId)
-        .order("createdAt", { ascending: false }),
+      ordersQuery,
       supabase
         .from("ProductVariant")
         .select("id, sku, title, size, color, currentStockLevel, safetyStockLimit")
         .eq("companyId", companyId),
-      supabase
-        .from("StockMovement")
-        .select("id, type, quantity, createdAt")
-        .eq("companyId", companyId)
-        .order("createdAt", { ascending: false }),
+      movementsQuery,
     ]);
+
+
 
     const orders = ordersRes.data || [];
     const variants = variantsRes.data || [];
@@ -48,25 +71,42 @@ export async function GET() {
     const outOfStockVariants = variants.filter((v: any) => v.currentStockLevel === 0);
     const healthyStockVariants = variants.filter((v: any) => v.currentStockLevel > v.safetyStockLimit);
 
-    // ── Sales Overview (orders grouped by day, last 7 days) ──
-    const now = new Date();
+    // ── Sales Overview (Dynamically bucketed by date range parameters) ──
+    const startRange = startDateParam 
+      ? new Date(`${startDateParam}T00:00:00.000Z`) 
+      : new Date(Date.now() - 29 * 24 * 60 * 60 * 1000);
+    const endRange = endDateParam 
+      ? new Date(`${endDateParam}T23:59:59.999Z`) 
+      : new Date();
+    
+    // Calculate total days in selected filter range
+    const diffTime = Math.abs(endRange.getTime() - startRange.getTime());
+    const totalDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    
     const salesData = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-      const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      const dayEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+    const step = totalDays > 30 ? Math.ceil(totalDays / 7) : 1; // Group by week if range > 30 days
 
-      const dayOrders = orders.filter((o: any) => {
+    for (let d = new Date(startRange); d <= endRange; d.setDate(d.getDate() + step)) {
+      const currentDay = new Date(d);
+      const nextStep = new Date(currentDay);
+      nextStep.setDate(nextStep.getDate() + step);
+
+      const bucketOrders = orders.filter((o: any) => {
         const created = new Date(o.createdAt);
-        return created >= dayStart && created < dayEnd;
+        return created >= currentDay && created < nextStep;
       });
 
+      const label = currentDay.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+
+      const totalBucketRevenue = bucketOrders.reduce((sum: number, o: any) => {
+        const val = Number(o.customerShippingFee) || Number(o.shippingCost) || 1499;
+        return sum + val;
+      }, 0);
+
       salesData.push({
-        name: dateStr,
-        revenue: dayOrders.length * 1500, // approximate revenue per order
-        orders: dayOrders.length,
+        name: label,
+        revenue: totalBucketRevenue,
+        orders: bucketOrders.length,
       });
     }
 
@@ -106,9 +146,11 @@ export async function GET() {
       }));
 
     // ── Recent Orders (last 5) ──
+    const now = new Date();
     const recentOrders = orders.slice(0, 5).map((o: any) => {
       const created = new Date(o.createdAt);
       const diffMs = now.getTime() - created.getTime();
+
       const diffMins = Math.floor(diffMs / 60000);
       let timeAgo = "";
       if (diffMins < 1) timeAgo = "Just now";
@@ -124,6 +166,7 @@ export async function GET() {
         RTO_RECEIVED: { label: "RTO Received", color: "bg-rose-100 text-rose-700" },
       };
       const st = statusMap[o.deliveryStatus] || { label: o.deliveryStatus, color: "bg-gray-100 text-gray-700" };
+      const rawAmt = Number(o.customerShippingFee) || Number(o.shippingCost) || 1499;
 
       return {
         id: o.orderNumber,
@@ -131,7 +174,7 @@ export async function GET() {
         time: timeAgo,
         status: st.label,
         statusColor: st.color,
-        amount: ((o.totalWeightKg || 0.35) * 3000 + 899).toLocaleString("en-IN"),
+        amount: rawAmt.toLocaleString("en-IN"),
       };
     });
 
@@ -141,6 +184,47 @@ export async function GET() {
       sku: v.sku,
       qty: v.currentStockLevel,
     }));
+
+    // ── Real Regional State / City Sales Heatmap (Aggregated from OrderFulfillment table) ──
+    const stateMap: { [state: string]: { state: string; city: string; count: number; rawRevenue: number } } = {};
+    
+    orders.forEach((o: any) => {
+      const stateName = (o.shippingState || "Other Regions").trim();
+      const cityName = (o.shippingCity || "Metropolitan Area").trim();
+      const itemAmount = Number(o.customerShippingFee) || Number(o.shippingCost) || 1499;
+
+      if (!stateMap[stateName]) {
+        stateMap[stateName] = {
+          state: stateName,
+          city: cityName,
+          count: 0,
+          rawRevenue: 0
+        };
+      }
+      stateMap[stateName].count += 1;
+      stateMap[stateName].rawRevenue += itemAmount;
+    });
+
+
+    const palette = ["#6366f1", "#3b82f6", "#10b981", "#f59e0b", "#a855f7", "#ec4899"];
+    
+    const sortedStates = Object.values(stateMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const regionSales = sortedStates.map((st, idx) => {
+      const pct = totalOrders > 0 ? Math.round((st.count / totalOrders) * 100) : 0;
+      return {
+        state: st.state,
+        city: st.city,
+        orders: st.count,
+        percentage: pct,
+        revenue: `₹${st.rawRevenue.toLocaleString("en-IN")}`,
+        color: palette[idx % palette.length]
+      };
+    });
+
+
 
     return NextResponse.json({
       kpis: {
@@ -161,7 +245,9 @@ export async function GET() {
       topProducts,
       recentOrders,
       lowStockAlerts,
+      regionSales,
     });
+
   } catch (error: any) {
     console.error("Dashboard API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

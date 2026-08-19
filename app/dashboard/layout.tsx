@@ -484,9 +484,10 @@ export default function DashboardLayout({
         {/* Main Content Area with Dynamic Role Canvas */}
         <div className={`flex-1 flex flex-col h-full overflow-hidden ${currentTheme.mainBg} transition-colors duration-300`}>
           {/* Top Navbar with Glassmorphism */}
-          <header className={`relative z-30 min-h-16 py-2 border-b flex items-center justify-between px-4 sm:px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder} overflow-x-auto no-scrollbar`}>
+          <header className={`relative z-50 min-h-16 py-2 border-b flex items-center justify-between px-4 sm:px-6 flex-shrink-0 transition-colors duration-300 ${currentTheme.headerBorder}`}>
 
             <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-max">
+
               <div className="relative w-48 sm:w-72 md:w-96">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input 
@@ -614,7 +615,8 @@ export default function DashboardLayout({
 
                 {/* Profile Flyout Dropdown Menu (Glassmorphism & Role Active Color Theme) */}
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl z-55 p-4 space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
+                  <div className="absolute right-0 mt-3 w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 p-4 space-y-4 animate-in fade-in slide-in-from-top-3 duration-200">
+
                     {/* User Profile Header Segment */}
                     <div className="flex items-center gap-3 pb-3 border-b border-slate-150/80">
                       <div className={`w-12 h-12 rounded-2xl overflow-hidden border-2 border-white/60 shadow-md ${currentTheme.avatarBg} flex items-center justify-center font-black text-sm`}>

@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const slug = searchParams.get("slug") || searchParams.get("code");
+    const slug = searchParams.get("slug") || searchParams.get("code") || searchParams.get("companyCode");
     const companyId = searchParams.get("companyId");
     const brandParam = searchParams.get("brand");
 
@@ -17,10 +17,9 @@ export async function GET(request: Request) {
       .from("Company")
       .select("id, name, storeName, code, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber");
 
-    if (slug) {
-      companyQuery = companyQuery.or(`code.eq.${slug},id.eq.${slug}`);
-    } else if (companyId) {
-      companyQuery = companyQuery.or(`id.eq.${companyId},code.eq.${companyId}`);
+    const targetCode = slug || companyId;
+    if (targetCode) {
+      companyQuery = companyQuery.or(`code.eq.${targetCode},id.eq.${targetCode},code.ilike.${targetCode}`);
     } else {
       companyQuery = companyQuery.eq("code", "syn");
     }
@@ -37,7 +36,6 @@ export async function GET(request: Request) {
         .eq("companyId", company.id);
       brands = companyBrands || [];
 
-
       if (brandParam) {
         const activeBrand = brands.find(b => b.code === brandParam.toLowerCase());
         if (activeBrand) {
@@ -52,6 +50,9 @@ export async function GET(request: Request) {
 
     if (company && company.id) {
       productsQuery = productsQuery.eq("companyId", company.id);
+    }
+    if (brandId) {
+      productsQuery = productsQuery.eq("brandId", brandId);
     }
 
     const { data: products, error } = await productsQuery.order("createdAt", { ascending: false });

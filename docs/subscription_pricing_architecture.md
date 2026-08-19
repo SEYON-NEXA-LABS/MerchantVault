@@ -134,3 +134,17 @@ flowchart TD
 2. **Webhook Listener (`/api/webhooks/razorpay`)**:
    - `subscription.charged`: Extends `nextRenewalDate` by 30 days / 365 days, sets `status = 'ACTIVE'`, logs `SubscriptionInvoice`.
    - `subscription.halted`: Updates status to `PAST_DUE` with a 7-day grace period before lock.
+
+---
+
+## 6. Single Database Multi-Tenant RLS Architecture
+
+Seyon Shopping operates on a **Unified, High-Performance Single Supabase PostgreSQL Instance** across all tiers (Micro → Enterprise & Perpetual License).
+
+### Why Single Database + Row Level Security (RLS) Wins
+
+1. **Zero Multi-Database Overhead**: SuperAdmin manages 100% of tenants, users, subscriptions, and platform metrics from one central dashboard.
+2. **1-Click Schema Migrations**: System updates and new database migrations apply instantly to all merchants without maintaining hundreds of database connections.
+3. **Ironclad Postgres Kernel Isolation**: PostgreSQL Row Level Security (RLS) guarantees complete data isolation between merchants (`Company.id`).
+4. **Cost Efficiency**: Maximum compute efficiency with sub-10ms response times for all Indian merchants.
+

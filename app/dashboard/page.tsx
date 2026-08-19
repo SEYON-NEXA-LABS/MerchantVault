@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+
 import { 
   ShoppingBag, 
   IndianRupee, 
@@ -13,61 +15,10 @@ import {
   ArrowUp,
   ArrowDown,
   ShoppingCart,
-  RefreshCw
+  RefreshCw,
+  MapPin
 } from "lucide-react";
-import { 
-  BarChart, Bar, Line, XAxis, YAxis, CartesianGrid,
-  PieChart, Pie, Cell
-} from 'recharts';
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent
-} from "@/components/ui/chart";
-
-const salesChartConfig = {
-  revenue: {
-    label: "Revenue (₹)",
-    color: "#6366f1",
-  },
-  orders: {
-    label: "Orders",
-    color: "#38bdf8",
-  },
-} satisfies ChartConfig;
-
-const inventoryChartConfig = {
-  value: {
-    label: "SKUs",
-  },
-  inStock: {
-    label: "In Stock",
-    color: "#10b981",
-  },
-  lowStock: {
-    label: "Low Stock",
-    color: "#f59e0b",
-  },
-  outOfStock: {
-    label: "Out of Stock",
-    color: "#ef4444",
-  },
-} satisfies ChartConfig;
-
-const rtoChartConfig = {
-  value: {
-    label: "Orders",
-  },
-  initiated: {
-    label: "RTO Initiated",
-    color: "#f43f5e",
-  },
-  received: {
-    label: "RTO Received",
-    color: "#fda4af",
-  },
-} satisfies ChartConfig;
+import { RecentOrderItem, RegionSalesHeatmap } from "@/types/all";
 
 interface DashboardData {
   kpis: {
@@ -86,15 +37,29 @@ interface DashboardData {
   inventoryData: Array<{ name: string; value: number; fill: string }>;
   rtoData: Array<{ name: string; value: number; fill: string }>;
   topProducts: Array<{ id: number; name: string; sku: string; variants: number; totalStock: number }>;
-  recentOrders: Array<{ id: string; customer: string; time: string; status: string; statusColor: string; amount: string }>;
+  recentOrders: RecentOrderItem[];
   lowStockAlerts: Array<{ name: string; sku: string; qty: number }>;
+  regionSales: RegionSalesHeatmap[];
 }
 
+
+
 export default function DashboardPage() {
-  const [startDate, setStartDate] = useState("2026-06-04");
-  const [endDate, setEndDate] = useState("2026-06-11");
-  const [activePreset, setActivePreset] = useState("Last 7 Days");
+  const formatDate = (d: Date) => {
+    const offset = d.getTimezoneOffset();
+    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
+    return localDate.toISOString().split('T')[0];
+  };
+
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  const [startDate, setStartDate] = useState(formatDate(thirtyDaysAgo));
+  const [endDate, setEndDate] = useState(formatDate(today));
+  const [activePreset, setActivePreset] = useState("Last 30 Days");
   const [showDatePicker, setShowDatePicker] = useState(false);
+
 
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,7 +67,11 @@ export default function DashboardPage() {
   const fetchDashboard = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/dashboard");
+      const params = new URLSearchParams();
+      if (startDate) params.set("startDate", startDate);
+      if (endDate) params.set("endDate", endDate);
+
+      const res = await fetch(`/api/dashboard?${params.toString()}`);
       const json = await res.json();
       if (json.error) {
         console.error("Dashboard API error:", json.error);
@@ -118,15 +87,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboard();
-  }, []);
+  }, [startDate, endDate]);
 
-  const formatDate = (d: Date) => {
-    const offset = d.getTimezoneOffset();
-    const localDate = new Date(d.getTime() - (offset * 60 * 1000));
-    return localDate.toISOString().split('T')[0];
-  };
 
   const todayStr = formatDate(new Date());
+
 
   const presetOptions = [
     "Today", "Yesterday", "Last 7 Days", "Last 30 Days",
@@ -218,7 +183,10 @@ export default function DashboardPage() {
   const topProducts = data?.topProducts || [];
   const recentOrders = data?.recentOrders || [];
   const lowStockAlerts = data?.lowStockAlerts || [];
+  const regionSales = data?.regionSales || [];
+
   const totalInventorySKUs = inventoryData.reduce((sum, d) => sum + d.value, 0);
+
   const totalRtoValue = rtoData.reduce((sum, d) => sum + d.value, 0);
 
   return (
@@ -387,86 +355,66 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Middle Row: Charts and Lists */}
+          {/* TOP SECTION: Fulfillment & Operational Alerts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* Sales Overview Chart */}
-            <div className="lg:col-span-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">Sales Overview</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 flex items-center cursor-pointer">
-                  This Week <ChevronDown className="w-3 h-3 ml-1 text-gray-400" />
-                </div>
+            {/* Low Stock Alerts (Priority Operational Card) */}
+            <div className="lg:col-span-4 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+                  Low Stock Critical Alerts
+                </h3>
+                <Link href="/dashboard/inventory" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  View Catalog →
+                </Link>
               </div>
-              <div className="flex gap-4 mb-4 text-xs font-medium">
-                <div className="flex items-center"><div className="w-3 h-3 bg-indigo-500 rounded-sm mr-2"></div>Revenue (₹)</div>
-                <div className="flex items-center"><div className="w-3 h-3 bg-sky-400 rounded-full mr-2"></div>Orders</div>
-              </div>
-              <div className="h-64 w-full">
-                <ChartContainer config={salesChartConfig} className="h-full w-full aspect-auto">
-                  <BarChart data={salesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} dy={10} />
-                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={(value) => `₹${value/1000}k`} />
-                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#9ca3af' }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar yAxisId="left" dataKey="revenue" fill="var(--color-revenue)" radius={[4, 4, 0, 0]} barSize={24} />
-                    <Line yAxisId="right" type="monotone" dataKey="orders" stroke="var(--color-orders)" strokeWidth={3} dot={{ r: 4, fill: '#fff', stroke: 'var(--color-orders)', strokeWidth: 2 }} />
-                  </BarChart>
-                </ChartContainer>
-              </div>
-            </div>
-
-            {/* Top Products */}
-            <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">Top Products</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 flex items-center cursor-pointer">
-                  By Stock <ChevronDown className="w-3 h-3 ml-1 text-gray-400" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                {topProducts.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No products found.</p>
-                ) : topProducts.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between">
+              <div className="space-y-3.5">
+                {lowStockAlerts.length === 0 ? (
+                  <p className="text-xs text-gray-400 text-center py-6">All warehouse SKUs fully stocked.</p>
+                ) : lowStockAlerts.map((alert, i) => (
+                  <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-amber-50/40 border border-amber-100/60">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-bold text-gray-400 w-3">{product.id}</span>
-                      <div className="w-9 h-9 bg-gray-100 rounded border border-gray-200 flex items-center justify-center overflow-hidden">
-                        <img src={`https://picsum.photos/seed/${product.id}/40/40`} className="w-full h-full object-cover mix-blend-multiply opacity-80" alt="" />
+                      <div className="w-8 h-8 bg-white rounded border border-amber-200 flex items-center justify-center overflow-hidden">
+                        <img src={`https://picsum.photos/seed/alert${i}/32/32`} className="w-full h-full object-cover mix-blend-multiply" alt="" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-1">{product.name}</p>
-                        <p className="text-[10px] text-gray-500">{product.sku}</p>
+                        <p className="text-xs font-bold text-gray-900 leading-none mb-1">{alert.name}</p>
+                        <p className="text-[10px] text-gray-500 font-mono">SKU: {alert.sku}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-gray-900 leading-none mb-1">{product.totalStock} units</p>
-                      <p className="text-[10px] text-gray-500">{product.variants} Variants</p>
+                      <span className="text-xs font-extrabold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100">{alert.qty} Pcs</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Recent Orders */}
-            <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">Recent Orders</h3>
-                <span className="text-xs font-medium text-indigo-600 cursor-pointer hover:underline">View All</span>
+            {/* Recent Incoming Orders & Dispatch Status */}
+            <div className="lg:col-span-5 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-indigo-600" />
+                  Recent Customer Orders
+                </h3>
+                <Link href="/dashboard/orders" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  Manage All →
+                </Link>
               </div>
-              <div className="space-y-4">
+
+              <div className="space-y-3">
                 {recentOrders.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No orders yet.</p>
+                  <p className="text-xs text-gray-400 text-center py-6">No incoming orders registered.</p>
                 ) : recentOrders.map((order, i) => (
-                  <div key={i} className="flex items-center justify-between">
+                  <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400">
+                      <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
                         <ShoppingCart className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-1">{order.id}</p>
-                        <p className="text-xs text-gray-500">{order.customer}</p>
+                        <p className="text-xs font-bold text-gray-900 leading-none mb-1">{order.id}</p>
+                        <p className="text-[11px] text-gray-500">{order.customer}</p>
                       </div>
                     </div>
                     <div className="text-right flex flex-col items-end">
@@ -476,134 +424,177 @@ export default function DashboardPage() {
                           {order.status}
                         </span>
                       </div>
-                      <p className="text-sm font-bold text-gray-900">₹ {order.amount}</p>
+                      <p className="text-xs font-extrabold text-gray-900">₹ {order.amount}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-          </div>
-
-          {/* Bottom Row: Donuts and Lists */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Inventory Overview */}
-            <div className="lg:col-span-4 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">Inventory Overview</h3>
-                <span className="text-xs font-medium text-indigo-600 cursor-pointer hover:underline">View All</span>
+            {/* RTO Risk Overview */}
+            <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900">RTO Risk Overview</h3>
+                <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">{kpis?.rtoPercentage || "0.00"}% Rate</span>
               </div>
-              <div className="flex items-center h-48">
-                <div className="w-1/2 h-full relative">
-                  <ChartContainer config={inventoryChartConfig} className="h-full w-full aspect-auto">
-                    <PieChart>
-                      <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                      <Pie data={inventoryData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} stroke="none" dataKey="value">
-                        {inventoryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ChartContainer>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-xs text-gray-500">Total SKUs</p>
-                    <p className="text-xl font-bold text-gray-900">{totalInventorySKUs}</p>
-                  </div>
-                </div>
-                <div className="w-1/2 pl-2 space-y-3">
-                  {inventoryData.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-2.5 h-2.5 rounded-full mr-2" style={{ backgroundColor: item.fill }}></div>
-                        <span className="text-xs font-medium text-gray-600">{item.name}</span>
-                      </div>
-                      <span className="text-xs font-bold text-gray-900">
-                        {item.value} <span className="text-gray-400 font-normal">({totalInventorySKUs > 0 ? Math.round((item.value/totalInventorySKUs)*100) : 0}%)</span>
-                      </span>
-                    </div>
-                  ))}
+              <div className="flex flex-col items-center justify-center h-48 relative">
+                {/* SVG RTO Donut */}
+                <svg viewBox="0 0 36 36" className="w-32 h-32 transform -rotate-90">
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f1f5f9" strokeWidth="4" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f43f5e" strokeWidth="4" strokeDasharray="60 40" strokeDashoffset="0" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#fda4af" strokeWidth="4" strokeDasharray="40 60" strokeDashoffset="-60" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total RTO</p>
+                  <p className="text-xl font-extrabold text-gray-900">{totalRtoValue}</p>
                 </div>
               </div>
             </div>
 
-            {/* Low Stock Alerts */}
-            <div className="lg:col-span-4 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">Low Stock Alerts</h3>
-                <span className="text-xs font-medium text-indigo-600 cursor-pointer hover:underline">View All</span>
+          </div>
+
+          {/* SECONDARY SECTION: Sales Analytics & Inventory Health Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Sales Overview Bar Chart */}
+            <div className="lg:col-span-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900">Sales & Revenue Trend</h3>
+                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">
+                  Synced with Top Range Filter ({activePreset})
+                </span>
               </div>
-              <div className="space-y-4">
-                {lowStockAlerts.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No low stock alerts.</p>
-                ) : lowStockAlerts.map((alert, i) => (
-                  <div key={i} className="flex items-center justify-between">
+
+              <div className="flex gap-4 mb-4 text-xs font-medium">
+                <div className="flex items-center"><div className="w-3 h-3 bg-indigo-600 rounded-sm mr-2"></div>Revenue (₹)</div>
+                <div className="flex items-center"><div className="w-3 h-3 bg-sky-400 rounded-full mr-2"></div>Orders</div>
+              </div>
+              
+              {/* Native Flexbar Micro-Chart */}
+              <div className="h-52 w-full flex items-end gap-2 pt-6 pb-2 border-b border-gray-100 relative">
+                {salesData.map((item, idx) => {
+                  const maxRev = Math.max(...salesData.map((d) => d.revenue), 1000);
+                  const heightPercent = Math.max(Math.round((item.revenue / maxRev) * 100), 8);
+                  return (
+                    <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end">
+                      <div className="absolute -top-10 hidden group-hover:flex bg-slate-900 text-white text-[10px] py-1 px-2.5 rounded-md font-mono z-30 whitespace-nowrap shadow-xl">
+                        ₹{item.revenue.toLocaleString('en-IN')} | {item.orders} orders
+                      </div>
+                      <div 
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 rounded-t-md transition-all duration-300 relative" 
+                        style={{ height: `${heightPercent}%` }}
+                      >
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-sky-400 border border-white" />
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-medium">{item.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Inventory Distribution Donut */}
+            <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900">Inventory Status</h3>
+              </div>
+              <div className="flex flex-col items-center justify-center h-48 relative">
+                <svg viewBox="0 0 36 36" className="w-32 h-32 transform -rotate-90">
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f1f5f9" strokeWidth="4" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="75 25" strokeDashoffset="0" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f59e0b" strokeWidth="4" strokeDasharray="18 82" strokeDashoffset="-75" />
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#ef4444" strokeWidth="4" strokeDasharray="7 93" strokeDashoffset="-93" />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total SKUs</p>
+                  <p className="text-xl font-extrabold text-gray-900">{totalInventorySKUs}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Products */}
+            <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900">Top Moving SKUs</h3>
+                <Link href="/dashboard/inventory" className="text-xs font-semibold text-indigo-600 hover:underline">
+                  View All →
+                </Link>
+              </div>
+
+              <div className="space-y-3">
+                {topProducts.length === 0 ? (
+                  <p className="text-xs text-gray-400 text-center py-4">No products found.</p>
+                ) : topProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-gray-400 w-3">{product.id}</span>
                       <div className="w-8 h-8 bg-gray-100 rounded border border-gray-200 flex items-center justify-center overflow-hidden">
-                        <img src={`https://picsum.photos/seed/alert${i}/32/32`} className="w-full h-full object-cover mix-blend-multiply opacity-80" alt="" />
+                        <img src={`https://picsum.photos/seed/${product.id}/40/40`} className="w-full h-full object-cover mix-blend-multiply opacity-80" alt="" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900 leading-none mb-1">{alert.name}</p>
-                        <p className="text-[10px] text-gray-500">SKU: {alert.sku}</p>
+                        <p className="text-xs font-semibold text-gray-900 leading-none mb-1">{product.name}</p>
+                        <p className="text-[10px] text-gray-500">{product.sku}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-sm font-bold text-rose-600">{alert.qty} Pcs</span>
+                      <p className="text-xs font-bold text-gray-900 leading-none mb-1">{product.totalStock} units</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* RTO Overview */}
-            <div className="lg:col-span-4 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-gray-900">RTO Overview</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 flex items-center cursor-pointer">
-                  This Week <ChevronDown className="w-3 h-3 ml-1 text-gray-400" />
-                </div>
+          </div>
+
+          {/* TERTIARY SECTION: Regional State & City Sales Heatmap */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-indigo-600" />
+                  State & City Sales Regional Heatmap
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">Geographic order volume and revenue contribution across Indian retail hubs</p>
               </div>
-              <div className="flex items-center h-48">
-                <div className="w-1/2 h-full relative">
-                  <ChartContainer config={rtoChartConfig} className="h-full w-full aspect-auto">
-                    <PieChart>
-                      <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                      <Pie data={rtoData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} stroke="none" dataKey="value">
-                        {rtoData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ChartContainer>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <p className="text-xs text-gray-500">Total RTO</p>
-                    <p className="text-xl font-bold text-gray-900">{totalRtoValue}</p>
-                  </div>
-                </div>
-                <div className="w-1/2 pl-2 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                    <div className="flex items-center">
-                      <div className="w-2.5 h-2.5 rounded-full mr-2 bg-rose-600"></div>
-                      <span className="text-xs font-semibold text-gray-900">RTO Orders</span>
-                    </div>
-                    <span className="text-xs font-bold text-gray-900">{totalRtoValue} <span className="text-gray-400 font-normal">({kpis?.rtoPercentage || "0.00"}%)</span></span>
-                  </div>
-                  {rtoData.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="w-2.5 h-2.5 rounded-full mr-2" style={{ backgroundColor: item.fill }}></div>
-                        <span className="text-xs font-medium text-gray-600">{item.name}</span>
-                      </div>
-                      <span className="text-xs font-bold text-gray-900">
-                        {item.value} <span className="text-gray-400 font-normal">({totalRtoValue > 0 ? Math.round((item.value/totalRtoValue)*100) : 0}%)</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">
+                Pan-India Logistics Active
+              </span>
             </div>
 
+            {regionSales.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-6">No regional order data available for selected period.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {regionSales.map((region, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-150/80 space-y-2.5 hover:shadow-sm transition-all relative overflow-hidden">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-gray-900">{region.state}</span>
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded text-white font-mono" style={{ backgroundColor: region.color }}>
+                        {region.percentage}%
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 font-medium">{region.city}</p>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${region.percentage}%`, backgroundColor: region.color }} 
+                      />
+                    </div>
+
+                    <div className="flex justify-between items-center text-[11px] pt-1">
+                      <span className="text-gray-500 font-mono">{region.orders} Orders</span>
+                      <span className="font-bold text-gray-900">{region.revenue}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
           </div>
+
+
         </>
       )}
     </div>
