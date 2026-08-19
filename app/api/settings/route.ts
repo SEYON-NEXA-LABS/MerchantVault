@@ -41,7 +41,9 @@ export async function POST(request: Request) {
       "shopifyClientId", "shopifyClientSecret",
       "whatsappNumber", "whatsappApiKey", "timezone",
       "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode",
-      "razorpayEnabled", "razorpayKeyId", "razorpayKeySecret", "themeConfig"
+      "razorpayEnabled", "razorpayKeyId", "razorpayKeySecret", "themeConfig",
+      "subscriptionPlanCode", "hasWhiteLabelAddon", "hasGstEngineAddon",
+      "hasMarketplaceSyncAddon", "hasTdsAddon", "hasMarketingAiAddon"
     ];
 
     const updateData: { [key: string]: any } = {};

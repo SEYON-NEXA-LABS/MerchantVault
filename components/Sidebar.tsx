@@ -30,7 +30,9 @@ import {
   Receipt,
   MessageSquare,
   Clock,
-  Share2
+  Share2,
+  Store,
+  CreditCard
 } from "lucide-react";
 import { UserRole } from "@/components/RoleGuard";
 
@@ -152,13 +154,12 @@ export function Sidebar({
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
     { name: "POS Counter Sales", icon: ShoppingBag, href: "/dashboard/pos", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
     {
-      name: "Marketplaces & Shopify Sync",
-      icon: RefreshCw,
+      name: "Sales & Marketplaces",
+      icon: Store,
       href: "/dashboard/marketplaces",
       roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[],
       badge: company && (!company.shopifyStoreUrl || (!company.shopifyAccessToken && !company.hasShopifyAccessToken)) ? "Alert" : null
     },
-
   ];
 
   // Lifecycle-Based Operational Menu Sections with distinct, vibrant section header color themes
@@ -202,7 +203,6 @@ export function Sidebar({
       items: [
         { code: "3.1", name: "Orders Directory", icon: OrderIcon, href: "/dashboard/orders", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
         { code: "3.2", name: "Outward Dispatch", icon: ArrowUpRight, href: "/dashboard/outward", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER", "STAFF"] as UserRole[] },
-        { code: "3.3", name: "Discounts & Coupons", icon: Star, href: "/dashboard/crm?tab=coupons", roles: ["SUPERADMIN", "TENANTADMIN", "MANAGER"] as UserRole[] },
 
 
       ]
@@ -240,16 +240,19 @@ export function Sidebar({
       dotColor: "bg-indigo-500",
       items: [
         { code: "6.1", name: "Staff & Role Access", icon: Shield, href: "/dashboard/staff", roles: ["SUPERADMIN", "TENANTADMIN"] as UserRole[] },
-        { code: "6.2", name: "Tenant Configurations", icon: Settings, href: "/dashboard/settings", roles: ["SUPERADMIN", "TENANTADMIN"] as UserRole[] },
+        { code: "6.2", name: "Tenant Settings & Billing", icon: Settings, href: "/dashboard/settings", roles: ["SUPERADMIN", "TENANTADMIN"] as UserRole[] },
       ]
     },
     {
-      title: "Platform Superadmin",
+      title: "7. Platform Superadmin",
       roles: ["SUPERADMIN"] as UserRole[],
       headerStyle: "text-rose-700 bg-rose-50/80 border-rose-200/60",
       dotColor: "bg-rose-500",
       items: [
         { code: "7.1", name: "Superadmin Control Center", icon: Workflow, href: "/dashboard/superadmin", roles: ["SUPERADMIN"] as UserRole[] },
+        { code: "7.2", name: "Multi-Tenant Directory", icon: Building2, href: "/dashboard/superadmin/companies", roles: ["SUPERADMIN"] as UserRole[] },
+        { code: "7.3", name: "Platform SaaS Billing Ledgers", icon: CreditCard, href: "/dashboard/superadmin/subscriptions", roles: ["SUPERADMIN"] as UserRole[] },
+        { code: "7.4", name: "Global User Management", icon: Users, href: "/dashboard/superadmin/users", roles: ["SUPERADMIN"] as UserRole[] },
       ]
     }
   ];

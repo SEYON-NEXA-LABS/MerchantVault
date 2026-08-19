@@ -46,3 +46,9 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+next-env.d.ts
+
+# scratch & temporary build logs
+scratch/
+*.log
+

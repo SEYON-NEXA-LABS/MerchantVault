@@ -184,13 +184,13 @@ function SubscriptionsContent() {
   );
 
   const formatPlan = (plan: string) => {
-    if (plan === "MICRO") return "Micro / Budget (₹299)";
-    if (plan === "ONETIME_AMC") return "Perpetual + AMC";
+    if (plan === "MICRO") return "Micro POS (₹499/mo)";
+    if (plan === "ONETIME_AMC") return "Perpetual (₹75k + ₹15k AMC)";
     if (plan === "PAY_PER_ORDER") return "Pay Per Order";
-    if (plan === "ENTERPRISE_CUSTOM") return "Enterprise Custom";
+    if (plan === "ENTERPRISE_CUSTOM") return "Enterprise Custom (₹4,999/mo)";
     if (plan === "FREE_TRIAL") return "Free Trial";
-    if (plan === "MONTHLY") return "Monthly Sub";
-    if (plan === "YEARLY") return "Yearly Sub";
+    if (plan === "MONTHLY") return "Starter Bundle (₹999/mo)";
+    if (plan === "YEARLY") return "Growth Bundle (₹1,999/mo)";
     return plan;
   };
 
@@ -354,13 +354,13 @@ function SubscriptionsContent() {
                     onChange={(e) => setPlanType(e.target.value as any)}
                     className="w-full bg-stone-50 border border-stone-200 rounded-lg py-2 px-3 text-xs focus:outline-none font-bold"
                   >
-                    <option value="MICRO">Micro / Budget Plan (₹299/mo)</option>
-                    <option value="FREE_TRIAL">Free Trial</option>
-                    <option value="MONTHLY">Monthly Starter (₹999/mo)</option>
-                    <option value="YEARLY">Yearly Subscription</option>
-                    <option value="ONETIME_AMC">Perpetual Setup + AMC (₹1.5L + ₹30k/yr)</option>
-                    <option value="PAY_PER_ORDER">Pay Per Order (Usage-based)</option>
-                    <option value="ENTERPRISE_CUSTOM">Enterprise Custom</option>
+                    <option value="MICRO">Micro POS ERP (₹499/mo)</option>
+                    <option value="FREE_TRIAL">Free Trial (14 Days)</option>
+                    <option value="MONTHLY">Starter Bundle (₹999/mo)</option>
+                    <option value="YEARLY">Growth Bundle (₹1,999/mo)</option>
+                    <option value="ENTERPRISE_CUSTOM">Enterprise Hub (₹4,999/mo)</option>
+                    <option value="ONETIME_AMC">Perpetual License (₹75,000 + ₹15,000/yr AMC)</option>
+                    <option value="PAY_PER_ORDER">Pay Per Order (Usage-Based)</option>
                   </select>
 
                 </div>

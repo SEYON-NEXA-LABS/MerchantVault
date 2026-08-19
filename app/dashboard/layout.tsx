@@ -43,6 +43,7 @@ import {
   History,
   Mail,
   ShoppingBag,
+  Store,
   Clock,
   Workflow,
   RefreshCw,
@@ -296,16 +297,7 @@ export default function DashboardLayout({
     w.city.toLowerCase().includes(whSearchQuery.toLowerCase())
   );
 
-  const isActive = (href: string) => {
-    if (!href || href === "#") return false;
-    if (href === "/dashboard") {
-      return pathname === "/dashboard";
-    }
-    if (href === "/dashboard/inventory") {
-      return pathname === "/dashboard/inventory";
-    }
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+
 
   const handleGlobalClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -325,18 +317,7 @@ export default function DashboardLayout({
     }
   };
 
-  const sidebarTopMenu = [
-    { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard", roles: ["SUPERADMIN", "TENANTADMIN", "STAFF"] },
-    { name: "POS Counter Sales", icon: ShoppingBag, href: "/dashboard/pos", roles: ["SUPERADMIN", "TENANTADMIN", "STAFF"] },
-    { 
-      name: "Shopify Integration", 
-      icon: RefreshCw, 
-      href: "/dashboard/marketplaces",
- 
-      roles: ["SUPERADMIN", "TENANTADMIN"],
-      badge: company && (!company.shopifyStoreUrl || (!company.shopifyAccessToken && !company.hasShopifyAccessToken)) ? "Alert" : null
-    },
-  ];
+
 
   // Helper function to check role access
   const hasAccess = (allowedRoles: string[]) => !isBootstrapping && allowedRoles.includes(userRole);

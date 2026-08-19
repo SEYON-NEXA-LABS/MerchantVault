@@ -879,13 +879,13 @@ function HelpContent() {
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
               <span className="font-bold text-indigo-950 block">1. Dedicated Tenant Link (Default)</span>
               <span className="text-[11px] text-slate-600 block mt-1">
-                Your company is assigned a unique storefront link containing your company code. You can copy this link anytime under <strong>Settings → Sales Channels</strong>.
+                Your company is assigned a unique storefront link containing your company code. You can copy this link anytime under <strong>Sales & Marketplaces</strong> (`/dashboard/marketplaces`).
               </span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
               <span className="font-bold text-indigo-950 block">2. Custom Brand Subdomain</span>
               <span className="text-[11px] text-slate-600 block mt-1">
-                Run your storefront under your own brand subdomain (e.g. <code>brand.yourdomain.com</code>). Contact your platform administrator to link your DNS records.
+                Run your storefront under your own brand subdomain (e.g. <code>brand.yourdomain.com</code>). View mapped subdomains on <strong>Sales & Marketplaces</strong> (`/dashboard/marketplaces`).
               </span>
             </div>
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50">
@@ -899,7 +899,7 @@ function HelpContent() {
           <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mt-4">
             <h4 className="text-sm font-bold text-amber-950">Quick Launch Link</h4>
             <p className="text-xs text-amber-800 mt-1">
-              Navigate to <strong>Settings → Sales Channels</strong> to test or launch your active storefront channel in one click.
+              Navigate to <strong>Sales & Marketplaces</strong> (`/dashboard/marketplaces`) to test or launch your active storefront channel in one click.
             </p>
           </div>
         </div>

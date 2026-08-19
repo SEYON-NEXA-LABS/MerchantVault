@@ -18,7 +18,12 @@ import {
   Layers,
   Sparkles,
   Eye,
-  EyeOff
+  EyeOff,
+  Copy,
+  Globe,
+  Globe2,
+  Building,
+  Check
 } from "lucide-react";
 
 
@@ -69,17 +74,27 @@ function MarketplaceContent() {
 
 
 
+  const [company, setCompany] = useState<any>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
   const fetchConfigs = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/marketplaces");
-      if (res.ok) {
-        const data = await res.json();
+      const [resMp, resCo] = await Promise.all([
+        fetch("/api/marketplaces"),
+        fetch("/api/settings")
+      ]);
+
+      if (resMp.ok) {
+        const data = await resMp.json();
         setConfigs(data);
+      }
+      if (resCo.ok) {
+        const coData = await resCo.json();
+        setCompany(coData);
       }
     } catch (err) {
       console.error("Failed to fetch marketplace channels:", err);
-      alert("Failed to load marketplace channels.");
     } finally {
       setLoading(false);
     }
@@ -208,6 +223,102 @@ function MarketplaceContent() {
           </p>
         </div>
       </div>
+
+      {/* Featured Native Channel Banner */}
+      {(() => {
+        const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+        const baseUrl = typeof window !== "undefined" 
+          ? window.location.origin 
+          : (process.env.NEXT_PUBLIC_APP_URL || (isLocal ? "http://localhost:3000" : "https://merchantvault.vercel.app"));
+        const storefrontUrl = `${baseUrl}/?code=${company?.code || "syn"}`;
+        const customDomain = company?.customDomain || null;
+        const customSubdomain = company?.customSubdomain ? `https://${company.customSubdomain}.seyon.app` : null;
+
+        return (
+          <div className="bg-gradient-to-br from-indigo-900 via-slate-900 to-indigo-950 border border-indigo-500/30 rounded-2xl p-6 text-white shadow-lg space-y-5 relative overflow-hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/60 pb-5">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    Native Active Channel (0% Fees)
+                  </span>
+                  <span className="text-xs text-indigo-300 font-mono">Channel Code: {company?.code || "syn"}</span>
+                </div>
+                <h3 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                  <Store className="w-5 h-5 text-indigo-400" /> Seyon Native Storefront Channel
+                </h3>
+                <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                  Direct database-backed D2C storefront. Zero sync queues, 0ms reconciliation lag, and 0% gateway commission fees.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(storefrontUrl);
+                    setCopiedUrl(true);
+                    setTimeout(() => setCopiedUrl(false), 2000);
+                  }}
+                  className="px-3 py-2 bg-indigo-800/60 hover:bg-indigo-700/80 text-indigo-100 rounded-xl text-xs font-semibold border border-indigo-600/50 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedUrl ? "Copied Link!" : "Copy Link"}
+                </button>
+                <a
+                  href={storefrontUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  Launch Storefront <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Domain & Subdomain Configuration Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="bg-slate-900/80 border border-indigo-500/20 rounded-xl p-4 space-y-2">
+                <span className="text-[11px] font-bold text-indigo-300 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-indigo-400" /> Default Platform Link
+                </span>
+                <code className="block bg-slate-950 px-2.5 py-1.5 rounded text-[11px] font-mono text-emerald-400 border border-slate-800 truncate">
+                  {storefrontUrl}
+                </code>
+                <p className="text-[10px] text-slate-400">Shareable tenant channel link</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-indigo-500/20 rounded-xl p-4 space-y-2">
+                <span className="text-[11px] font-bold text-indigo-300 flex items-center gap-1.5">
+                  <Globe2 className="w-3.5 h-3.5 text-indigo-400" /> Custom Subdomain Alias
+                </span>
+                {customSubdomain ? (
+                  <code className="block bg-slate-950 px-2.5 py-1.5 rounded text-[11px] font-mono text-indigo-300 border border-slate-800 truncate">
+                    {customSubdomain}
+                  </code>
+                ) : (
+                  <span className="block text-[11px] text-slate-500 italic py-1">Not mapped (e.g. brand.seyon.app)</span>
+                )}
+                <p className="text-[10px] text-slate-400">Configured in Tenant Company Settings</p>
+              </div>
+
+              <div className="bg-slate-900/80 border border-indigo-500/20 rounded-xl p-4 space-y-2">
+                <span className="text-[11px] font-bold text-indigo-300 flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-indigo-400" /> Custom Domain (DNS)
+                </span>
+                {customDomain ? (
+                  <code className="block bg-slate-950 px-2.5 py-1.5 rounded text-[11px] font-mono text-amber-300 border border-slate-800 truncate">
+                    https://{customDomain}
+                  </code>
+                ) : (
+                  <span className="block text-[11px] text-slate-500 italic py-1">Custom domain add-on inactive</span>
+                )}
+                <p className="text-[10px] text-slate-400">CNAME / A Record DNS routing</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Channel Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
