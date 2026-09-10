@@ -39,6 +39,7 @@ interface HandshakeStep {
   id: number;
   label: string;
   status: "idle" | "loading" | "success" | "failed";
+  error?: string;
 }
 
 interface Warehouse {
@@ -53,6 +54,43 @@ interface Warehouse {
   country: string;
   isDefaultPickup: boolean;
 }
+
+// Inline Social Icon Components
+const InstagramIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const FacebookIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
+const TwitterIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+  </svg>
+);
+
+const YoutubeIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
+    <polygon points="10 15 15 12 10 9 10 15" fill="currentColor" />
+  </svg>
+);
+
+const LinkedinIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
+  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
 
 export default function SettingsPage() {
   return (
@@ -76,6 +114,11 @@ function SettingsContent() {
   const [themeRadius, setThemeRadius] = useState("0.375rem");
   const [themeFontFamily, setThemeFontFamily] = useState("Inter, sans-serif");
   const [themeAnnouncementText, setThemeAnnouncementText] = useState("⚡ Free Express Delivery on orders over ₹1,999!");
+  const [socialInstagram, setSocialInstagram] = useState("");
+  const [socialFacebook, setSocialFacebook] = useState("");
+  const [socialTwitter, setSocialTwitter] = useState("");
+  const [socialYoutube, setSocialYoutube] = useState("");
+  const [socialLinkedin, setSocialLinkedin] = useState("");
   const [savingTheme, setSavingTheme] = useState(false);
 
   // Razorpay credentials states
@@ -376,6 +419,13 @@ function SettingsContent() {
             if (parsedTheme.radius) setThemeRadius(parsedTheme.radius);
             if (parsedTheme.fontFamily) setThemeFontFamily(parsedTheme.fontFamily);
             if (parsedTheme.announcementText) setThemeAnnouncementText(parsedTheme.announcementText);
+            if (parsedTheme.socials) {
+              setSocialInstagram(parsedTheme.socials.instagram || "");
+              setSocialFacebook(parsedTheme.socials.facebook || "");
+              setSocialTwitter(parsedTheme.socials.twitter || "");
+              setSocialYoutube(parsedTheme.socials.youtube || "");
+              setSocialLinkedin(parsedTheme.socials.linkedin || "");
+            }
           } catch (err) {
             console.error("Failed to parse themeConfig JSON", err);
           }
@@ -1661,7 +1711,14 @@ function SettingsContent() {
                         accent: themeAccent,
                         radius: themeRadius,
                         fontFamily: themeFontFamily,
-                        announcementText: themeAnnouncementText
+                        announcementText: themeAnnouncementText,
+                        socials: {
+                          instagram: socialInstagram.trim(),
+                          facebook: socialFacebook.trim(),
+                          twitter: socialTwitter.trim(),
+                          youtube: socialYoutube.trim(),
+                          linkedin: socialLinkedin.trim()
+                        }
                       };
                       const res = await fetch("/api/settings", {
                         method: "POST",
@@ -1804,6 +1861,85 @@ function SettingsContent() {
                       placeholder="e.g. ⚡ Free Express Delivery on orders over ₹1,999!"
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     />
+                  </div>
+
+                  {/* Social Media Channels Section */}
+                  <div className="space-y-3 pt-2 border-t border-gray-100">
+                    <div>
+                      <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                        Storefront Social Media Profiles
+                      </label>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
+                        These links will appear directly in your storefront header and footer for customer engagement.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <InstagramIcon className="w-3.5 h-3.5 text-pink-600" /> Instagram Profile URL
+                        </label>
+                        <input
+                          type="url"
+                          value={socialInstagram}
+                          onChange={(e) => setSocialInstagram(e.target.value)}
+                          placeholder="https://instagram.com/yourbrand"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <FacebookIcon className="w-3.5 h-3.5 text-blue-600" /> Facebook Page URL
+                        </label>
+                        <input
+                          type="url"
+                          value={socialFacebook}
+                          onChange={(e) => setSocialFacebook(e.target.value)}
+                          placeholder="https://facebook.com/yourbrand"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <TwitterIcon className="w-3.5 h-3.5 text-black" /> X (Twitter) URL
+                        </label>
+                        <input
+                          type="url"
+                          value={socialTwitter}
+                          onChange={(e) => setSocialTwitter(e.target.value)}
+                          placeholder="https://x.com/yourbrand"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <YoutubeIcon className="w-3.5 h-3.5 text-red-600" /> YouTube Channel URL
+                        </label>
+                        <input
+                          type="url"
+                          value={socialYoutube}
+                          onChange={(e) => setSocialYoutube(e.target.value)}
+                          placeholder="https://youtube.com/@yourbrand"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <LinkedinIcon className="w-3.5 h-3.5 text-blue-700" /> LinkedIn Company URL
+                        </label>
+                        <input
+                          type="url"
+                          value={socialLinkedin}
+                          onChange={(e) => setSocialLinkedin(e.target.value)}
+                          placeholder="https://linkedin.com/company/yourbrand"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Real-time Theme Live Preview Card */}

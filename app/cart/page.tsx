@@ -71,8 +71,7 @@ export default function CartPage() {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const getLogoText = () => {
-    if (company?.code === "wolfcabin") return "The Wolf Cabin";
-    return company?.name || "STOREFRONT";
+    return company?.storeName || company?.name || "Seyon Shopping";
   };
 
   return (

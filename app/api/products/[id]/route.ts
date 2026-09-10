@@ -142,7 +142,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
         if (variant.companyId) {
           const { data: comp } = await supabase
             .from("Company")
-            .select("id, name, storeName, code, gstin, contactEmail, whatsappNumber")
+            .select("id, name, storeName, code, gstin, contactEmail, whatsappNumber, themeConfig")
             .eq("id", variant.companyId)
             .maybeSingle();
           company = comp;

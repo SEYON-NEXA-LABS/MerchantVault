@@ -33,6 +33,7 @@ import {
   Eye
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { StorefrontFooter } from "@/components/StorefrontFooter";
 import { generateOrganizationSchema, generateProductSchema } from "./utils/seo";
 
 
@@ -1157,7 +1158,7 @@ export default function StorefrontPage() {
           )}
           <div>
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
-              {activeBrandObj?.name || company?.storeName || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "MerchantVault"))}
+              {activeBrandObj?.name || company?.storeName || company?.name || "Seyon Shopping"}
             </span>
             {process.env.NODE_ENV === "development" && (
               <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
@@ -1718,138 +1719,21 @@ export default function StorefrontPage() {
             )}
           </section>
 
-      {/* Footer */}
-      <footer style={{
-        backgroundColor: "#09090b",
-        color: "#a1a1aa",
-        padding: "3rem 1.5rem 2rem 1.5rem",
-        fontSize: "0.8rem",
-        borderTop: "1px solid #27272a",
-        marginTop: "auto"
-      }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "2rem", marginBottom: "2.5rem" }}>
-          {/* Column 1: Store & Entity */}
-          <div>
-            <h4 style={{ color: "#ffffff", fontSize: "1rem", fontWeight: "700", margin: "0 0 0.5rem 0" }}>{company?.storeName || company?.name || "MerchantVault Store"}</h4>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#a1a1aa", lineHeight: 1.5 }}>
-              Registered Entity: <strong style={{ color: "#e4e4e7" }}>{company?.name ? company.name : "Seyon Nexa Labs Private Limited"}</strong>
-            </p>
-            <p style={{ margin: "0.4rem 0 0 0", fontSize: "0.72rem", color: "#71717a" }}>
-              Multi-Tenant Storefront Channel ({company?.code || "syn"})
-            </p>
-          </div>
-
-          {/* Column 2: Multi-Brand Portfolio */}
-          <div>
-            <h5 style={{ color: "#ffffff", fontSize: "0.85rem", fontWeight: "600", margin: "0 0 0.5rem 0" }}>Store Brands</h5>
-            {brands && brands.length > 0 ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                <button
-                  onClick={() => {
-                    setSelectedBrand("");
-                    localStorage.removeItem("seyon:storefront:brand");
-                    fetchProducts(company?.id || company?.code);
-                  }}
-                  style={{
-                    backgroundColor: !selectedBrand ? "var(--primary)" : "#18181b",
-                    color: !selectedBrand ? "#ffffff" : "#d4d4d8",
-                    fontSize: "0.7rem",
-                    padding: "0.2rem 0.5rem",
-                    borderRadius: "0.25rem",
-                    border: "1px solid #27272a",
-                    cursor: "pointer"
-                  }}
-                >
-                  All Brands
-                </button>
-                {brands.map((b: any) => {
-                  const isSelected = selectedBrand?.toLowerCase() === b.code?.toLowerCase();
-                  return (
-                    <button
-                      key={b.id || b.code}
-                      onClick={() => {
-                        const newBrand = isSelected ? "" : b.code;
-                        setSelectedBrand(newBrand);
-                        if (newBrand) {
-                          localStorage.setItem("seyon:storefront:brand", newBrand);
-                        } else {
-                          localStorage.removeItem("seyon:storefront:brand");
-                        }
-                        fetchProducts(company?.id || company?.code);
-                      }}
-                      style={{
-                        backgroundColor: isSelected ? "var(--primary)" : "#18181b",
-                        color: isSelected ? "#ffffff" : "#d4d4d8",
-                        fontSize: "0.7rem",
-                        padding: "0.2rem 0.5rem",
-                        borderRadius: "0.25rem",
-                        border: "1px solid #27272a",
-                        cursor: "pointer"
-                      }}
-                    >
-                      {b.name}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>Direct Merchandise Catalog</p>
-            )}
-          </div>
-
-          {/* Column 3: Corporate Registrations */}
-          <div>
-            <h5 style={{ color: "#ffffff", fontSize: "0.85rem", fontWeight: "600", margin: "0 0 0.5rem 0" }}>Corporate Registrations</h5>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#a1a1aa", lineHeight: 1.6 }}>
-              {company?.gstin && <>GSTIN: <span style={{ color: "#e4e4e7", fontFamily: "monospace" }}>{company.gstin}</span><br /></>}
-              {company?.taxId && <>Tax ID / CIN: <span style={{ color: "#e4e4e7", fontFamily: "monospace" }}>{company.taxId}</span><br /></>}
-              {!company?.gstin && !company?.taxId && <span style={{ color: "#71717a" }}>Verified Business Merchant</span>}
-            </p>
-          </div>
-
-          {/* Column 4: Support & Operations */}
-          <div>
-            <h5 style={{ color: "#ffffff", fontSize: "0.85rem", fontWeight: "600", margin: "0 0 0.5rem 0" }}>Customer Support</h5>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#a1a1aa", lineHeight: 1.6 }}>
-              {company?.contactEmail && <>Email: {company.contactEmail}<br /></>}
-              {company?.whatsappNumber && <>WhatsApp: {company.whatsappNumber}<br /></>}
-              {!company?.contactEmail && !company?.whatsappNumber && <span style={{ color: "#71717a" }}>Contact via Merchant Desk</span>}
-            </p>
-          </div>
-        </div>
-
-        <div style={{ maxWidth: "1200px", margin: "0 auto", borderTop: "1px solid #18181b", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", paddingTop: "1.5rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <p style={{ margin: 0, fontSize: "0.75rem", color: "#71717a" }}>
-              © {new Date().getFullYear()} {company?.name || "Seyon Shopping"}. All rights reserved.
-            </p>
-            <Link 
-              href="/platform" 
-              target="_blank"
-              style={{ fontSize: "0.65rem", color: "#71717a", borderLeft: "1px solid #27272a", paddingLeft: "0.5rem", textDecoration: "none", transition: "color 0.15s ease" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#a1a1aa")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#71717a")}
-            >
-              Powered by <strong style={{ color: "#e4e4e7" }}>Seyon Shopping</strong> ↗
-            </Link>
-
-
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.75rem", color: "#71717a" }}>
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>Customer Desk</span>
-            <a 
-              href="/dashboard" 
-              style={{ color: "#71717a", textDecoration: "none", transition: "color 0.15s ease" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#ffffff")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#71717a")}
-            >
-              Admin Portal ↗
-            </a>
-          </div>
-        </div>
-      </footer>
+      {/* Dynamic Tenant Branded Footer with Social Channels */}
+      <StorefrontFooter 
+        company={company} 
+        brands={brands} 
+        selectedBrand={selectedBrand} 
+        onSelectBrand={(brandCode) => {
+          setSelectedBrand(brandCode);
+          if (brandCode) {
+            localStorage.setItem("seyon:storefront:brand", brandCode);
+          } else {
+            localStorage.removeItem("seyon:storefront:brand");
+          }
+          fetchProducts(company?.id || company?.code);
+        }} 
+      />
 
 
 

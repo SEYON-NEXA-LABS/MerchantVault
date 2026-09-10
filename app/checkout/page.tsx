@@ -370,8 +370,7 @@ export default function CheckoutPage() {
   };
 
   const getLogoText = () => {
-    if (company?.code === "wolfcabin") return "The Wolf Cabin";
-    return company?.name || "STOREFRONT";
+    return company?.storeName || company?.name || "Seyon Shopping";
   };
 
   if (step === "loading") {

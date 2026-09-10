@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { applyBrandingStyles } from "../../utils/branding";
+import { StorefrontFooter } from "@/components/StorefrontFooter";
 import { 
   Scissors, 
   ShoppingCart, 
@@ -585,11 +586,11 @@ export default function ProductDetailPage() {
               justifyContent: "center",
               fontWeight: "700",
               fontSize: "1rem"
-            }}>{(brand?.name ? brand.name[0] : (company?.code === "wolfcabin" ? "W" : (company?.name ? company.name[0] : "S"))).toUpperCase()}</div>
+            }}>{(brand?.name ? brand.name[0] : (company?.storeName ? company.storeName[0] : (company?.name ? company.name[0] : "S"))).toUpperCase()}</div>
           )}
           <div>
             <span style={{ fontSize: "1.15rem", fontWeight: "700", letterSpacing: "-0.025em", textTransform: "uppercase" }}>
-              {brand?.name || (company?.code === "wolfcabin" ? "The Wolf Cabin" : (company?.name || "SEYON"))}
+              {brand?.name || company?.storeName || company?.name || "SEYON SHOPPING"}
             </span>
             <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
               PRE-RELEASE
@@ -1145,6 +1146,13 @@ export default function ProductDetailPage() {
           </button>
         </div>
       )}
+
+      {/* Dynamic Tenant Branded Footer with Social Channels */}
+      <StorefrontFooter 
+        company={company} 
+        brands={brand ? [brand] : []} 
+        selectedBrand={selectedBrand} 
+      />
 
       {/* Embedded CSS Animations */}
       <style jsx global>{`
