@@ -191,7 +191,7 @@ export default function BarcodePage() {
   // Configuration options
   const [codeType, setCodeType] = useState<"BARCODE" | "QR">("QR");
   const [barcodeFormat, setBarcodeFormat] = useState<"CODE128" | "CODE39">("CODE128");
-  const [qrPayloadType, setQrPayloadType] = useState<"SKU" | "URL" | "SERIALIZED">("SERIALIZED");
+  const [qrPayloadType, setQrPayloadType] = useState<"AUTO" | "SERIALIZED" | "URL" | "SKU">("AUTO");
   const [tagPreset, setTagPreset] = useState<TagPreset>("STANDARD");
   const [printCopies, setPrintCopies] = useState<number>(1);
   
@@ -285,8 +285,19 @@ export default function BarcodePage() {
       const numericId = variant?.id ? variant.id.replace(/\D/g, "") : "";
       return numericId || "999901";
     }
+
+    // Dynamic Source-Aware Logic
+    if (qrPayloadType === "AUTO") {
+      // If product has a linked Shopify Variant ID and store URL, generate the live Shopify Storefront URL
+      if (variant.shopifyVariantId && company?.shopifyStoreUrl) {
+        return getShopifyUrl(variant);
+      }
+      // If created in MerchantVault (in-house inventory), use native serialized token
+      return `mv:${activeWhCode}:${variant?.sku || ""}:0001`;
+    }
+
     if (qrPayloadType === "SERIALIZED") {
-      return `syn:${activeWhCode}:${variant?.sku || ""}:0001`;
+      return `mv:${activeWhCode}:${variant?.sku || ""}:0001`;
     }
     return qrPayloadType === "URL" ? getShopifyUrl(variant) : (variant?.sku || "");
   };
@@ -604,13 +615,21 @@ export default function BarcodePage() {
 
                 {codeType === "QR" ? (
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-gray-700">QR Payload Target</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-gray-700">QR Payload Target</label>
+                      {qrPayloadType === "AUTO" && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${selectedProduct?.shopifyVariantId ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-indigo-50 text-indigo-700 border border-indigo-200"}`}>
+                          {selectedProduct?.shopifyVariantId ? "Detected: Shopify" : "Detected: In-House"}
+                        </span>
+                      )}
+                    </div>
                     <select
                       value={qrPayloadType}
                       onChange={(e) => setQrPayloadType(e.target.value as any)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                     >
-                      <option value="SERIALIZED">Serialized QR Token (syn:wh:sku:serial)</option>
+                      <option value="AUTO">✦ Dynamic Auto (Source-Aware)</option>
+                      <option value="SERIALIZED">MerchantVault Serialized (mv:wh:sku:serial)</option>
                       <option value="URL">Shopify URL Redirect</option>
                       <option value="SKU">SKU Raw Text</option>
                     </select>
