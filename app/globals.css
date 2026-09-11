@@ -262,3 +262,43 @@
   color: var(--primary, #0d9488);
 }
 
+/* Storefront Mobile Product Grid (1 vs 2 Columns) */
+.storefront-product-grid {
+  display: grid;
+}
+
+@media (max-width: 640px) {
+  .storefront-product-grid.grid-cols-mobile-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.65rem !important;
+  }
+
+  .storefront-product-grid.grid-cols-mobile-1 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .storefront-product-grid.grid-cols-mobile-2 .product-card-body {
+    padding: 0.65rem !important;
+  }
+
+  .storefront-product-grid.grid-cols-mobile-2 .product-card-title {
+    font-size: 0.82rem !important;
+    line-height: 1.25 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .storefront-product-grid.grid-cols-mobile-2 .product-card-price {
+    font-size: 0.95rem !important;
+  }
+
+  .storefront-product-grid.grid-cols-mobile-2 .product-card-btn {
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+

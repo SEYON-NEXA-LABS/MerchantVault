@@ -568,9 +568,9 @@ export default function ProductDetailPage() {
         alignItems: "center"
       }}>
         <Link href={`/?companyId=${company?.id || ""}${selectedBrand ? `&brand=${selectedBrand}` : ""}`} style={{ display: "flex", alignItems: "center", gap: "0.75rem", textDecoration: "none", color: "#09090b" }}>
-          {brand?.logoUrl ? (
+          {(brand?.logoUrl || company?.logoUrl) ? (
             <img 
-              src={brand.logoUrl} 
+              src={brand?.logoUrl || company?.logoUrl} 
               alt={brand?.name || company?.name || "Logo"} 
               style={{ height: "2.25rem", objectFit: "contain", borderRadius: "var(--radius)" }} 
             />
@@ -586,13 +586,13 @@ export default function ProductDetailPage() {
               justifyContent: "center",
               fontWeight: "700",
               fontSize: "1rem"
-            }}>{(brand?.name ? brand.name[0] : (company?.storeName ? company.storeName[0] : (company?.name ? company.name[0] : "S"))).toUpperCase()}</div>
+            }}>{(brand?.name ? brand.name[0] : (company?.name ? company.name[0] : (company?.storeName ? company.storeName[0] : "S"))).toUpperCase()}</div>
           )}
-          <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "1.15rem", fontWeight: "700", letterSpacing: "-0.025em", textTransform: "uppercase" }}>
-              {brand?.name || company?.storeName || company?.name || "SEYON SHOPPING"}
+              {brand?.name || company?.name || company?.storeName || "SEYON SHOPPING"}
             </span>
-            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", border: "1px solid var(--border)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
               PRE-RELEASE
             </span>
           </div>

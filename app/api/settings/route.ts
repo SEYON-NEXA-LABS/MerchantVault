@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       "whatsappNumber", "whatsappApiKey", "timezone",
       "currency", "contactEmail", "logoUrl", "taxId", "gstin", "lowStockMode",
       "razorpayEnabled", "razorpayKeyId", "razorpayKeySecret", "themeConfig",
-      "subscriptionPlanCode", "hasWhiteLabelAddon", "hasGstEngineAddon",
+      "subscriptionPlanCode", "hasWhiteLabelAddon", "hasMediaStorageAddon", "hasGstEngineAddon",
       "hasMarketplaceSyncAddon", "hasTdsAddon", "hasMarketingAiAddon"
     ];
 

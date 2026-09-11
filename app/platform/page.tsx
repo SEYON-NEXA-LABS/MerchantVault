@@ -30,13 +30,15 @@ import {
   X
 } from "lucide-react";
 import { SharedPricingMatrix } from "@/components/PricingMatrix";
+import { HoneycombBackground } from "@/components/HoneycombBackground";
 
 
 
 
 
-// Configurable Platform Placeholder Name (Update in one place when revealed)
-const PLATFORM_NAME = "Seyon Shopping";
+// Configurable Platform Name
+const PLATFORM_NAME = "MerchantVault";
+const PLATFORM_COMPANY = "Seyon Nexa Labs";
 
 export default function PlatformLandingPage() {
   const [billingCycle, setBillingCycle] = useState<"MONTHLY" | "ANNUAL">("MONTHLY");
@@ -108,22 +110,32 @@ export default function PlatformLandingPage() {
       {/* Main Navbar */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-600/20">
-              <ShoppingBag className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 p-1.5 flex items-center justify-center shadow-sm overflow-hidden hover:scale-105 transition-transform">
+              <img 
+                src="/seyon-logo.png" 
+                alt="Seyon Nexa Labs" 
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
-              <span className="font-bold text-lg tracking-tight text-slate-900 block leading-none">
-                {PLATFORM_NAME}
-              </span>
-              <span className="text-[10px] font-mono font-bold text-indigo-600 block tracking-widest uppercase mt-0.5">Enterprise ERP & Commerce</span>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-xl tracking-tight text-slate-900 block leading-none">
+                  {PLATFORM_NAME}
+                </span>
+                <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                  by {PLATFORM_COMPANY}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-indigo-600 block tracking-widest uppercase mt-1">Enterprise ERP & Commerce</span>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-600">
-            <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
+          <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-600">
             <a href="#calculator" className="hover:text-indigo-600 transition-colors">ROI Calculator</a>
-            <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a>
+            <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
+            <a href="#comparison" className="hover:text-indigo-600 transition-colors">Comparison</a>
+            <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing & Plans</a>
             <a href="#faq" className="hover:text-indigo-600 transition-colors">FAQ</a>
             <Link href="/help" className="text-indigo-600 hover:text-indigo-700 font-bold transition-colors flex items-center gap-1">
               <span>Help Center</span>
@@ -150,10 +162,10 @@ export default function PlatformLandingPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-24 px-6 bg-gradient-to-b from-indigo-50/60 via-slate-50 to-slate-50">
-        <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-indigo-100/80 border border-indigo-200 text-indigo-800 px-4 py-1.5 rounded-full text-xs font-semibold">
+      {/* Hero Section with Honeycomb Background */}
+      <HoneycombBackground className="pt-20 pb-24 px-6 bg-gradient-to-b from-blue-50/60 via-slate-50/80 to-slate-50 border-b border-slate-200/80">
+        <div className="max-w-5xl mx-auto text-center space-y-8">
+          <div className="inline-flex items-center gap-2 bg-indigo-100/90 border border-indigo-200/80 text-indigo-900 px-4 py-1.5 rounded-full text-xs font-bold shadow-xs backdrop-blur-md">
             <Award className="w-4 h-4 text-indigo-600" />
             <span>Built for Indian D2C Brands & Retail Merchants</span>
           </div>
@@ -185,18 +197,18 @@ export default function PlatformLandingPage() {
 
           {/* Social Proof Pills */}
           <div className="pt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 font-semibold">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/80 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs backdrop-blur-sm">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> 0% Platform Order Fees
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/80 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs backdrop-blur-sm">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Native GSTR-1 & Tally XML
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/80 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs backdrop-blur-sm">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Sub-50ms Barcode Outward Dispatch
             </div>
           </div>
         </div>
-      </section>
+      </HoneycombBackground>
 
       {/* ROI & Savings Calculator Section */}
       <section id="calculator" className="py-20 px-6 bg-white border-y border-slate-200">
@@ -347,93 +359,135 @@ export default function PlatformLandingPage() {
 
 
       {/* Tier-by-Tier Shopify vs Seyon Shopping Breakdown */}
-      <section className="py-20 px-6 max-w-7xl mx-auto space-y-12 bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
+      <section id="comparison" className="py-20 px-6 max-w-7xl mx-auto space-y-12 bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <h2 className="text-3xl font-extrabold text-slate-900">Tier-by-Tier Shopify Comparison</h2>
           <p className="text-slate-600 text-xs font-medium">Which plan fits your business scale, and how much money do you save every year?</p>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-600 bg-slate-50">
-                <th className="py-4 px-4 font-bold uppercase tracking-wider">Plan & Best Fit</th>
-                <th className="py-4 px-4 font-bold uppercase tracking-wider text-indigo-700">Seyon Shopping Price</th>
-                <th className="py-4 px-4 font-bold uppercase tracking-wider text-rose-700">Equivalent Shopify Cost</th>
-                <th className="py-4 px-4 font-bold uppercase tracking-wider text-emerald-700">Your Annual Savings</th>
+              <tr className="border-b border-slate-200 bg-slate-50/80">
+                <th className="py-4 px-5 font-bold uppercase tracking-wider text-slate-700">Plan & Target Merchant</th>
+                <th className="py-4 px-5 font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50/50">{PLATFORM_NAME} Price</th>
+                <th className="py-4 px-5 font-bold uppercase tracking-wider text-rose-700">Equivalent Shopify Stack</th>
+                <th className="py-4 px-5 font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50/40">Net Annual Savings</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 text-slate-700">
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-4 px-4">
-                  <span className="font-bold text-slate-900 block">MICRO (POS ERP)</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Best for: Retail stores & offline billing counters</span>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tr className="hover:bg-slate-50/80 transition-colors">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-slate-900 text-sm">MICRO</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">POS ERP</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Retail stores & counter POS billing (includes 500 MB storage)</span>
                 </td>
-                <td className="py-4 px-4 font-bold text-indigo-600">₹499 / mo</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify POS Pro: <span className="line-through text-rose-600 font-medium">₹7,400 / mo</span>
+                <td className="py-4 px-5 font-black text-indigo-700 text-sm bg-indigo-50/30">₹499 <span className="text-xs font-normal text-slate-500">/ mo</span></td>
+                <td className="py-4 px-5 text-slate-600">
+                  Shopify POS Pro: <span className="line-through text-rose-600 font-semibold">₹7,400 / mo</span>
                 </td>
-                <td className="py-4 px-4 font-extrabold text-emerald-600">Save ₹82,812 / yr (93% cheaper)</td>
+                <td className="py-4 px-5 font-extrabold text-emerald-600 bg-emerald-50/30">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
+                    Save ₹82,812 / yr (93% less)
+                  </span>
+                </td>
               </tr>
 
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-4 px-4">
-                  <span className="font-bold text-slate-900 block">BASIC (Storefront Lite)</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Best for: Early D2C stores starting online storefronts</span>
+              <tr className="hover:bg-slate-50/80 transition-colors">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-slate-900 text-sm">BASIC</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Storefront Lite</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Early D2C brands launching standalone storefront + custom domain</span>
                 </td>
-                <td className="py-4 px-4 font-bold text-indigo-600">₹799 / mo</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify Basic + Apps: <span className="line-through text-rose-600 font-medium">₹4,500 / mo</span>
+                <td className="py-4 px-5 font-black text-indigo-700 text-sm bg-indigo-50/30">₹799 <span className="text-xs font-normal text-slate-500">/ mo</span></td>
+                <td className="py-4 px-5 text-slate-600">
+                  Shopify Basic + Apps: <span className="line-through text-rose-600 font-semibold">₹4,500 / mo</span>
                 </td>
-                <td className="py-4 px-4 font-extrabold text-emerald-600">Save ₹44,412 / yr (82% cheaper)</td>
+                <td className="py-4 px-5 font-extrabold text-emerald-600 bg-emerald-50/30">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
+                    Save ₹44,412 / yr (82% less)
+                  </span>
+                </td>
               </tr>
 
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-4 px-4">
-                  <span className="font-bold text-slate-900 block">STARTER BUNDLE</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Best for: Registered D2C stores needing GST & Tally</span>
+              <tr className="hover:bg-slate-50/80 transition-colors">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-slate-900 text-sm">STARTER</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">GST + Tally</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Automated GSTR-1, Tally XML & e-Invoicing compliance built-in</span>
                 </td>
-                <td className="py-4 px-4 font-bold text-indigo-600">₹999 / mo</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify + GST App + POS: <span className="line-through text-rose-600 font-medium">₹6,200 / mo</span>
+                <td className="py-4 px-5 font-black text-indigo-700 text-sm bg-indigo-50/30">₹999 <span className="text-xs font-normal text-slate-500">/ mo</span></td>
+                <td className="py-4 px-5 text-slate-600">
+                  Shopify + GST App + POS: <span className="line-through text-rose-600 font-semibold">₹6,200 / mo</span>
                 </td>
-                <td className="py-4 px-4 font-extrabold text-emerald-600">Save ₹62,412 / yr (84% cheaper)</td>
+                <td className="py-4 px-5 font-extrabold text-emerald-600 bg-emerald-50/30">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
+                    Save ₹62,412 / yr (84% less)
+                  </span>
+                </td>
               </tr>
 
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-4 px-4">
-                  <span className="font-bold text-slate-900 block">GROWTH BUNDLE</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Best for: Multi-channel sellers (Shopify/Amazon/Flipkart)</span>
+              <tr className="bg-amber-50/30 hover:bg-amber-50/50 transition-colors">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-slate-900 text-sm">GROWTH</span>
+                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">★ Popular</span>
+                  </div>
+                  <span className="text-[11px] text-slate-600 font-medium block mt-0.5">Multi-channel sync (Amazon/Flipkart/Shopify) + 10 GB Media Bucket</span>
                 </td>
-                <td className="py-4 px-4 font-bold text-indigo-600">₹1,999 / mo</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify Plan + Multi-Sync Apps: <span className="line-through text-rose-600 font-medium">₹12,500 / mo</span>
+                <td className="py-4 px-5 font-black text-indigo-700 text-sm bg-indigo-50/30">₹1,999 <span className="text-xs font-normal text-slate-500">/ mo</span></td>
+                <td className="py-4 px-5 text-slate-600">
+                  Shopify Plan + Multi-Sync Apps: <span className="line-through text-rose-600 font-semibold">₹12,500 / mo</span>
                 </td>
-                <td className="py-4 px-4 font-extrabold text-emerald-600">Save ₹126,012 / yr (84% cheaper)</td>
+                <td className="py-4 px-5 font-extrabold text-emerald-600 bg-emerald-50/30">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
+                    Save ₹126,012 / yr (84% less)
+                  </span>
+                </td>
               </tr>
 
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-4 px-4">
-                  <span className="font-bold text-slate-900 block">ENTERPRISE HUB</span>
-                  <span className="text-[10px] text-slate-500 font-medium">Best for: High-volume retail chains & multi-warehouse brands</span>
+              <tr className="hover:bg-slate-50/80 transition-colors">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-slate-900 text-sm">ENTERPRISE HUB</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">Scale</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Multi-warehouse ERP, B2B TDS, AI WhatsApp & 50 GB Media Vault</span>
                 </td>
-                <td className="py-4 px-4 font-bold text-indigo-600">₹4,999 / mo</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify Plus / Advanced: <span className="line-through text-rose-600 font-medium">₹25,000+ / mo</span>
+                <td className="py-4 px-5 font-black text-indigo-700 text-sm bg-indigo-50/30">₹4,999 <span className="text-xs font-normal text-slate-500">/ mo</span></td>
+                <td className="py-4 px-5 text-slate-600">
+                  Shopify Plus / Advanced: <span className="line-through text-rose-600 font-semibold">₹25,000+ / mo</span>
                 </td>
-                <td className="py-4 px-4 font-extrabold text-emerald-600">Save ₹240,012 / yr (80% cheaper)</td>
+                <td className="py-4 px-5 font-extrabold text-emerald-600 bg-emerald-50/30">
+                  <span className="inline-flex items-center gap-1 bg-emerald-100/80 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 font-bold">
+                    Save ₹240,012 / yr (80% less)
+                  </span>
+                </td>
               </tr>
 
-              <tr className="bg-indigo-50/60 font-bold">
-                <td className="py-4 px-4 text-indigo-900">
-                  PERPETUAL LICENSE
-                  <span className="text-[10px] text-slate-500 block font-normal">Best for: Single-tenant corporate ownership</span>
+              <tr className="bg-indigo-50/60 font-bold border-t-2 border-indigo-200">
+                <td className="py-4 px-5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-indigo-950 text-sm">PERPETUAL LICENSE</span>
+                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-indigo-600 text-white">Full Ownership</span>
+                  </div>
+                  <span className="text-[11px] text-indigo-800 font-medium block mt-0.5">₹75,000 one-time setup (Yr 1 included) + ₹15k/yr AMC starting 2nd year</span>
                 </td>
-                <td className="py-4 px-4 text-indigo-700">₹75k + ₹15k/yr</td>
-                <td className="py-4 px-4 text-slate-600">
-                  Shopify Plus 3-Yr License: <span className="line-through text-rose-600 font-medium">₹700,000+</span>
+                <td className="py-4 px-5 font-black text-indigo-900 text-sm bg-indigo-100/40">₹75,000 <span className="text-xs font-normal text-indigo-700">+ ₹15k AMC</span></td>
+                <td className="py-4 px-5 text-slate-700">
+                  Shopify Plus 3-Yr Stack: <span className="line-through text-rose-600 font-bold">₹700,000+</span>
                 </td>
-                <td className="py-4 px-4 font-black text-indigo-700">Save ₹550,000+ in 3 Years</td>
+                <td className="py-4 px-5 font-black text-emerald-700 bg-emerald-100/40">
+                  <span className="inline-flex items-center gap-1 bg-emerald-200/80 text-emerald-900 px-3 py-1 rounded-lg border border-emerald-300 font-black">
+                    Save ₹550,000+ in 3 Years
+                  </span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -441,51 +495,94 @@ export default function PlatformLandingPage() {
 
         {/* Head-to-Head Feature Edge Comparison Matrix */}
         <div className="pt-6 border-t border-slate-200 space-y-6">
-          <h3 className="text-xl font-extrabold text-slate-900 text-center">Head-to-Head Platform Edge</h3>
-          <div className="overflow-x-auto">
+          <div className="text-center space-y-1">
+            <h3 className="text-2xl font-extrabold text-slate-900">Head-to-Head Platform Edge</h3>
+            <p className="text-xs text-slate-500">Direct technical comparison between native Seyon Shopping architecture vs Shopify plugin bloat.</p>
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 text-slate-600 bg-slate-50">
-                  <th className="py-3 px-4 font-bold uppercase">Architectural Edge</th>
-                  <th className="py-3 px-4 font-bold uppercase text-indigo-700">{PLATFORM_NAME}</th>
-                  <th className="py-3 px-4 font-bold uppercase text-slate-500">Shopify + App Ecosystem</th>
+                <tr className="border-b border-slate-200 bg-slate-50/80">
+                  <th className="py-3.5 px-5 font-bold uppercase tracking-wider text-slate-700 w-1/3">Architectural Capability</th>
+                  <th className="py-3.5 px-5 font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50/50 w-1/3">{PLATFORM_NAME}</th>
+                  <th className="py-3.5 px-5 font-bold uppercase tracking-wider text-slate-500 w-1/3">Shopify + App Ecosystem</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 text-slate-700">
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Transaction Fee / Commission</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">0% Always (100% kept by merchant)</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">0.5% to 2.0% Revenue Tax per order</td>
+              <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Transaction Fee / Commission</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ 0% Platform Fee Always
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">0.5% to 2.0% Revenue Tax per checkout</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Mobile Page Load Speed (4G India)</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Sub-1 Second (Static Edge Prerendered)</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">3.5s – 6.0s (Bloated by 8+ plugin scripts)</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Mobile Page Load Speed (4G India)</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ⚡ Sub-1 Second (Static Edge Cache)
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">3.5s – 6.0s (Bloated by 8+ plugin scripts)</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Payment Payout Settlements</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Direct to Merchant Razorpay (0% Hold)</td>
-                  <td className="py-3 px-4 text-slate-600">Delayed T+3 to T+7 Days</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Media Cloud Storage & Video CDN</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <div className="space-y-0.5">
+                      <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-bold">
+                        ✓ Built-in Media Bucket (+10GB / ₹199)
+                      </span>
+                      <span className="text-[11px] text-slate-500 block font-normal">Auto-WebP compression, 4K video banners & lookbooks</span>
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">Restricted file upload limits; requires 3rd-party CDN/Cloudinary (+$29/mo)</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Indian GST & Tally Export</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Native Built-in (GSTR-1 + 1-Click Tally XML)</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">Requires paid 3rd-party GST apps (+$20/mo)</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Payment Payout Settlements</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ Direct to Merchant Razorpay (0% Hold)
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-slate-600">Delayed T+3 to T+7 Days</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Sub-50ms POS & Barcode Dispatch</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Native Out-of-the-Box (USB Scanner Ready)</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">Requires Shopify POS Pro ($89/mo per register)</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Indian GST & Tally Export</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ Native GSTR-1 + 1-Click Tally XML
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">Requires paid 3rd-party GST apps (+$20/mo)</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">AI SEO Copywriter & Meta Generator</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Native 1-Click AI Engine (₹0 Extra)</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">Requires 3rd-Party SEO Apps (+$25/mo)</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">POS & Barcode Dispatch (Offline)</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ Sub-50ms USB/Bluetooth Scanner Ready
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">Requires Shopify POS Pro ($89/mo per register)</td>
                 </tr>
-                <tr className="hover:bg-slate-50/60">
-                  <td className="py-3 px-4 font-bold text-slate-900">Blog Engine & Article JSON-LD Schema</td>
-                  <td className="py-3 px-4 font-bold text-emerald-600">Built-in Journal (`/blog`) + Google Rich Snippets</td>
-                  <td className="py-3 px-4 text-rose-600 font-medium">Requires paid Page Builders / Shogun (+$39/mo)</td>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">AI SEO Copywriter & Meta Generator</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ 1-Click AI Engine (₹0 Extra)
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">Requires 3rd-Party SEO Apps (+$25/mo)</td>
+                </tr>
+                <tr className="hover:bg-slate-50/60 transition-colors">
+                  <td className="py-3.5 px-5 font-bold text-slate-900">Blog Engine & Article Schema</td>
+                  <td className="py-3.5 px-5 font-bold text-emerald-700 bg-indigo-50/20">
+                    <span className="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ Built-in Journal + Google Rich Snippets
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-5 text-rose-600 font-medium">Requires paid Page Builders / Shogun (+$39/mo)</td>
                 </tr>
               </tbody>
             </table>
@@ -542,11 +639,18 @@ export default function PlatformLandingPage() {
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-16 px-6 border-t border-slate-800 text-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
-              <ShoppingBag className="w-4 h-4" />
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-white border border-slate-700 p-1 flex items-center justify-center overflow-hidden shadow-sm">
+              <img 
+                src="/seyon-logo.png" 
+                alt="Seyon Nexa Labs" 
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-sm font-bold text-white tracking-tight">{PLATFORM_NAME}</span>
+            <div>
+              <span className="text-base font-black text-white tracking-tight block leading-none">{PLATFORM_NAME}</span>
+              <span className="text-xs text-slate-400 font-medium block mt-1">by {PLATFORM_COMPANY}</span>
+            </div>
           </div>
 
           <p className="text-[11px] text-slate-500">

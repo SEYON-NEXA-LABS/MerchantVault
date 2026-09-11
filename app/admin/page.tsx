@@ -74,15 +74,24 @@ export default function AdminLoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.1),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.1),transparent_40%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.2),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.2),transparent_40%)] pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="flex items-center justify-center gap-3">
-          <div className="w-12 h-12 bg-indigo-600/10 dark:bg-indigo-600/20 border border-indigo-500/20 dark:border-indigo-500/30 rounded-2xl flex items-center justify-center backdrop-blur-md shadow-lg shadow-indigo-500/10">
-            <Store className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 bg-white dark:bg-slate-900 border-2 border-indigo-100 dark:border-slate-800 rounded-3xl p-3 flex items-center justify-center backdrop-blur-md shadow-2xl shadow-indigo-500/15 overflow-hidden transition-transform hover:scale-105 duration-300">
+            <img 
+              src="/seyon-logo.png" 
+              alt="Seyon Nexa Labs" 
+              className="w-full h-full object-contain drop-shadow-xs"
+            />
           </div>
-          <span className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-indigo-700 dark:from-white dark:via-slate-200 dark:to-indigo-200 bg-clip-text text-transparent">
-            Seyon Shopping
-          </span>
+          <div className="text-center">
+            <span className="text-3xl font-black tracking-tight text-slate-900 dark:text-white block">
+              MerchantVault
+            </span>
+            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 block tracking-wide mt-0.5">
+              by Seyon Nexa Labs
+            </span>
+          </div>
         </div>
-        <h2 className="mt-4 text-center text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <h2 className="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Merchant & Staff Access Portal
         </h2>
 

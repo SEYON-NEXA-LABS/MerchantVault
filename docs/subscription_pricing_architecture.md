@@ -29,29 +29,32 @@ Seyon Shopping operates a **Low Base ERP (₹499/mo) + Modular A La Carte Add-On
 | **Platform Transaction Fee** | **0%** | **0%** | **0%** | **0%** | **0%** |
 | **POS Billing Terminal** | Included | Included | Included | Included | Included |
 | **Multi-Location Inventory** | 1 Warehouse | 1 Warehouse | 1 Warehouse | 3 Warehouses | Unlimited |
+| **Media Cloud Storage** | 500 MB Free | 500 MB Free | 2 GB Free | **10 GB Free** | **50 GB Free** |
 | **1. Storefront & Domain Pack (₹499/mo)** | Add-On | **Included** | **Included** | **Included** | **Included** |
-| **2. GST Engine & Tally Pack (₹299/mo)** | Add-On | Add-On | **Included** | **Included** | **Included** |
-| **3. Marketplace Sync Pack (₹699/mo)** | Add-On | Add-On | Add-On | **Included** | **Included** |
-| **4. B2B & TDS Compliance (₹499/mo)** | Add-On | Add-On | Add-On | Add-On | **Included** |
-
+| **2. Media Cloud & Storage Pack (₹199/mo)** | Add-On | Add-On | Add-On | **Included (10GB)** | **Included (50GB)** |
+| **3. GST Engine & Tally Pack (₹299/mo)** | Add-On | Add-On | **Included** | **Included** | **Included** |
+| **4. Marketplace Sync Pack (₹699/mo)** | Add-On | Add-On | Add-On | **Included** | **Included** |
+| **5. B2B & TDS Compliance (₹499/mo)** | Add-On | Add-On | Add-On | Add-On | **Included** |
 
 ---
 
-### 5 Modular "A La Carte" Add-On Bundles
+### 6 Modular "A La Carte" Add-On Bundles
 
 1. 🌐 **Storefront & Custom Domain Pack (₹499 / mo)**: Custom domain (`brand.com`), custom subdomains (`brand.seyon.app`), white-labeling (removes "Powered by"), and storefront themes (`Company.customDomain`, `Company.hasWhiteLabelAddon`).
-2. 🔄 **Marketplace Sync Pack (₹699 / mo)**: Automated Shopify, Amazon, and Flipkart multi-channel inventory sync (`Company.hasMarketplaceSyncAddon`).
+2. 💾 **D2C Media Cloud & Storage Pack (₹199 / mo)**: +10 GB CDN media bucket storage, auto WebP compression, video hero banners, lookbook galleries, and zero-loss edge caching (`Company.hasMediaStorageAddon`).
 3. 📜 **GST Tax Engine & Tally Pack (₹299 / mo)**: Dynamic CGST/SGST/IGST splits, GSTR-1 CSV reports, and one-click Tally Prime XML export (`Company.hasGstEngineAddon`).
-4. 🏢 **B2B & TDS Compliance Pack (₹499 / mo)**: Section 194C/194Q TDS deductions, Section 206C(1H) TCS collections, and B2B credit limits (`Company.hasTdsAddon`).
-5. 💬 **WhatsApp & AI Marketing Campaign Pack (₹599 / mo)**: Automated WhatsApp abandoned cart recovery, AI broadcast targeting, VIP customer segments, and automated Meta/Instagram leads integration (`Company.hasMarketingAiAddon`).
+4. 🔄 **Marketplace Sync Pack (₹699 / mo)**: Automated Shopify, Amazon, and Flipkart multi-channel inventory sync (`Company.hasMarketplaceSyncAddon`).
+5. 🏢 **B2B & TDS Compliance Pack (₹499 / mo)**: Section 194C/194Q TDS deductions, Section 206C(1H) TCS collections, and B2B credit limits (`Company.hasTdsAddon`).
+6. 💬 **WhatsApp & AI Marketing Campaign Pack (₹599 / mo)**: Automated WhatsApp abandoned cart recovery, AI broadcast targeting, VIP customer segments, and automated Meta/Instagram leads integration (`Company.hasMarketingAiAddon`).
 
 ---
 
 ### Perpetual License Rule (₹75,000 + ₹15,000/yr AMC)
 
 When a merchant is assigned the **Perpetual License (`ONETIME_AMC`)** or **ENTERPRISE** plan:
-* **All 5 Add-On Modules are automatically activated (`true`)**:
+* **All 6 Add-On Modules are automatically activated (`true`)**:
   * `hasWhiteLabelAddon = true` (Full White-Labeling)
+  * `hasMediaStorageAddon = true` (50GB+ Cloud Media Storage)
   * `hasMarketplaceSyncAddon = true` (Shopify/Amazon Multi-Channel Sync)
   * `hasGstEngineAddon = true` (Full GST & Tally Export)
   * `hasTdsAddon = true` (Section 194C/194Q TDS Withholding)

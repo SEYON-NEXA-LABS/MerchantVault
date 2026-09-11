@@ -29,11 +29,23 @@ import {
   Copy,
   Share2,
   Palette,
-  Type
+  Type,
+  Sparkles,
+  Flame,
+  Gift,
+  Image as ImageIcon,
+  LayoutTemplate
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
 import { BillingContent } from "./billing/page";
+import {
+  InstagramIcon,
+  FacebookIcon,
+  TwitterIcon,
+  YoutubeIcon,
+  LinkedinIcon
+} from "@/components/icons";
 
 interface HandshakeStep {
   id: number;
@@ -54,43 +66,6 @@ interface Warehouse {
   country: string;
   isDefaultPickup: boolean;
 }
-
-// Inline Social Icon Components
-const InstagramIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-  </svg>
-);
-
-const FacebookIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-  </svg>
-);
-
-const TwitterIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-    <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
-    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
-  </svg>
-);
-
-const YoutubeIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-    <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-    <polygon points="10 15 15 12 10 9 10 15" fill="currentColor" />
-  </svg>
-);
-
-const LinkedinIcon = ({ className = "w-3.5 h-3.5", style = {} }: { className?: string; style?: React.CSSProperties }) => (
-  <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-    <rect width="4" height="12" x="2" y="9" />
-    <circle cx="4" cy="4" r="2" />
-  </svg>
-);
 
 export default function SettingsPage() {
   return (
@@ -120,6 +95,20 @@ function SettingsContent() {
   const [socialYoutube, setSocialYoutube] = useState("");
   const [socialLinkedin, setSocialLinkedin] = useState("");
   const [savingTheme, setSavingTheme] = useState(false);
+  const [footerTheme, setFooterTheme] = useState<"light" | "dark">("light");
+
+  // Storefront Hero Customization States
+  const [heroTemplate, setHeroTemplate] = useState<"editorial" | "flash_drop" | "festive" | "media_showcase">("editorial");
+  const [heroBadgeText, setHeroBadgeText] = useState("NEW COLLECTION 2026");
+  const [heroHeadline, setHeroHeadline] = useState("Crafted For Modern Everyday Living");
+  const [heroSubheadline, setHeroSubheadline] = useState("Discover lightweight linens, tailored silhouettes, and handcrafted essentials designed for daily elegance.");
+  const [heroCtaText, setHeroCtaText] = useState("Explore Catalog");
+  const [heroCtaLink, setHeroCtaLink] = useState("#catalog");
+  const [heroSecondaryCtaText, setHeroSecondaryCtaText] = useState("Direct Cart");
+  const [heroSecondaryCtaLink, setHeroSecondaryCtaLink] = useState("/cart");
+  const [heroBannerImageUrl, setHeroBannerImageUrl] = useState("");
+  const [heroOverlayOpacity, setHeroOverlayOpacity] = useState(0.5);
+  const [heroAlignment, setHeroAlignment] = useState<"left" | "center">("center");
 
   // Razorpay credentials states
   const [razorpayEnabled, setRazorpayEnabled] = useState(false);
@@ -419,12 +408,26 @@ function SettingsContent() {
             if (parsedTheme.radius) setThemeRadius(parsedTheme.radius);
             if (parsedTheme.fontFamily) setThemeFontFamily(parsedTheme.fontFamily);
             if (parsedTheme.announcementText) setThemeAnnouncementText(parsedTheme.announcementText);
+            if (parsedTheme.footerTheme) setFooterTheme(parsedTheme.footerTheme);
             if (parsedTheme.socials) {
               setSocialInstagram(parsedTheme.socials.instagram || "");
               setSocialFacebook(parsedTheme.socials.facebook || "");
               setSocialTwitter(parsedTheme.socials.twitter || "");
               setSocialYoutube(parsedTheme.socials.youtube || "");
               setSocialLinkedin(parsedTheme.socials.linkedin || "");
+            }
+            if (parsedTheme.hero) {
+              if (parsedTheme.hero.template) setHeroTemplate(parsedTheme.hero.template);
+              if (parsedTheme.hero.badgeText !== undefined) setHeroBadgeText(parsedTheme.hero.badgeText);
+              if (parsedTheme.hero.headline !== undefined) setHeroHeadline(parsedTheme.hero.headline);
+              if (parsedTheme.hero.subheadline !== undefined) setHeroSubheadline(parsedTheme.hero.subheadline);
+              if (parsedTheme.hero.ctaText !== undefined) setHeroCtaText(parsedTheme.hero.ctaText);
+              if (parsedTheme.hero.ctaLink !== undefined) setHeroCtaLink(parsedTheme.hero.ctaLink);
+              if (parsedTheme.hero.secondaryCtaText !== undefined) setHeroSecondaryCtaText(parsedTheme.hero.secondaryCtaText);
+              if (parsedTheme.hero.secondaryCtaLink !== undefined) setHeroSecondaryCtaLink(parsedTheme.hero.secondaryCtaLink);
+              if (parsedTheme.hero.bannerImageUrl !== undefined) setHeroBannerImageUrl(parsedTheme.hero.bannerImageUrl);
+              if (parsedTheme.hero.overlayOpacity !== undefined) setHeroOverlayOpacity(parsedTheme.hero.overlayOpacity);
+              if (parsedTheme.hero.alignment) setHeroAlignment(parsedTheme.hero.alignment);
             }
           } catch (err) {
             console.error("Failed to parse themeConfig JSON", err);
@@ -1712,12 +1715,26 @@ function SettingsContent() {
                         radius: themeRadius,
                         fontFamily: themeFontFamily,
                         announcementText: themeAnnouncementText,
+                        footerTheme: footerTheme,
                         socials: {
                           instagram: socialInstagram.trim(),
                           facebook: socialFacebook.trim(),
                           twitter: socialTwitter.trim(),
                           youtube: socialYoutube.trim(),
                           linkedin: socialLinkedin.trim()
+                        },
+                        hero: {
+                          template: heroTemplate,
+                          badgeText: heroBadgeText.trim(),
+                          headline: heroHeadline.trim(),
+                          subheadline: heroSubheadline.trim(),
+                          ctaText: heroCtaText.trim(),
+                          ctaLink: heroCtaLink.trim(),
+                          secondaryCtaText: heroSecondaryCtaText.trim(),
+                          secondaryCtaLink: heroSecondaryCtaLink.trim(),
+                          bannerImageUrl: heroBannerImageUrl.trim(),
+                          overlayOpacity: heroOverlayOpacity,
+                          alignment: heroAlignment
                         }
                       };
                       const res = await fetch("/api/settings", {
@@ -1739,6 +1756,290 @@ function SettingsContent() {
                   }}
                   className="space-y-6"
                 >
+                  {/* Hero Banner & Layout Templates Section */}
+                  <div className="space-y-4 border-b border-gray-100 pb-6">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div>
+                        <label className="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                          <LayoutTemplate className="w-4 h-4 text-indigo-600" /> Storefront Hero Banner Templates
+                        </label>
+                        <p className="text-[11px] text-gray-500 mt-0.5">
+                          Select a curated standard template or customize your headline, badges, and background imagery.
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
+                        4 Standard Presets Available
+                      </span>
+                    </div>
+
+                    {/* Template Selection Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {[
+                        {
+                          id: "editorial",
+                          name: "Minimalist Editorial",
+                          category: "Luxury & Fashion",
+                          badge: "NEW COLLECTION 2026",
+                          headline: "Crafted For Modern Everyday Living",
+                          subheadline: "Discover lightweight linens, tailored silhouettes, and handcrafted essentials designed for daily elegance.",
+                          ctaText: "Explore Catalog",
+                          secondaryCtaText: "Direct Cart",
+                          alignment: "center" as const,
+                          bannerImageUrl: "",
+                          primary: "#09090b",
+                          accent: "#d97706",
+                          icon: "🌿",
+                          desc: "Sleek typography with ambient glow"
+                        },
+                        {
+                          id: "flash_drop",
+                          name: "Flash Drop & Streetwear",
+                          category: "Streetwear & D2C",
+                          badge: "⚡ LIMITED RUN — 500 UNITS ONLY",
+                          headline: "The Heavyweight Streetwear Drop",
+                          subheadline: "Precision-crafted oversized fits, heavyweight French terry cotton, and drop-shoulder silhouettes.",
+                          ctaText: "Claim Your Size",
+                          secondaryCtaText: "Drop Details",
+                          alignment: "left" as const,
+                          bannerImageUrl: "",
+                          primary: "#6366f1",
+                          accent: "#f59e0b",
+                          icon: "⚡",
+                          desc: "High-urgency split banner with live stats"
+                        },
+                        {
+                          id: "festive",
+                          name: "Seasonal Festive & Sale",
+                          category: "Kurtas & Celebrations",
+                          badge: "✨ GRAND FESTIVE SPECIAL",
+                          headline: "Celebrate Traditions In Timeless Splendor",
+                          subheadline: "Handwoven Chanderi silks, zardozi embroidery, and regal royal festive ensembles ready for instant dispatch.",
+                          ctaText: "Shop Festive Specials",
+                          secondaryCtaText: "Exclusive Offers",
+                          alignment: "center" as const,
+                          bannerImageUrl: "",
+                          primary: "#991b1b",
+                          accent: "#facc15",
+                          icon: "✨",
+                          desc: "Warm festive palette with golden aura"
+                        },
+                        {
+                          id: "media_showcase",
+                          name: "Full-Bleed Lookbook",
+                          category: "Campaign & Visuals",
+                          badge: "AUTUMN / WINTER LOOKBOOK",
+                          headline: "Uncompromising Quality & Style",
+                          subheadline: "Explore our latest campaign visual collection engineered with water-resistant textiles and ergonomic detailing.",
+                          ctaText: "Discover Collection",
+                          secondaryCtaText: "Direct Cart",
+                          alignment: "left" as const,
+                          bannerImageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=80",
+                          primary: "#0d9488",
+                          accent: "#fbbf24",
+                          icon: "📸",
+                          desc: "Full-width photo with frosted glass card"
+                        }
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            setHeroTemplate(t.id as any);
+                            setHeroBadgeText(t.badge);
+                            setHeroHeadline(t.headline);
+                            setHeroSubheadline(t.subheadline);
+                            setHeroCtaText(t.ctaText);
+                            setHeroSecondaryCtaText(t.secondaryCtaText);
+                            setHeroAlignment(t.alignment);
+                            setHeroBannerImageUrl(t.bannerImageUrl);
+                            setThemePrimary(t.primary);
+                            setThemeAccent(t.accent);
+                          }}
+                          className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                            heroTemplate === t.id
+                              ? "border-indigo-600 bg-indigo-50/50 shadow-sm ring-2 ring-indigo-500/25"
+                              : "border-gray-200 hover:border-gray-300 bg-white"
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-lg">{t.icon}</span>
+                              <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                {t.category}
+                              </span>
+                            </div>
+                            <span className="font-bold text-xs text-gray-900 block">{t.name}</span>
+                            <span className="text-[11px] text-gray-500 block mt-1 leading-snug">{t.desc}</span>
+                          </div>
+                          <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-600">
+                            <span>Colors:</span>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: t.primary }} />
+                              <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: t.accent }} />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Hero Content Form Controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Hero Promotional Tag / Pill Badge</label>
+                        <input
+                          type="text"
+                          value={heroBadgeText}
+                          onChange={(e) => setHeroBadgeText(e.target.value)}
+                          placeholder="e.g. ⚡ LIMITED RUN — 500 UNITS ONLY"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Text Alignment</label>
+                        <select
+                          value={heroAlignment}
+                          onChange={(e) => setHeroAlignment(e.target.value as any)}
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        >
+                          <option value="center">Centered Alignment</option>
+                          <option value="left">Left Aligned</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="text-xs font-semibold text-gray-700">Main Hero Headline</label>
+                        <input
+                          type="text"
+                          value={heroHeadline}
+                          onChange={(e) => setHeroHeadline(e.target.value)}
+                          placeholder="e.g. Crafted For Modern Everyday Living"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="text-xs font-semibold text-gray-700">Subheadline / Narrative Description</label>
+                        <textarea
+                          rows={2}
+                          value={heroSubheadline}
+                          onChange={(e) => setHeroSubheadline(e.target.value)}
+                          placeholder="Short narrative highlighting material quality, dispatch speed, or product philosophy."
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Primary CTA Button Text</label>
+                        <input
+                          type="text"
+                          value={heroCtaText}
+                          onChange={(e) => setHeroCtaText(e.target.value)}
+                          placeholder="e.g. Explore Catalog"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Primary CTA Target Link</label>
+                        <input
+                          type="text"
+                          value={heroCtaLink}
+                          onChange={(e) => setHeroCtaLink(e.target.value)}
+                          placeholder="e.g. #catalog or /categories/apparel"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs font-mono text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Secondary Action Button Text</label>
+                        <input
+                          type="text"
+                          value={heroSecondaryCtaText}
+                          onChange={(e) => setHeroSecondaryCtaText(e.target.value)}
+                          placeholder="e.g. Direct Cart"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-700">Secondary Action Link</label>
+                        <input
+                          type="text"
+                          value={heroSecondaryCtaLink}
+                          onChange={(e) => setHeroSecondaryCtaLink(e.target.value)}
+                          placeholder="e.g. /cart"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs font-mono text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      <div className="space-y-1 md:col-span-2">
+                        <label className="text-xs font-semibold text-gray-700 flex items-center justify-between">
+                          <span>Custom Background Image URL (Optional)</span>
+                          <span className="text-[10px] text-gray-500">Unsplash or CDN Image Link</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={heroBannerImageUrl}
+                          onChange={(e) => setHeroBannerImageUrl(e.target.value)}
+                          placeholder="https://images.unsplash.com/... (leave blank for clean gradient theme)"
+                          className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2 px-3 text-xs font-mono text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                        />
+                      </div>
+
+                      {heroBannerImageUrl && (
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-xs font-semibold text-gray-700 flex items-center justify-between">
+                            <span>Image Dark Overlay Intensity</span>
+                            <span className="text-xs font-mono text-indigo-600">{Math.round(heroOverlayOpacity * 100)}%</span>
+                          </label>
+                          <input
+                            type="range"
+                            min={0.1}
+                            max={0.9}
+                            step={0.05}
+                            value={heroOverlayOpacity}
+                            onChange={(e) => setHeroOverlayOpacity(parseFloat(e.target.value))}
+                            className="w-full accent-indigo-600 cursor-pointer"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Live Hero Banner Preview Box */}
+                    <div className="rounded-xl border border-gray-200 overflow-hidden bg-slate-950 text-white p-6 shadow-sm relative">
+                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Hero Preview ({heroTemplate})
+                      </div>
+                      <div className={`space-y-3 ${heroAlignment === "left" ? "text-left max-w-lg" : "text-center max-w-xl mx-auto"}`}>
+                        <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-amber-300">
+                          <Sparkles className="w-3 h-3" />
+                          <span>{heroBadgeText || "Promotional Badge"}</span>
+                        </div>
+                        <h4 className="text-lg md:text-xl font-extrabold text-white leading-tight">
+                          {heroHeadline || "Your Hero Headline"}
+                        </h4>
+                        <p className="text-xs text-gray-300 leading-relaxed">
+                          {heroSubheadline || "Your subheadline narrative preview."}
+                        </p>
+                        <div className={`flex gap-2 pt-1 ${heroAlignment === "left" ? "justify-start" : "justify-center"}`}>
+                          <span
+                            className="px-3 py-1.5 rounded text-xs font-bold text-white shadow-xs"
+                            style={{ backgroundColor: themePrimary, borderRadius: themeRadius }}
+                          >
+                            {heroCtaText} →
+                          </span>
+                          <span
+                            className="px-3 py-1.5 rounded text-xs font-semibold bg-white/10 border border-white/25 text-white"
+                            style={{ borderRadius: themeRadius }}
+                          >
+                            {heroSecondaryCtaText}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Preset Color Palettes */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">
@@ -1777,7 +2078,7 @@ function SettingsContent() {
                   </div>
 
                   {/* Typography Font & Corner Radius Selection */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
                         <Type className="w-4 h-4 text-gray-500" /> Storefront Font Family
@@ -1793,7 +2094,7 @@ function SettingsContent() {
                         <option value="Plus Jakarta Sans, sans-serif">Plus Jakarta Sans (Tech & Clean)</option>
                         <option value="Cinzel, serif">Cinzel (Heritage Apparel)</option>
                       </select>
-                      <p className="text-[11px] text-gray-500">Selected font family is automatically loaded from Google Fonts on your Storefront.</p>
+                      <p className="text-[11px] text-gray-500">Selected font family is automatically loaded from Google Fonts.</p>
                     </div>
 
                     <div className="space-y-1.5">
@@ -1808,7 +2109,20 @@ function SettingsContent() {
                         <option value="0.75rem">Rounded (12px)</option>
                         <option value="1.5rem">Pill (24px Soft)</option>
                       </select>
-                      <p className="text-[11px] text-gray-500">Controls corner roundness for buttons, cards, and modal popups.</p>
+                      <p className="text-[11px] text-gray-500">Controls corner roundness for buttons and cards.</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700">Footer Theme Style</label>
+                      <select
+                        value={footerTheme}
+                        onChange={(e) => setFooterTheme(e.target.value as "light" | "dark")}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg py-2.5 px-3 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      >
+                        <option value="light">Light Theme (Crisp Slate / Clean D2C)</option>
+                        <option value="dark">Dark Theme (Midnight Charcoal)</option>
+                      </select>
+                      <p className="text-[11px] text-gray-500">Toggle between modern light or deep dark footer style.</p>
                     </div>
                   </div>
 

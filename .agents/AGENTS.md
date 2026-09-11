@@ -1,5 +1,5 @@
 ## 1. Standard Project Branding
-- The official product and platform name is **Seyon Shopping** (or `seyon_shopping`). Always refer to the platform as Seyon Shopping in documentation, user interfaces, logs, and comments.
+- The official product and platform name is **MerchantVault** (or `MerchantVault by Seyon Nexa Labs`, `merchant_vault`). Always refer to the platform as MerchantVault by Seyon Nexa Labs in documentation, user interfaces, logs, and comments.
 
 
 ## 2. Environment & Hostname Resolution Rules

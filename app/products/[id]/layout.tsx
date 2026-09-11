@@ -19,11 +19,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   try {
     // 1. Fetch ProductVariant by ID or SKU
-    const { data: variant } = await supabase
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId);
+    let variantQuery = supabase
       .from("ProductVariant")
-      .select("id, sku, title, price, currentStockLevel, category, color, size, companyId")
-      .or(`id.eq.${productId},sku.eq.${productId}`)
-      .maybeSingle();
+      .select("id, sku, title, price, currentStockLevel, category, color, size, companyId");
+    if (isUUID) {
+      variantQuery = variantQuery.eq("id", productId);
+    } else {
+      variantQuery = variantQuery.eq("sku", productId);
+    }
+    const { data: variant } = await variantQuery.maybeSingle();
 
     if (!variant) {
       return {
@@ -71,11 +76,16 @@ export default async function ProductLayout({ params, children }: Props) {
   let jsonLdProduct = null;
 
   try {
-    const { data: variant } = await supabase
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId);
+    let variantQuery = supabase
       .from("ProductVariant")
-      .select("id, sku, title, price, currentStockLevel, category, color, size, companyId")
-      .or(`id.eq.${productId},sku.eq.${productId}`)
-      .maybeSingle();
+      .select("id, sku, title, price, currentStockLevel, category, color, size, companyId");
+    if (isUUID) {
+      variantQuery = variantQuery.eq("id", productId);
+    } else {
+      variantQuery = variantQuery.eq("sku", productId);
+    }
+    const { data: variant } = await variantQuery.maybeSingle();
 
     if (variant) {
       const { data: company } = await supabase

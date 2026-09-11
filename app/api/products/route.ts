@@ -13,18 +13,35 @@ export async function GET(request: Request) {
     const companyId = searchParams.get("companyId");
     const brandParam = searchParams.get("brand");
 
-    let companyQuery = supabase
-      .from("Company")
-      .select("id, name, storeName, code, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber");
+    const isUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 
+    let company: any = null;
     const targetCode = slug || companyId;
+
     if (targetCode) {
-      companyQuery = companyQuery.or(`code.eq.${targetCode},id.eq.${targetCode},code.ilike.${targetCode}`);
-    } else {
-      companyQuery = companyQuery.eq("code", "syn");
+      let companyQuery = supabase
+        .from("Company")
+        .select("id, name, storeName, code, logoUrl, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber");
+
+      if (isUUID(targetCode)) {
+        companyQuery = companyQuery.eq("id", targetCode);
+      } else {
+        companyQuery = companyQuery.or(`code.eq.${targetCode},code.ilike.${targetCode}`);
+      }
+      const { data } = await companyQuery.maybeSingle();
+      company = data;
     }
 
-    const { data: company } = await companyQuery.maybeSingle();
+    // Default tenant fallback: if no company matched or none specified, resolve active merchant company (non-superadmin)
+    if (!company) {
+      const { data } = await supabase
+        .from("Company")
+        .select("id, name, storeName, code, logoUrl, shopifyStoreUrl, themeConfig, gstin, taxId, contactEmail, whatsappNumber")
+        .neq("code", "superadmin")
+        .limit(1)
+        .maybeSingle();
+      company = data;
+    }
 
     let brands: any[] = [];
     let brandId: string | null = null;

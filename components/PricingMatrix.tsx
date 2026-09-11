@@ -13,7 +13,8 @@ import {
   Layers,
   Sparkles,
   Check,
-  X
+  X,
+  HardDrive
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,7 +37,7 @@ export const PLAN_DEFINITIONS: SubscriptionPlan[] = [
     yearlyPrice: 4990,
     desc: "Single-store POS & Inventory ERP. Add modular add-ons a la carte as you scale.",
     includedAddons: [],
-    savingsTip: "Base billing ERP. Upgrade to Basic for Storefront or Starter for full GST bundle!"
+    savingsTip: "Base billing ERP. Includes 500 MB media storage. Upgrade to Basic for Storefront!"
   },
   {
     code: "BASIC",
@@ -63,17 +64,17 @@ export const PLAN_DEFINITIONS: SubscriptionPlan[] = [
     yearlyPrice: 19990,
     popular: true,
     desc: "Multi-channel automation across Shopify, Amazon India, and Flipkart Hub.",
-    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC"],
-    savingsTip: "Saves ₹1,497/month (₹17,964/year) by bundling Storefront + GST Engine + Marketplace Sync!"
+    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC", "MEDIA_STORAGE"],
+    savingsTip: "Saves ₹1,696/month (₹20,352/year) by bundling Storefront + GST + Marketplace Sync + 10GB Media Cloud!"
   },
   {
     code: "ENTERPRISE",
     name: "Enterprise Hub",
     monthlyPrice: 4999,
     yearlyPrice: 49990,
-    desc: "Unlimited multi-warehouse ERP, B2B TDS compliance, and AI WhatsApp CRM.",
-    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC", "B2B_TDS", "WHATSAPP_AI"],
-    savingsTip: "Saves ₹2,595/month (₹31,140/year) by bundling ALL 5 Add-On Packs ($0.00) with unlimited orders!"
+    desc: "Unlimited multi-warehouse ERP, B2B TDS compliance, 50GB Studio Media Vault, and AI WhatsApp CRM.",
+    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC", "B2B_TDS", "WHATSAPP_AI", "MEDIA_STORAGE"],
+    savingsTip: "Saves ₹2,794/month (₹33,528/year) by bundling ALL 6 Add-On Packs ($0.00) with 50GB Media Vault!"
   },
   {
     code: "PERPETUAL",
@@ -81,7 +82,7 @@ export const PLAN_DEFINITIONS: SubscriptionPlan[] = [
     monthlyPrice: 15000, // Annual AMC
     yearlyPrice: 15000,
     desc: "₹75,000 one-time setup (Yr 1 included) + ₹15,000/yr AMC starting 2nd year. Full white-label ownership.",
-    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC", "B2B_TDS", "WHATSAPP_AI"],
+    includedAddons: ["STOREFRONT", "GST_ENGINE", "MARKETPLACE_SYNC", "B2B_TDS", "WHATSAPP_AI", "MEDIA_STORAGE"],
     savingsTip: "MAXIMUM SAVINGS: Saves ₹74,964 in 3 Years vs Enterprise SaaS, and saves over ₹5,50,000 vs Shopify Plus!"
   }
 ];
@@ -105,6 +106,15 @@ export const ADDON_DEFINITIONS: AddonPack[] = [
     desc: "Custom domain (brand.com), subdomains (brand.seyon.app), and white-labeling.",
     icon: Globe,
     flagKey: "hasWhiteLabelAddon"
+  },
+  {
+    id: "MEDIA_STORAGE",
+    code: "MEDIA_STORAGE",
+    name: "D2C Media Cloud & Storage Pack",
+    monthlyPrice: 199,
+    desc: "+10 GB CDN media bucket storage, auto WebP compression, video banners, and unlimited high-res lookbooks.",
+    icon: HardDrive,
+    flagKey: "hasMediaStorageAddon"
   },
   {
     id: "GST_ENGINE",
@@ -438,6 +448,147 @@ export function SharedPricingMatrix({
             </div>
           );
         })}
+      </div>
+
+      {/* Crystal Clear Plan Features Comparison Matrix Table */}
+      <div className="space-y-4 pt-4 border-t border-slate-200">
+        <div className="text-center sm:text-left">
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 flex items-center justify-center sm:justify-start gap-2">
+            <Sparkles className="w-5 h-5 text-indigo-600" /> Complete Plan Feature & Limits Comparison
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Transparent breakdown of included capabilities across all 6 tiers with 0% platform transaction fees.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-xs bg-white">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-700">
+                <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-slate-800 min-w-[200px]">Feature / Module</th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Micro<br /><span className="text-[10px] font-normal text-slate-500">₹499/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Basic<br /><span className="text-[10px] font-normal text-slate-500">₹799/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Starter<br /><span className="text-[10px] font-normal text-slate-500">₹999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-50/50 text-indigo-700">Growth<br /><span className="text-[10px] font-bold text-indigo-600">₹1,999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Enterprise<br /><span className="text-[10px] font-normal text-slate-500">₹4,999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-900 text-white">Perpetual<br /><span className="text-[10px] font-medium text-indigo-200">₹75k + AMC</span></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {/* Media Cloud Storage */}
+              <tr className="hover:bg-slate-50/70 transition-colors bg-indigo-50/10">
+                <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-2">
+                  <HardDrive className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                  <div>
+                    <span>Media Cloud Storage</span>
+                    <span className="block text-[10px] font-normal text-slate-500">WebP CDN, lookbooks & video banners</span>
+                  </div>
+                </td>
+                <td className="py-3 px-3 text-center font-medium text-slate-600">500 MB</td>
+                <td className="py-3 px-3 text-center text-slate-500">Optional (+₹199)</td>
+                <td className="py-3 px-3 text-center text-slate-500">Optional (+₹199)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-700 bg-indigo-50/30">✓ 10 GB Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-700">✓ 50 GB Studio Vault</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ 50 GB Studio Vault</td>
+              </tr>
+
+              {/* Online Storefront & Custom Domain */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>Storefront & Custom Domain</span>
+                  <span className="block text-[10px] font-normal text-slate-500">brand.com + mobile-optimized catalog</span>
+                </td>
+                <td className="py-3 px-3 text-center text-slate-400 font-medium">Add-on (+₹499)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-indigo-50/30">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* Offline POS & Barcode Billing */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>POS Terminal & USB Barcode Billing</span>
+                  <span className="block text-[10px] font-normal text-slate-500">Sub-50ms dispatch, thermal receipt printing</span>
+                </td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-indigo-50/30">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* Indian GST & Tally */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>GST Engine & 1-Click Tally XML</span>
+                  <span className="block text-[10px] font-normal text-slate-500">CGST/SGST/IGST splits + GSTR-1 CSV</span>
+                </td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹299)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹299)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-indigo-50/30">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* Multi-Channel Sync */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>Multi-Channel Inventory Sync</span>
+                  <span className="block text-[10px] font-normal text-slate-500">Shopify + Amazon SP-API + Flipkart</span>
+                </td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹699)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹699)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹699)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-indigo-50/30">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* B2B & TDS Compliance */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>B2B Ledger & TDS Compliance</span>
+                  <span className="block text-[10px] font-normal text-slate-500">Sec 194C/194Q & credit limits</span>
+                </td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹499)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹499)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹499)</td>
+                <td className="py-3 px-3 text-center text-slate-400 bg-indigo-50/30">Optional (+₹499)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* WhatsApp AI Marketing */}
+              <tr className="hover:bg-slate-50/70 transition-colors">
+                <td className="py-3 px-4 font-bold text-slate-900">
+                  <span>WhatsApp CRM & AI Marketing</span>
+                  <span className="block text-[10px] font-normal text-slate-500">Automated cart recovery & broadcasts</span>
+                </td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹599)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹599)</td>
+                <td className="py-3 px-3 text-center text-slate-400">Optional (+₹599)</td>
+                <td className="py-3 px-3 text-center text-slate-400 bg-indigo-50/30">Optional (+₹599)</td>
+                <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
+                <td className="py-3 px-3 text-center font-bold text-indigo-950 bg-indigo-50/40">✓ Included</td>
+              </tr>
+
+              {/* Platform Fees */}
+              <tr className="hover:bg-slate-50/70 transition-colors font-bold bg-emerald-50/30">
+                <td className="py-3 px-4 text-emerald-900">Platform Transaction Fee</td>
+                <td className="py-3 px-3 text-center text-emerald-700 font-extrabold">0%</td>
+                <td className="py-3 px-3 text-center text-emerald-700 font-extrabold">0%</td>
+                <td className="py-3 px-3 text-center text-emerald-700 font-extrabold">0%</td>
+                <td className="py-3 px-3 text-center text-emerald-700 font-extrabold bg-indigo-50/30">0%</td>
+                <td className="py-3 px-3 text-center text-emerald-700 font-extrabold">0%</td>
+                <td className="py-3 px-3 text-center text-emerald-900 font-black bg-indigo-50/40">0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Smart A La Carte Add-On Module Management Section */}

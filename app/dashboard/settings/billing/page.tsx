@@ -49,6 +49,7 @@ export function BillingContent() {
         }
         setAddonsState({
           STOREFRONT: !!data.hasWhiteLabelAddon,
+          MEDIA_STORAGE: !!data.hasMediaStorageAddon,
           GST_ENGINE: !!data.hasGstEngineAddon,
           MARKETPLACE_SYNC: !!data.hasMarketplaceSyncAddon,
           B2B_TDS: !!data.hasTdsAddon,

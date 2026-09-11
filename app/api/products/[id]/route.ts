@@ -131,18 +131,24 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     // 2. Query Live Supabase Database
     if (supabase) {
       // Query by ID or SKU
-      const { data: variant } = await supabase
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      let variantQuery = supabase
         .from("ProductVariant")
-        .select("id, sku, title, size, color, price, compareAtPrice, currentStockLevel, category, categoryId, categoryName, vendor, thumbnailConfig, companyId, brandId, createdAt")
-        .or(`id.eq.${id},sku.eq.${id}`)
-        .maybeSingle();
+        .select("id, sku, title, size, color, price, compareAtPrice, currentStockLevel, category, categoryId, categoryName, vendor, thumbnailConfig, companyId, brandId, createdAt");
+      
+      if (isUUID) {
+        variantQuery = variantQuery.eq("id", id);
+      } else {
+        variantQuery = variantQuery.eq("sku", id);
+      }
+      const { data: variant } = await variantQuery.maybeSingle();
 
       if (variant) {
         let company: any = null;
         if (variant.companyId) {
           const { data: comp } = await supabase
             .from("Company")
-            .select("id, name, storeName, code, gstin, contactEmail, whatsappNumber, themeConfig")
+            .select("id, name, storeName, code, logoUrl, gstin, contactEmail, whatsappNumber, themeConfig")
             .eq("id", variant.companyId)
             .maybeSingle();
           company = comp;

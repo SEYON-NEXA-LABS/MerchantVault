@@ -269,10 +269,9 @@ export function Sidebar({
           </div>
           <div className="overflow-hidden">
             <h1 className="font-bold text-sm uppercase tracking-wide text-slate-900 truncate max-w-[170px]">
-              {company?.name || "Seyon Shopping ERP"}
+              {company?.name || "MerchantVault"}
             </h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Seyon Shopping ERP</p>
-
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">MerchantVault ERP</p>
           </div>
         </div>
 
@@ -450,16 +449,31 @@ export function Sidebar({
         )}
       </nav>
 
-      {/* Collapse Footer */}
-      <div className="p-4 border-t border-slate-100/80 flex items-center justify-between text-xs text-slate-500 hover:text-slate-900 cursor-pointer">
-        <div className="flex items-center font-semibold">
-          <ChevronLeft className="w-4 h-4 mr-1" /> Collapse Sidebar
+      {/* Platform Attribution & Collapse Footer */}
+      <div className="p-3 border-t border-slate-100/80 space-y-2 bg-slate-50/50">
+        <div className="flex items-center justify-between text-xs text-slate-500 hover:text-slate-900 cursor-pointer">
+          <div className="flex items-center font-semibold">
+            <ChevronLeft className="w-4 h-4 mr-1" /> Collapse Sidebar
+          </div>
+          {process.env.NODE_ENV === "development" && (
+            <span className="text-[10px] font-mono font-bold bg-amber-100/80 text-amber-800 border border-amber-200/60 px-1.5 py-0.5 rounded-md">
+              {devEnvironmentMode}
+            </span>
+          )}
         </div>
-        {process.env.NODE_ENV === "development" && (
-          <span className="text-[10px] font-mono font-bold bg-amber-100/80 text-amber-800 border border-amber-200/60 px-1.5 py-0.5 rounded-md">
-            {devEnvironmentMode}
+
+        <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60">
+          <div className="w-5 h-5 rounded-md bg-white border border-slate-200 p-0.5 flex items-center justify-center flex-shrink-0">
+            <img 
+              src="/seyon-logo.png" 
+              alt="Seyon Nexa Labs" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <span className="text-[10px] font-medium text-slate-500 truncate">
+            MerchantVault by <strong className="text-slate-700">Seyon Nexa Labs</strong>
           </span>
-        )}
+        </div>
       </div>
     </aside>
   );

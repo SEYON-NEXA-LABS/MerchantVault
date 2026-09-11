@@ -579,7 +579,14 @@ CREATE TABLE IF NOT EXISTS "MarketplaceConfig" (
     CONSTRAINT "MarketplaceConfig_companyId_channel_key" UNIQUE ("companyId", "channel")
 );
 
-CREATE INDEX IF NOT EXISTS "idx_marketplace_config_company" ON "MarketplaceConfig"("companyId");
+-- Add-On Module Flags
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasWhiteLabelAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasGstEngineAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasMarketplaceSyncAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasTdsAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasMarketingAiAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "hasMediaStorageAddon" BOOLEAN DEFAULT FALSE NOT NULL;
+
 
 
 

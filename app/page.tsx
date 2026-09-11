@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { StorefrontFooter } from "@/components/StorefrontFooter";
+import { StorefrontHero } from "@/components/StorefrontHero";
 import { generateOrganizationSchema, generateProductSchema } from "./utils/seo";
 
 
@@ -832,7 +833,7 @@ export default function StorefrontPage() {
   const activeBrandObj = selectedBrand && brands.length > 0 
     ? brands.find(b => b.code === selectedBrand.toLowerCase()) 
     : null;
-  const activeLogoUrl = activeBrandObj?.logoUrl || null;
+  const activeLogoUrl = activeBrandObj?.logoUrl || company?.logoUrl || null;
   const activeTheme = activeBrandObj?.themeConfig 
     ? (typeof activeBrandObj.themeConfig === "string" ? JSON.parse(activeBrandObj.themeConfig) : activeBrandObj.themeConfig)
     : (company?.themeConfig ? (typeof company.themeConfig === "string" ? JSON.parse(company.themeConfig) : company.themeConfig) : null);
@@ -867,10 +868,11 @@ export default function StorefrontPage() {
     return Object.values(groups);
   }, [products, useSampleData]);
 
-  // Sorting & Pagination States
+  // Sorting, Pagination & Responsive Mobile Grid States
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "stock">("featured");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [mobileColumns, setMobileColumns] = useState<1 | 2>(2);
 
   // Reset pagination to page 1 whenever search, category, brand, sort, or page limit changes
   useEffect(() => {
@@ -1147,21 +1149,25 @@ export default function StorefrontPage() {
             <div style={{
               backgroundColor: "var(--primary)",
               color: "var(--primary-foreground)",
-              padding: "0.45rem",
+              width: "2.25rem",
+              height: "2.25rem",
               borderRadius: "var(--radius)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
+              fontWeight: "700",
+              fontSize: "1.1rem",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
             }}>
-              <Scissors style={{ width: "1.15rem", height: "1.15rem" }} />
+              {(activeBrandObj?.name ? activeBrandObj.name[0] : (company?.name ? company.name[0] : (company?.storeName ? company.storeName[0] : "S"))).toUpperCase()}
             </div>
           )}
-          <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
-              {activeBrandObj?.name || company?.storeName || company?.name || "Seyon Shopping"}
+              {activeBrandObj?.name || company?.name || company?.storeName || "Seyon Shopping"}
             </span>
             {process.env.NODE_ENV === "development" && (
-              <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", marginLeft: "0.5rem", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
+              <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
                 PRE-RELEASE
               </span>
             )}
@@ -1276,49 +1282,8 @@ export default function StorefrontPage() {
         </div>
       </header>
 
-      {/* Modern Enhanced Hero Section */}
-          <section className="hero-section-container">
-            <div className="hero-ambient-glow" />
-            <div className="hero-grid-pattern" />
-
-            <div className="hero-content-wrapper">
-              <div className="hero-badge-pill">
-                <Sparkles style={{ width: "0.85rem", height: "0.85rem", color: "var(--primary, #0d9488)" }} />
-                <span>{activeTheme?.bannerText || "0% Commission Direct Checkout Channel"}</span>
-              </div>
-
-              <h2 className="hero-main-heading">
-                <span className="hero-main-heading-gradient">
-                  {activeTheme?.heroTitle || "Premium Products, Synced in Real-Time"}
-                </span>
-              </h2>
-
-              <p className="hero-subtitle-text">
-                {activeTheme?.heroSubtitle || "Experience direct database checkout. Linked directly to real-time inventory registry for guaranteed stock and instant order fulfillment."}
-              </p>
-
-              <div className="hero-cta-group">
-                <a href="#catalog" className="hero-cta-btn-primary">
-                  Explore Catalog <ArrowRight style={{ width: "0.95rem", height: "0.95rem" }} />
-                </a>
-                <Link href="/cart" className="hero-cta-btn-secondary">
-                  <ShoppingBag style={{ width: "0.95rem", height: "0.95rem" }} /> Direct Cart
-                </Link>
-              </div>
-
-              <div className="hero-trust-bar">
-                <div className="hero-trust-item">
-                  <Zap style={{ width: "0.85rem", height: "0.85rem" }} /> Real-Time Stock Sync
-                </div>
-                <div className="hero-trust-item">
-                  <CheckCircle2 style={{ width: "0.85rem", height: "0.85rem" }} /> Zero Overselling Guarantee
-                </div>
-                <div className="hero-trust-item">
-                  <Truck style={{ width: "0.85rem", height: "0.85rem" }} /> Direct Fulfillment
-                </div>
-              </div>
-            </div>
-          </section>
+      {/* Dynamic Customizable Storefront Hero Banner */}
+      <StorefrontHero company={company} activeBrandObj={activeBrandObj} />
 
           {/* Catalog & Filter controls */}
           <section id="catalog" style={{ flex: 1, padding: "3rem 1.5rem", maxWidth: "1200px", margin: "0 auto", width: "100%" }}>
@@ -1403,6 +1368,52 @@ export default function StorefrontPage() {
                     <option value={96}>96 per page</option>
                   </select>
                 </div>
+
+                {/* Mobile View 1/2 Column Toggle */}
+                <div className="flex sm:hidden items-center gap-1 border border-slate-200 rounded-lg p-0.5 bg-slate-50">
+                  <button
+                    type="button"
+                    onClick={() => setMobileColumns(1)}
+                    title="Single Column Feed"
+                    style={{
+                      padding: "0.3rem 0.45rem",
+                      borderRadius: "0.25rem",
+                      border: "none",
+                      backgroundColor: mobileColumns === 1 ? "#ffffff" : "transparent",
+                      color: mobileColumns === 1 ? "var(--primary, #0d9488)" : "#71717a",
+                      boxShadow: mobileColumns === 1 ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+                      cursor: "pointer",
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.2rem"
+                    }}
+                  >
+                    1 Col
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMobileColumns(2)}
+                    title="Two Column Grid"
+                    style={{
+                      padding: "0.3rem 0.45rem",
+                      borderRadius: "0.25rem",
+                      border: "none",
+                      backgroundColor: mobileColumns === 2 ? "#ffffff" : "transparent",
+                      color: mobileColumns === 2 ? "var(--primary, #0d9488)" : "#71717a",
+                      boxShadow: mobileColumns === 2 ? "0 1px 2px rgba(0,0,0,0.08)" : "none",
+                      cursor: "pointer",
+                      fontSize: "0.75rem",
+                      fontWeight: "700",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.2rem"
+                    }}
+                  >
+                    2 Col
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1428,11 +1439,13 @@ export default function StorefrontPage() {
               </div>
             ) : (
               <>
-                <div style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-                  gap: "1.5rem"
-                }}>
+                <div 
+                  className={`grid gap-3 sm:gap-6 ${
+                    mobileColumns === 1 ? "grid-cols-1" : "grid-cols-2"
+                  } sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 storefront-product-grid ${
+                    mobileColumns === 1 ? "grid-cols-mobile-1" : "grid-cols-mobile-2"
+                  }`}
+                >
                   {paginatedProducts.map(prod => {
                     const inStock = prod.currentStockLevel > 0;
                     const isFav = favorites.includes(prod.id);
@@ -1528,7 +1541,7 @@ export default function StorefrontPage() {
                         </div>
 
                         {/* Specs */}
-                        <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flex: 1 }}>
+                        <div className="product-card-body" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flex: 1 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: "0.7rem", color: "#a1a1aa", fontWeight: "500" }}>SKU: {prod.sku}</span>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
@@ -1545,7 +1558,7 @@ export default function StorefrontPage() {
                             </div>
                           </div>
                           <Link href={`/products/${prod.id}`} style={{ textDecoration: "none" }}>
-                            <h4 className="product-title-hover" style={{ fontSize: "0.95rem", fontWeight: "600", color: "#09090b", margin: "0.25rem 0 0.5rem 0", lineHeight: "1.35" }}>
+                            <h4 className="product-title-hover product-card-title" style={{ fontSize: "0.95rem", fontWeight: "600", color: "#09090b", margin: "0.25rem 0 0.5rem 0", lineHeight: "1.35" }}>
                               {prod.title}
                             </h4>
                           </Link>
@@ -1615,7 +1628,7 @@ export default function StorefrontPage() {
                               return (
                                 <>
                                   <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
-                                    <span style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{targetVariant.price || prod.price}</span>
+                                    <span className="product-card-price" style={{ fontSize: "1.1rem", fontWeight: "700", color: "#09090b" }}>₹{targetVariant.price || prod.price}</span>
                                     {(targetVariant.compareAtPrice || prod.compareAtPrice) > (targetVariant.price || prod.price) && (
                                       <span style={{ fontSize: "0.8rem", color: "#a1a1aa", textDecoration: "line-through" }}>
                                         ₹{targetVariant.compareAtPrice || prod.compareAtPrice}
@@ -1624,6 +1637,7 @@ export default function StorefrontPage() {
                                   </div>
                                   
                                   <button
+                                    className="product-card-btn"
                                     onClick={() => {
                                       if (targetInStock) {
                                         addToCart(targetVariant, chosenSize, targetVariant.color || prod.color);
