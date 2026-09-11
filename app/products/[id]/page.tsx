@@ -590,7 +590,7 @@ export default function ProductDetailPage() {
           )}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "1.15rem", fontWeight: "700", letterSpacing: "-0.025em", textTransform: "uppercase" }}>
-              {brand?.name || company?.name || company?.storeName || "SEYON SHOPPING"}
+              {brand?.name || company?.name || company?.storeName || "STOREFRONT"}
             </span>
             <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", border: "1px solid var(--border)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>
               PRE-RELEASE

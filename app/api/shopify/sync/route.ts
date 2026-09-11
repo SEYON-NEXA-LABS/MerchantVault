@@ -272,7 +272,7 @@ export async function POST(req: Request) {
     // Validation Check: If user saved an API Secret Key (shpss_) instead of Admin Access Token (shpat_)
     if (activeToken.startsWith("shpss_") && !company.shopifyClientId) {
       return NextResponse.json({
-        error: `The saved token '${activeToken.substring(0, 10)}...' is a Shopify Secret Key. Please copy your 'Admin API access token' (starts with 'shpat_') from Shopify Admin ➔ Apps ➔ Seyon Shopping ERP ➔ API credentials.`
+        error: `The saved token '${activeToken.substring(0, 10)}...' is a Shopify Secret Key. Please copy your 'Admin API access token' (starts with 'shpat_') from Shopify Admin ➔ Apps ➔ MerchantVault ERP ➔ API credentials.`
       }, { status: 400 });
     }
 

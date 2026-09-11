@@ -1,6 +1,6 @@
-# Seyon Shopping — Dynamic Custom Domain & Multi-Tenant Deployment SOP
+# MerchantVault — Dynamic Custom Domain & Multi-Tenant Deployment SOP
 
-This document provides a step-by-step Standard Operating Procedure (SOP) for deploying **Seyon Shopping ERP & D2C Storefront OS** on **Vercel** and **Hostinger VPS (PM2 / NGINX)**, and explains how multi-tenant SaaS resolution works across query parameters, subdomains, and custom domains.
+This document provides a step-by-step Standard Operating Procedure (SOP) for deploying **MerchantVault ERP & D2C Storefront OS** on **Vercel** and **Hostinger VPS (PM2 / NGINX)**, and explains how multi-tenant SaaS resolution works across query parameters, subdomains, and custom domains.
 
 
 ---

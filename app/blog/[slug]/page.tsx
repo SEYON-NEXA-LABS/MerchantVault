@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!article) {
     return {
-      title: "Article Not Found | Seyon Shopping",
+      title: "Article Not Found | MerchantVault",
     };
   }
 
@@ -54,11 +54,11 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
     "image": [article.featuredImage],
     "author": {
       "@type": "Organization",
-      "name": article.author || "Seyon Shopping Editorial"
+      "name": article.author || "MerchantVault Editorial"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Seyon Shopping",
+      "name": "MerchantVault",
       "logo": {
         "@type": "ImageObject",
         "url": "https://merchantvault.vercel.app/logo.png"
@@ -82,7 +82,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
           <Link href="/blog" className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Journal
           </Link>
-          <span className="text-xs font-extrabold text-indigo-600 tracking-wide uppercase">Seyon Shopping Journal</span>
+          <span className="text-xs font-extrabold text-indigo-600 tracking-wide uppercase">MerchantVault Journal</span>
         </div>
       </div>
 

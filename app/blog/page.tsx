@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import { BookOpen, Calendar, User, ArrowRight, Sparkles, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Blog & Fashion Articles | Seyon Shopping",
-  description: "Read the latest handloom fashion trends, D2C styling guides, fabric maintenance tips, and retail insights curated by Seyon Shopping.",
+  title: "Blog & Fashion Articles | MerchantVault",
+  description: "Read the latest handloom fashion trends, D2C styling guides, fabric maintenance tips, and retail insights curated by MerchantVault.",
 };
 
 async function getBlogPosts() {

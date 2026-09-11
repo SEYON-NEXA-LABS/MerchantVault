@@ -124,7 +124,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     if (MOCK_PRODUCTS[id]) {
       return NextResponse.json({
         product: MOCK_PRODUCTS[id],
-        company: { name: "Seyon Shopping", storeName: "Seyon Shopping Store", code: "syn" }
+        company: { name: "MerchantVault", storeName: "MerchantVault Store", code: "mv" }
       });
     }
 
@@ -182,7 +182,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
         id,
         title: `Product #${id.substring(0, 8)}`
       },
-      company: { name: "Seyon Shopping", storeName: "Seyon Shopping Store", code: "syn" }
+      company: { name: "MerchantVault", storeName: "MerchantVault Store", code: "mv" }
     });
   } catch (error: any) {
     console.error("Get Single Product Error:", error);

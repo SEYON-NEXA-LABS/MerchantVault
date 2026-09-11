@@ -1164,7 +1164,7 @@ export default function StorefrontPage() {
           )}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "1.25rem", fontWeight: "700", letterSpacing: "-0.02em", color: "#09090b", textTransform: "uppercase" }}>
-              {activeBrandObj?.name || company?.name || company?.storeName || "Seyon Shopping"}
+              {activeBrandObj?.name || company?.name || company?.storeName || "Storefront"}
             </span>
             {process.env.NODE_ENV === "development" && (
               <span style={{ fontSize: "0.7rem", fontWeight: "500", color: "#71717a", border: "1px solid var(--border)", padding: "0.15rem 0.4rem", borderRadius: "var(--radius)", textTransform: "uppercase" }}>

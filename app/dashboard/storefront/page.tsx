@@ -167,7 +167,7 @@ export default function StorefrontConfigPage() {
             <div>
               <h1 className="text-xl font-black text-slate-900 tracking-tight">Storefront Design & Layout Builder</h1>
               <p className="text-xs text-slate-500">
-                Configure your Seyon Shopping merchant storefront design templates, color themes, fonts, and promotional banners.
+                Configure your MerchantVault merchant storefront design templates, color themes, fonts, and promotional banners.
               </p>
             </div>
           </div>
@@ -518,7 +518,7 @@ export default function StorefrontConfigPage() {
 
               {/* Header Navigation */}
               <div className="flex items-center justify-between border-b border-slate-200/20 pb-2">
-                <span className="font-extrabold text-sm tracking-tight">SEYON SHOPPING</span>
+                <span className="font-extrabold text-sm tracking-tight">STOREFRONT</span>
                 <span
                   className="text-[9px] font-extrabold px-2 py-0.5 uppercase tracking-wider"
                   style={{ backgroundColor: theme.accent, color: "#000000", borderRadius: theme.radius }}

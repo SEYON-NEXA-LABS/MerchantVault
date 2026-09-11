@@ -181,7 +181,7 @@ function HelpContent() {
             Manage customer payment collections, Razorpay refunds, and zero-balance fallback options:
           </p>
           <ol className="list-decimal list-inside text-xs text-slate-700 pl-2 space-y-1.5">
-            <li><strong>Direct Payouts</strong>: 100% of customer order payments flow directly into your own configured Razorpay merchant bank account. Seyon Shopping holds 0% funds.</li>
+            <li><strong>Direct Payouts</strong>: 100% of customer order payments flow directly into your own configured Razorpay merchant bank account. MerchantVault holds 0% funds.</li>
 
             <li><strong>Triggering Refunds</strong>: In <strong>Orders &rarr; View Order</strong>, click <strong>Initiate Return / Refund</strong>. The system calls your Razorpay API key to issue an immediate gateway refund.</li>
 
@@ -209,9 +209,9 @@ function HelpContent() {
             Welcome to the <strong>SEYON Operations Portal</strong>, the centralized control center for managing your D2C clothing brand's logistics and fulfillment. This system connects your active Shopify store with real-time warehouse scanning, stock movements, and courier partner dispatch.
           </p>
 
-          <h3 className="text-base font-bold text-slate-900 mt-6">How Seyon Shopping Empowers Your Business</h3>
+          <h3 className="text-base font-bold text-slate-900 mt-6">How MerchantVault Empowers Your Business</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Seyon Shopping brings your online store, physical retail POS counters, and central warehouse inventory into one single dashboard. Stock updates instantly across Shopify, Amazon, and Flipkart with 0% platform transaction fees.
+            MerchantVault brings your online store, physical retail POS counters, and central warehouse inventory into one single dashboard. Stock updates instantly across Shopify, Amazon, and Flipkart with 0% platform transaction fees.
           </p>
 
           <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg">
@@ -266,7 +266,7 @@ function HelpContent() {
         <div className="space-y-6">
           <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">5 Modular "A La Carte" Add-On Packs Guide</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Seyon Shopping features 5 optional modular add-on packs. Merchants on Micro or Starter plans can activate individual packs a la carte as needed, while Growth & Enterprise plans include pre-bundled packs out-of-the-box.
+            MerchantVault features 5 optional modular add-on packs. Merchants on Micro or Starter plans can activate individual packs a la carte as needed, while Growth & Enterprise plans include pre-bundled packs out-of-the-box.
           </p>
 
           {/* Pack 1 */}
@@ -651,7 +651,7 @@ function HelpContent() {
           <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded-r-lg mt-4 space-y-1">
             <h4 className="text-sm font-bold text-emerald-950">⚡ Client-Side Pre-Upload WebP Compression (Zero Quality Loss)</h4>
             <p className="text-xs text-emerald-800 leading-relaxed">
-              When uploading product images via the Merchant Desk, Seyon Shopping's <strong>Browser Image Engine (`utils/imageCompressor.ts`)</strong> automatically resizes heavy 5MB–10MB photos in the browser and encodes them into tiny <strong>250KB WebP files BEFORE uploading to Supabase Storage</strong>. This saves 95% storage space, speeds up upload times to sub-0.5s, and delivers instant mobile catalog load speeds with zero quality loss!
+              When uploading product images via the Merchant Desk, MerchantVault's <strong>Browser Image Engine (`utils/imageCompressor.ts`)</strong> automatically resizes heavy 5MB–10MB photos in the browser and encodes them into tiny <strong>250KB WebP files BEFORE uploading to Supabase Storage</strong>. This saves 95% storage space, speeds up upload times to sub-0.5s, and delivers instant mobile catalog load speeds with zero quality loss!
             </p>
           </div>
 
@@ -934,7 +934,7 @@ function HelpContent() {
           <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg mt-4">
             <h4 className="text-sm font-bold text-teal-950">💡 Automatic Usage Counter & Seyon Sync</h4>
             <p className="text-xs text-teal-900 mt-1">
-              Every time a customer uses your coupon code during checkout or POS billing, your dashboard automatically updates the usage count. If you connect your Shopify store, discount codes created on Shopify sync automatically with your Seyon Shopping orders directory.
+              Every time a customer uses your coupon code during checkout or POS billing, your dashboard automatically updates the usage count. If you connect your Shopify store, discount codes created on Shopify sync automatically with your MerchantVault orders directory.
             </p>
           </div>
         </div>
@@ -948,7 +948,7 @@ function HelpContent() {
         <div className="space-y-6">
           <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Customer Management & WhatsApp Marketing SOP</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Seyon Shopping includes a built-in Customer Relationship Management (CRM) suite to track buyer Lifetime Value (LTV), recover abandoned storefront checkouts, and launch WhatsApp campaigns.
+            MerchantVault includes a built-in Customer Relationship Management (CRM) suite to track buyer Lifetime Value (LTV), recover abandoned storefront checkouts, and launch WhatsApp campaigns.
           </p>
 
           <h3 className="text-base font-bold text-slate-900 mt-6">1. Customer Directory & Auto-Segmentation</h3>
@@ -995,7 +995,7 @@ function HelpContent() {
         <div className="space-y-6">
           <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">GST Tax Calculation & Tally/GSTR-1 Export Guide</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Seyon Shopping includes a Indian GST Tax Engine that calculates CGST, SGST, and IGST for B2C & B2B orders and generates instant exports for GSTR-1 filing and Tally Prime accounting software.
+            MerchantVault includes a Indian GST Tax Engine that calculates CGST, SGST, and IGST for B2C & B2B orders and generates instant exports for GSTR-1 filing and Tally Prime accounting software.
           </p>
 
           <h3 className="text-base font-bold text-slate-900 mt-6">1. How Intra-State vs. Inter-State GST Works</h3>
@@ -1091,7 +1091,7 @@ function HelpContent() {
         <div className="space-y-6">
           <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Omnichannel Marketplace Integration Guide</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            Seyon Shopping connects your central warehouse inventory directly with external sales channels including <strong>Shopify, Amazon India (SP-API), Flipkart Seller Hub, and Myntra</strong> to prevent overselling and automate order fulfillments.
+            MerchantVault connects your central warehouse inventory directly with external sales channels including <strong>Shopify, Amazon India (SP-API), Flipkart Seller Hub, and Myntra</strong> to prevent overselling and automate order fulfillments.
           </p>
 
           <h3 className="text-base font-bold text-slate-900 mt-6">1. Connecting Marketplace Channels</h3>
@@ -1104,7 +1104,7 @@ function HelpContent() {
 
           <h3 className="text-base font-bold text-slate-900 mt-6">2. Automated Stock & Order Normalization</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            When orders arrive from external marketplaces, Seyon Shopping automatically normalizes shipping addresses, customer contacts, GSTIN tax details, and Place of Supply (PoS) strings into your central <strong>Orders Directory</strong> (`/dashboard/orders`).
+            When orders arrive from external marketplaces, MerchantVault automatically normalizes shipping addresses, customer contacts, GSTIN tax details, and Place of Supply (PoS) strings into your central <strong>Orders Directory</strong> (`/dashboard/orders`).
           </p>
 
           <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r-lg mt-4">
@@ -1124,7 +1124,7 @@ function HelpContent() {
         <div className="space-y-6">
           <h1 className="text-2xl font-black text-slate-900 border-b pb-2 tracking-tight">Indian Tax Withholding (TDS & TCS) Guide</h1>
           <p className="text-sm text-slate-700 leading-relaxed">
-            For B2B wholesalers and textile manufacturers, Seyon Shopping includes a Tax Withholding module to deduct Statutory TDS on purchase orders and collect TCS on high-value sales.
+            For B2B wholesalers and textile manufacturers, MerchantVault includes a Tax Withholding module to deduct Statutory TDS on purchase orders and collect TCS on high-value sales.
           </p>
 
           <h3 className="text-base font-bold text-slate-900 mt-6">Supported Income Tax Sections</h3>

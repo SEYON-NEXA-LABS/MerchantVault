@@ -85,7 +85,7 @@ export default function PlatformLandingPage() {
     },
     {
       q: "Does payment go directly to my own Razorpay bank account?",
-      a: "Yes! 100% of customer payments go straight into your own Razorpay account and linked bank account. Seyon Shopping uses your configured Razorpay API Key ID and Key Secret (`Company.razorpayKeyId`) — we never touch, hold, or delay your funds."
+      a: `Yes! 100% of customer payments go straight into your own Razorpay account and linked bank account. ${PLATFORM_NAME} uses your configured Razorpay API Key ID and Key Secret (\`Company.razorpayKeyId\`) — we never touch, hold, or delay your funds.`
     },
     {
       q: "How are returns, cancellations, and customer refunds handled?",
@@ -338,7 +338,7 @@ export default function PlatformLandingPage() {
             </div>
             <h3 className="text-lg font-bold text-slate-900">Direct Merchant Payouts (0% Hold)</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              100% of customer order payments flow directly into your own verified bank account via Razorpay. Seyon Shopping never holds, delays, or taxes your sales revenue.
+              100% of customer order payments flow directly into your own verified bank account via Razorpay. {PLATFORM_NAME} never holds, delays, or taxes your sales revenue.
             </p>
           </div>
 
@@ -358,7 +358,7 @@ export default function PlatformLandingPage() {
 
 
 
-      {/* Tier-by-Tier Shopify vs Seyon Shopping Breakdown */}
+      {/* Tier-by-Tier Shopify vs MerchantVault Breakdown */}
       <section id="comparison" className="py-20 px-6 max-w-7xl mx-auto space-y-12 bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <h2 className="text-3xl font-extrabold text-slate-900">Tier-by-Tier Shopify Comparison</h2>
@@ -497,7 +497,7 @@ export default function PlatformLandingPage() {
         <div className="pt-6 border-t border-slate-200 space-y-6">
           <div className="text-center space-y-1">
             <h3 className="text-2xl font-extrabold text-slate-900">Head-to-Head Platform Edge</h3>
-            <p className="text-xs text-slate-500">Direct technical comparison between native Seyon Shopping architecture vs Shopify plugin bloat.</p>
+            <p className="text-xs text-slate-500">Direct technical comparison between native {PLATFORM_NAME} architecture vs Shopify plugin bloat.</p>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm bg-white">
             <table className="w-full text-left text-xs border-collapse">

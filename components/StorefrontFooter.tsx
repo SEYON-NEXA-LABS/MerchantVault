@@ -56,9 +56,9 @@ export function StorefrontFooter({ company, brands = [], selectedBrand = "", onS
   };
 
   const currentYear = new Date().getFullYear();
-  const storeDisplayName = company?.name || company?.storeName || "Seyon Shopping Store";
-  const entityName = company?.name || "Seyon Shopping Partner";
-  const tenantCode = company?.code || "syn";
+  const storeDisplayName = company?.name || company?.storeName || "Storefront";
+  const entityName = company?.name || "MerchantVault Partner";
+  const tenantCode = company?.code || "mv";
 
   const socialLinks = [
     { name: "Instagram", url: socials.instagram || "https://instagram.com", icon: InstagramIcon, hoverBg: "#e1306c" },

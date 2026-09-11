@@ -83,7 +83,7 @@ export default function BlogCMSPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topic: form.topic || "Handloom Fashion Trends 2026",
-          brandName: "Seyon Shopping",
+          brandName: "MerchantVault",
           targetCategory: form.category
         })
       });

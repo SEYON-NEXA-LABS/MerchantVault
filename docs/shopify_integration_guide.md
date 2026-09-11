@@ -1,6 +1,6 @@
-# Seyon Shopping — Shopify Integration & Telemetry SOP
+# MerchantVault — Shopify Integration & Telemetry SOP
 
-Follow this guide to connect your live Shopify Store with Seyon Shopping (MerchantVault ERP).
+Follow this guide to connect your live Shopify Store with MerchantVault (MerchantVault ERP).
 
 ---
 
@@ -9,7 +9,7 @@ Follow this guide to connect your live Shopify Store with Seyon Shopping (Mercha
 | Field Name | Prefix | Purpose | Where to Find in Shopify Admin |
 | :--- | :--- | :--- | :--- |
 | **Store Domain URL** | `your-shop.myshopify.com` | Store Domain Identifier | Shopify Admin URL |
-| **Admin API Access Token** | **`shpat_...`** | **REST API Pull Token** (Used for pulling products, compare-at prices, variants, and orders) | Shopify Admin &rarr; Settings &rarr; Apps and developer channels &rarr; Seyon Shopping ERP &rarr; API credentials &rarr; Admin API access token |
+| **Admin API Access Token** | **`shpat_...`** | **REST API Pull Token** (Used for pulling products, compare-at prices, variants, and orders) | Shopify Admin &rarr; Settings &rarr; Apps and developer channels &rarr; MerchantVault ERP &rarr; API credentials &rarr; Admin API access token |
 | **Webhook API Secret Key** | **`shpss_...`** | **Webhook Signature Secret** (Used to cryptographically verify HMAC incoming order webhooks) | Shopify Admin &rarr; Settings &rarr; Notifications &rarr; Webhooks &rarr; Webhook Secret Key |
 
 > [!WARNING]
@@ -23,7 +23,7 @@ Follow this guide to connect your live Shopify Store with Seyon Shopping (Mercha
    - Open `https://admin.shopify.com/store/your-store-name` (e.g. `https://admin.shopify.com/store/wolfcabin`).
 2. **Navigate to App Development**:
    - Go to **Settings ⚙️** &rarr; **Apps and developer channels** &rarr; **Develop apps** (or Custom apps).
-   - Click **Create an app** and name it `Seyon Shopping ERP`.
+   - Click **Create an app** and name it `MerchantVault ERP`.
 3. **Configure Access Scopes**:
    - Select **Configure Admin API scopes** and enable:
      - `read_products`, `write_products`
@@ -37,23 +37,23 @@ Follow this guide to connect your live Shopify Store with Seyon Shopping (Mercha
 
 ---
 
-## 3. Connecting Credentials in Seyon Shopping
+## 3. Connecting Credentials in MerchantVault
 
 You can connect using either of two methods:
 
 ### Method A: Client ID + Client Secret (Automated OAuth Exchange - Recommended)
 1. Open **Partner Dashboard** &rarr; **App settings** (or Shopify Custom App credentials).
 2. Copy your **Client ID** (API Key) and **Client Secret** (`shpss_...`).
-3. In Seyon Shopping, click **Connect Channel** &rarr; **Shopify**.
+3. In MerchantVault, click **Connect Channel** &rarr; **Shopify**.
 4. Paste:
    - **Shopify Store URL**: `https://wolfcabin.myshopify.com`
    - **Admin API Access Token**: Paste your **Client ID** (e.g. `61d9a410a3ce736f...`)
    - **API Secret / Client Secret**: Paste your **Client Secret** (e.g. `shpss_d7ad2802...`)
-5. Click **Save Connection** &rarr; **Trigger Sync**. Seyon Shopping will perform the automated background token exchange and initiate sync!
+5. Click **Save Connection** &rarr; **Trigger Sync**. MerchantVault will perform the automated background token exchange and initiate sync!
 
 ### Method B: Direct Admin API Access Token
 1. Copy your **Admin API access token** starting with **`shpat_`** from Shopify Admin.
-2. In Seyon Shopping, click **Connect Channel** &rarr; **Shopify**.
+2. In MerchantVault, click **Connect Channel** &rarr; **Shopify**.
 3. Paste:
    - **Shopify Store URL**: `https://wolfcabin.myshopify.com`
    - **Admin API Access Token**: `shpat_...`

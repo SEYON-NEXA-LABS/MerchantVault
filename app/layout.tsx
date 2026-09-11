@@ -11,13 +11,13 @@ const outfit = Outfit({
 
 
 export const metadata: Metadata = {
-  title: "Seyon Shopping ERP - Retail Inventory & D2C Storefront",
-  description: "Multi-Tenant Retail Inventory, POS Counter & Order Management System",
+  title: "MerchantVault - Multi-Store Retail Inventory & D2C Storefront OS",
+  description: "MerchantVault by Seyon Nexa Labs: Unified Retail Inventory, POS Counter & Multi-Store D2C OS",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Seyon Shopping",
+    title: "MerchantVault",
   },
 };
 

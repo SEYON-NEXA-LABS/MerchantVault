@@ -1,6 +1,6 @@
-# Seyon Shopping — Superadmin Client Onboarding & System Auditor SOP
+# MerchantVault — Superadmin Client Onboarding & System Auditor SOP
 
-This document outlines the steps for a Superadmin to create, provision, and audit client (tenant) environments in Seyon Shopping.
+This document outlines the steps for a Superadmin to create, provision, and audit client (tenant) environments in MerchantVault.
 
 ---
 

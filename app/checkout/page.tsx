@@ -370,7 +370,7 @@ export default function CheckoutPage() {
   };
 
   const getLogoText = () => {
-    return company?.name || company?.storeName || "Seyon Shopping";
+    return company?.name || company?.storeName || "Storefront";
   };
 
   if (step === "loading") {

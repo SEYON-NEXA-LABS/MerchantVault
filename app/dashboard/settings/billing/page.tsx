@@ -164,7 +164,7 @@ export function BillingContent() {
           <div className="bg-slate-950/80 border border-slate-800 p-4 rounded-xl space-y-1.5">
             <span className="font-bold text-indigo-300 block">1. Platform SaaS Billing Gateway</span>
             <p className="text-slate-400 leading-relaxed text-[11px]">
-              Platform subscription fees (Starter ₹999, Growth ₹1,999, Enterprise ₹4,999) are processed via Seyon Shopping's secure billing engine with official tax invoices generated automatically.
+              Platform subscription fees (Starter ₹999, Growth ₹1,999, Enterprise ₹4,999) are processed via MerchantVault's secure billing engine with official tax invoices generated automatically.
             </p>
           </div>
 

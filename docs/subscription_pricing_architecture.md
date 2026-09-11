@@ -18,9 +18,9 @@ To aggressively compete against and disrupt legacy platforms like Shopify, Merch
   * POS Billing Pro: $89/mo (~₹7,400/mo)
 * **Total Monthly Shopify Cost**: **₹7,000 – ₹15,000+ / month**
 
-### Seyon Shopping Disruptive Subscription & Add-On Matrix
+### MerchantVault Disruptive Subscription & Add-On Matrix
 
-Seyon Shopping operates a **Low Base ERP (₹499/mo) + Modular A La Carte Add-On Architecture**:
+MerchantVault operates a **Low Base ERP (₹499/mo) + Modular A La Carte Add-On Architecture**:
 
 | Feature / Limit | MICRO (POS ERP) | BASIC (STOREFRONT LITE) | STARTER BUNDLE | GROWTH BUNDLE | ENTERPRISE HUB |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -142,7 +142,7 @@ flowchart TD
 
 ## 6. Single Database Multi-Tenant RLS Architecture
 
-Seyon Shopping operates on a **Unified, High-Performance Single Supabase PostgreSQL Instance** across all tiers (Micro → Enterprise & Perpetual License).
+MerchantVault operates on a **Unified, High-Performance Single Supabase PostgreSQL Instance** across all tiers (Micro → Enterprise & Perpetual License).
 
 ### Why Single Database + Row Level Security (RLS) Wins
 

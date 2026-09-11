@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
     if (!variant) {
       return {
-        title: "Product Not Found — Seyon Shopping",
+        title: "Product Not Found — MerchantVault",
         description: "The requested product is no longer available."
       };
     }
@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   } catch (err) {
     console.error("Error generating product metadata:", err);
     return {
-      title: "Product — Seyon Shopping",
-      description: "Discover quality retail products at Seyon Shopping."
+      title: "Product — MerchantVault",
+      description: "Discover quality retail products at MerchantVault."
     };
   }
 }

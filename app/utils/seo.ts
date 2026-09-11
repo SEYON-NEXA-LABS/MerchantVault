@@ -52,7 +52,7 @@ export function getBaseDomain(company?: CompanySeoData | null, currentHost?: str
  * Generate Organization & LocalBusiness JSON-LD Schema for Google Rich Snippets
  */
 export function generateOrganizationSchema(company?: CompanySeoData | null) {
-  const companyName = company?.name || company?.storeName || "Seyon Shopping Store";
+  const companyName = company?.name || company?.storeName || "MerchantVault Store";
   const domain = getBaseDomain(company);
 
 
@@ -79,7 +79,7 @@ export function generateOrganizationSchema(company?: CompanySeoData | null) {
  */
 export function generateProductSchema(product: ProductSeoData, company?: CompanySeoData | null) {
   const domain = getBaseDomain(company);
-  const companyName = company?.name || company?.storeName || "Seyon Shopping Store";
+  const companyName = company?.name || company?.storeName || "MerchantVault Store";
 
 
 
@@ -121,7 +121,7 @@ export function generateProductSchema(product: ProductSeoData, company?: Company
  * Generate OpenGraph & Twitter Card Metadata for WhatsApp / iMessage / Social Share Thumbnails
  */
 export function generateProductOpenGraphMetadata(product: ProductSeoData, company?: CompanySeoData | null, currentHost?: string | null) {
-  const companyName = company?.name || company?.storeName || "Seyon Shopping";
+  const companyName = company?.name || company?.storeName || "Storefront";
   const domain = getBaseDomain(company, currentHost);
 
 
@@ -167,7 +167,7 @@ export function generateBlogArticleSchema(
   company?: CompanySeoData | null
 ) {
   const domain = getBaseDomain(company);
-  const companyName = company?.name || company?.storeName || "Seyon Shopping";
+  const companyName = company?.name || company?.storeName || "Storefront";
 
   return {
     "@context": "https://schema.org",

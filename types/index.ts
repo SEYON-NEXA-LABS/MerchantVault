@@ -1,4 +1,4 @@
-// Centralized Domain Types for Seyon Shopping / FabricVault Platform
+// Centralized Domain Types for MerchantVault / FabricVault Platform
 
 export interface Warehouse {
   id: string;

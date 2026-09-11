@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const { topic, brandName, targetCategory, tone } = body;
 
     const blogTopic = topic || "Sustainable Fashion & Handloom Care";
-    const brand = brandName || "Seyon Shopping";
+    const brand = brandName || "MerchantVault";
     const category = targetCategory || "Apparel";
     const articleTone = tone || "professional and engaging";
 

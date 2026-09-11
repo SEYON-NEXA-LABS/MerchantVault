@@ -52,7 +52,7 @@ export function StorefrontHero({ company, activeBrandObj, onCtaClick }: Storefro
   const alignment = hero.alignment || (template === "flash_drop" || template === "media_showcase" ? "left" : "center");
 
   // Defaults based on company / brand context
-  const companyDisplayName = activeBrandObj?.name || company?.name || company?.storeName || "Seyon Shopping";
+  const companyDisplayName = activeBrandObj?.name || company?.name || company?.storeName || "Storefront";
   const badgeText = hero.badgeText || (
     template === "flash_drop" 
       ? "⚡ LIMITED RUN — LIVE CATALOG DROP" 
