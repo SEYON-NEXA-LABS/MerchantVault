@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   ShoppingBag,
   Search,
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { RoleGuard } from "../../../components/RoleGuard";
+import ProductThumbnail from "@/components/ProductThumbnail";
 
 interface PosItem {
   variantId: string;
@@ -34,6 +35,7 @@ interface PosItem {
   price: number;
   quantity: number;
   stockAvailable: number;
+  thumbnailConfig?: string | null;
 }
 
 export default function PosPage() {
@@ -112,15 +114,17 @@ function PosTerminalContent() {
 
   const activeWarehouse = warehouses.find(w => w.id === activeWhId) || warehouses[0] || { name: "Primary Counter" };
 
-  // Filter products by SKU or Title
-  const filteredProducts = products.filter((v: any) => {
+  // Filter products by SKU or Title (Memoized)
+  const filteredProducts = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return true;
-    const title = (v.Product?.title || "").toLowerCase();
-    const sku = (v.sku || "").toLowerCase();
-    const barcode = (v.barcode || "").toLowerCase();
-    return title.includes(q) || sku.includes(q) || barcode.includes(q);
-  });
+    if (!q) return products;
+    return products.filter((v: any) => {
+      const title = (v.title || v.Product?.title || "").toLowerCase();
+      const sku = (v.sku || "").toLowerCase();
+      const barcode = (v.barcode || v.barcodeString || "").toLowerCase();
+      return title.includes(q) || sku.includes(q) || barcode.includes(q);
+    });
+  }, [products, searchQuery]);
 
   const addToCart = (variant: any) => {
     if (variant.currentStockLevel <= 0) {
@@ -145,13 +149,14 @@ function PosTerminalContent() {
           {
             variantId: variant.id,
             productId: variant.productId,
-            title: variant.Product?.title || "Apparel Item",
+            title: variant.title || variant.Product?.title || "Apparel Item",
             sku: variant.sku || "",
             color: variant.color || "Standard",
             size: variant.size || "Standard",
             price: itemPrice,
             quantity: 1,
-            stockAvailable: variant.currentStockLevel
+            stockAvailable: variant.currentStockLevel,
+            thumbnailConfig: variant.thumbnailConfig || null
           }
         ];
       }
@@ -248,7 +253,7 @@ function PosTerminalContent() {
   };
 
   return (
-    <div className="h-[calc(100vh-4.5rem)] flex flex-col bg-gray-50/50 overflow-hidden">
+    <div className="h-full w-full flex flex-col bg-gray-50/50 overflow-hidden">
       {/* Top Header Controls Bar */}
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-2xs shrink-0">
         <div className="flex items-center gap-3">
@@ -317,7 +322,7 @@ function PosTerminalContent() {
           </div>
 
           {/* Product Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 [contain:content]">
             {loading ? (
               <div className="h-64 flex flex-col items-center justify-center gap-2 text-gray-400">
                 <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
@@ -339,37 +344,63 @@ function PosTerminalContent() {
                       key={v.id}
                       onClick={() => addToCart(v)}
                       disabled={!inStock}
-                      className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer ${
+                      className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer group ${
                         inStock
                           ? "border-gray-200 hover:border-indigo-500 hover:shadow-md bg-white"
                           : "border-gray-100 bg-gray-50/60 opacity-60 cursor-not-allowed"
                       }`}
                     >
-                      <div>
-                        <div className="flex items-center justify-between gap-1 mb-1">
-                          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block truncate">
-                            {v.sku}
-                          </span>
-                          <span
-                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                              inStock ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                            }`}
-                          >
-                            {inStock ? `${v.currentStockLevel} in stock` : "Out of stock"}
-                          </span>
+                      <div className="w-full">
+                        {/* 1. Full-Width Title at Top (Fully Wrapped, No Ellipsis) */}
+                        <div className="mb-2">
+                          <h4 className="font-extrabold text-xs text-gray-900 leading-tight break-words">
+                            {v.title || v.Product?.title || "Apparel Item"}
+                          </h4>
                         </div>
-                        <h4 className="font-bold text-xs text-gray-900 line-clamp-2">
-                          {v.Product?.title || "Apparel Item"}
-                        </h4>
-                        <div className="flex items-center gap-1.5 mt-1 text-[11px] font-medium text-gray-600">
-                          <span className="bg-slate-100 px-1.5 py-0.5 rounded">{v.size || "M"}</span>
-                          <span className="bg-slate-100 px-1.5 py-0.5 rounded">{v.color || "Black"}</span>
+
+                        {/* 2. Two Columns: Left Thumbnail, Right Details (SKU, Size/Color & Stock) */}
+                        <div className="flex items-center gap-2.5">
+                          {/* Left Column: Thumbnail */}
+                          <ProductThumbnail
+                            skuTitle={v.title || v.Product?.title || "Product"}
+                            skuColor={v.color || "indigo"}
+                            thumbnailConfig={v.thumbnailConfig}
+                            size="md"
+                            className="rounded-lg shadow-2xs border border-gray-200/80 shrink-0"
+                          />
+
+                          {/* Right Column: SKU, Size & Color, and Stock Status */}
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider block truncate">
+                              {v.sku}
+                            </span>
+                            <div className="flex items-center gap-1 text-[11px] font-medium text-gray-600">
+                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">
+                                {v.size || "M"}
+                              </span>
+                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] truncate max-w-[70px]">
+                                {v.color || "Black"}
+                              </span>
+                            </div>
+                            <div>
+                              <span
+                                className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                  inStock
+                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                                    : "bg-red-50 text-red-700 border border-red-200/60"
+                                }`}
+                              >
+                                {inStock ? `${v.currentStockLevel} in stock` : "Out of stock"}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between">
+                      {/* 3. Bottom Bar: Price & Add Button */}
+                      <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between w-full">
                         <span className="font-black text-sm text-indigo-950">₹{itemPrice.toLocaleString()}</span>
-                        <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                           <Plus className="w-3.5 h-3.5" />
                         </div>
                       </div>
@@ -418,7 +449,7 @@ function PosTerminalContent() {
           </div>
 
           {/* Cart Itemized List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3">
             {cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
                 <ShoppingBag className="w-10 h-10 stroke-1 text-gray-300" />
@@ -431,16 +462,25 @@ function PosTerminalContent() {
                   key={item.variantId}
                   className="p-3 bg-gray-50/80 border border-gray-200/80 rounded-xl flex items-center justify-between gap-3 shadow-2xs"
                 >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-xs text-gray-900 truncate">{item.title}</h4>
-                    <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 font-mono">
-                      <span>SKU: {item.sku}</span>
-                      <span>•</span>
-                      <span>{item.size}/{item.color}</span>
+                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    <ProductThumbnail
+                      skuTitle={item.title}
+                      skuColor={item.color}
+                      thumbnailConfig={item.thumbnailConfig}
+                      size="sm"
+                      className="rounded-lg shadow-2xs border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-xs text-gray-900 truncate">{item.title}</h4>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 font-mono">
+                        <span>SKU: {item.sku}</span>
+                        <span>•</span>
+                        <span>{item.size}/{item.color}</span>
+                      </div>
+                      <span className="font-extrabold text-xs text-indigo-950 mt-1 block">
+                        ₹{item.price.toLocaleString()} × {item.quantity} = ₹{(item.price * item.quantity).toLocaleString()}
+                      </span>
                     </div>
-                    <span className="font-extrabold text-xs text-indigo-950 mt-1 block">
-                      ₹{item.price.toLocaleString()} × {item.quantity} = ₹{(item.price * item.quantity).toLocaleString()}
-                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">

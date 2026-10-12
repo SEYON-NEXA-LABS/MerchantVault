@@ -510,9 +510,9 @@ export default function DashboardLayout({
                 WhatsApp
               </button>
 
-              <Link href="/dashboard/help" target="_blank" className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-200/80 px-3 py-1.5 rounded-full hover:bg-indigo-100/90 transition-colors backdrop-blur-xs">
+              <Link href="/help" target="_blank" rel="noopener noreferrer" className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-indigo-700 bg-indigo-50/80 border border-indigo-200/80 px-3 py-1.5 rounded-full hover:bg-indigo-100/90 transition-colors backdrop-blur-xs">
                 <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-                Help Center
+                Help Center ↗
               </Link>
 
               
@@ -663,7 +663,7 @@ export default function DashboardLayout({
           </header>
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-y-auto p-6">
+          <main className={`flex-1 overflow-y-auto ${pathname === "/dashboard/pos" ? "p-0 overflow-hidden" : "p-6"}`}>
             {children}
           </main>
 
