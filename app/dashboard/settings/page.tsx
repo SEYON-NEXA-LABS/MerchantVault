@@ -1086,7 +1086,7 @@ function SettingsContent() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-gray-900 text-sm">{wh.name}</span>
-                          <span className="font-mono text-[10px] bg-gray-150 text-gray-600 px-2 py-0.5 rounded font-bold">
+                          <span className="font-mono text-[11px] bg-gray-150 text-gray-600 px-2 py-0.5 rounded font-bold">
                             {wh.code}
                           </span>
                         </div>
@@ -1102,13 +1102,13 @@ function SettingsContent() {
                       <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
                         <div>
                           {wh.isDefaultPickup ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
                               <Check className="w-3 h-3" /> Default Pickup
                             </span>
                           ) : (
                             <button
                               onClick={() => handleSetDefaultPickup(wh)}
-                              className="text-[10px] font-semibold text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 px-2 py-0.5 rounded transition-colors"
+                              className="text-[11px] font-semibold text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 px-2 py-0.5 rounded transition-colors"
                             >
                               Make Default
                             </button>
@@ -1175,7 +1175,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">SR</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">Shiprocket</h4>
-                            <p className="text-[10px] text-gray-400">API Credentials</p>
+                            <p className="text-[11px] text-gray-400">API Credentials</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1250,7 +1250,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">DV</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">Delhivery</h4>
-                            <p className="text-[10px] text-gray-400">API Token</p>
+                            <p className="text-[11px] text-gray-400">API Token</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1303,7 +1303,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">BD</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">Bluedart</h4>
-                            <p className="text-[10px] text-gray-400">License Key</p>
+                            <p className="text-[11px] text-gray-400">License Key</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1356,7 +1356,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">DT</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">DTDC</h4>
-                            <p className="text-[10px] text-gray-400">Client ID / Key</p>
+                            <p className="text-[11px] text-gray-400">Client ID / Key</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1409,7 +1409,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">XB</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">Xpressbees</h4>
-                            <p className="text-[10px] text-gray-400">API Key / Token</p>
+                            <p className="text-[11px] text-gray-400">API Key / Token</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1462,7 +1462,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">IP</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">India Post</h4>
-                            <p className="text-[10px] text-gray-400">API Key / Account ID</p>
+                            <p className="text-[11px] text-gray-400">API Key / Account ID</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1515,7 +1515,7 @@ function SettingsContent() {
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center font-bold text-indigo-900 text-xs">TP</div>
                           <div>
                             <h4 className="font-bold text-gray-900 text-sm">The Professional Couriers</h4>
-                            <p className="text-[10px] text-gray-400">API License Key</p>
+                            <p className="text-[11px] text-gray-400">API License Key</p>
                           </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -1570,7 +1570,7 @@ function SettingsContent() {
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                 <div className="flex items-center gap-2">
                   <h3 className="font-bold text-gray-950 text-base">Payment Gateways</h3>
-                  <span className="bg-indigo-50 text-indigo-750 text-[10px] font-bold px-2 py-0.5 rounded-full border border-indigo-100">
+                  <span className="bg-indigo-50 text-indigo-750 text-[11px] font-bold px-2 py-0.5 rounded-full border border-indigo-100">
                     Online Checkout & UPI
                   </span>
                 </div>
@@ -1767,7 +1767,7 @@ function SettingsContent() {
                           Select a curated standard template or customize your headline, badges, and background imagery.
                         </p>
                       </div>
-                      <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
+                      <span className="text-[11px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200">
                         4 Standard Presets Available
                       </span>
                     </div>
@@ -1864,14 +1864,14 @@ function SettingsContent() {
                           <div>
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-lg">{t.icon}</span>
-                              <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                              <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                                 {t.category}
                               </span>
                             </div>
                             <span className="font-bold text-xs text-gray-900 block">{t.name}</span>
                             <span className="text-[11px] text-gray-500 block mt-1 leading-snug">{t.desc}</span>
                           </div>
-                          <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[10px] font-semibold text-gray-600">
+                          <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] font-semibold text-gray-600">
                             <span>Colors:</span>
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full border border-black/10" style={{ backgroundColor: t.primary }} />
@@ -1976,7 +1976,7 @@ function SettingsContent() {
                       <div className="space-y-1 md:col-span-2">
                         <label className="text-xs font-semibold text-gray-700 flex items-center justify-between">
                           <span>Custom Background Image URL (Optional)</span>
-                          <span className="text-[10px] text-gray-500">Unsplash or CDN Image Link</span>
+                          <span className="text-[11px] text-gray-500">Unsplash or CDN Image Link</span>
                         </label>
                         <input
                           type="url"
@@ -2008,11 +2008,11 @@ function SettingsContent() {
 
                     {/* Live Hero Banner Preview Box */}
                     <div className="rounded-xl border border-gray-200 overflow-hidden bg-slate-950 text-white p-6 shadow-sm relative">
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <div className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Hero Preview ({heroTemplate})
                       </div>
                       <div className={`space-y-3 ${heroAlignment === "left" ? "text-left max-w-lg" : "text-center max-w-xl mx-auto"}`}>
-                        <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-amber-300">
+                        <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-amber-300">
                           <Sparkles className="w-3 h-3" />
                           <span>{heroBadgeText || "Promotional Badge"}</span>
                         </div>
@@ -2071,7 +2071,7 @@ function SettingsContent() {
                             <span className="w-4 h-4 rounded-full border border-black/10" style={{ backgroundColor: preset.accent }} />
                           </div>
                           <span className="font-bold text-xs text-gray-900 block">{preset.name}</span>
-                          <span className="text-[10px] text-gray-500 block truncate">{preset.desc}</span>
+                          <span className="text-[11px] text-gray-500 block truncate">{preset.desc}</span>
                         </button>
                       ))}
                     </div>
@@ -2265,7 +2265,7 @@ function SettingsContent() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-sm text-gray-900" style={{ fontFamily: themeFontFamily }}>Brand Title Preview</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: themeAccent, color: "#1c1917", borderRadius: themeRadius }}>
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: themeAccent, color: "#1c1917", borderRadius: themeRadius }}>
                           ★ Popular Accent
                         </span>
                       </div>
@@ -2620,7 +2620,7 @@ function MultiStoreBrandsSection() {
                       )}
                       <div>
                         <h4 className="font-bold text-gray-900 text-sm">{b.name}</h4>
-                        <span className="text-[10px] font-mono text-gray-400">Code: ?brand={b.code}</span>
+                        <span className="text-[11px] font-mono text-gray-400">Code: ?brand={b.code}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -2643,7 +2643,7 @@ function MultiStoreBrandsSection() {
 
                   {/* Visual Theme Badge */}
                   <div className="p-3 rounded-lg border border-gray-100 bg-gray-50 space-y-1.5 text-xs">
-                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Storefront Color Theme</span>
+                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">Storefront Color Theme</span>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full border border-gray-300 shadow-2xs" style={{ backgroundColor: themeObj.primaryColor || "#0d9488" }} />
                       <span className="font-mono text-[11px] text-gray-700">Primary: {themeObj.primaryColor || "#0d9488"}</span>
@@ -2716,7 +2716,7 @@ function MultiStoreBrandsSection() {
                   className="w-full mt-1 p-2 border border-gray-300 rounded-lg text-sm font-mono"
                   required
                 />
-                <span className="text-[10px] text-gray-400 mt-1 block">URL link: ?brand={form.code || "code"}</span>
+                <span className="text-[11px] text-gray-400 mt-1 block">URL link: ?brand={form.code || "code"}</span>
               </div>
 
               <div>

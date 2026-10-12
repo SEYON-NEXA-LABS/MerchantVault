@@ -415,7 +415,7 @@ export default function LogisticsPage() {
               {selectedOrderIds.length > 0 && (
                 <div className="bg-indigo-50/70 border-b border-indigo-100 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="bg-indigo-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full">
+                    <span className="bg-indigo-600 text-white font-bold text-[11px] px-2 py-0.5 rounded-full">
                       {selectedOrderIds.length} Selected
                     </span>
                     <span className="text-xs font-semibold text-indigo-900">Configure Bulk Courier Dispatch</span>
@@ -512,7 +512,7 @@ export default function LogisticsPage() {
                                     e.stopPropagation();
                                     setScannedAwb(ord.awbNumber || "");
                                   }}
-                                  className="text-[9px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded cursor-pointer transition-colors uppercase font-bold"
+                                  className="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded cursor-pointer transition-colors uppercase font-bold"
                                   title="Copy to scanner tool"
                                 >
                                   Scan
@@ -521,7 +521,7 @@ export default function LogisticsPage() {
                             </td>
                             <td className="py-3.5 px-5">
                               <p className="font-semibold text-gray-800">{ord.orderNumber}</p>
-                              <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
+                              <p className="text-[11px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
                             </td>
                             <td className="py-3.5 px-5 text-gray-700 font-medium">{ord.customerName}</td>
                             <td className="py-3.5 px-5 font-medium text-gray-650">{ord.courierPartner || "N/A"}</td>
@@ -557,7 +557,7 @@ export default function LogisticsPage() {
                         <Truck className="w-4 h-4 text-indigo-600" />
                         Shipment Tracker
                       </h3>
-                      <p className="text-[10px] text-gray-400 font-mono mt-0.5">Order: {selectedShipment.orderNumber}</p>
+                      <p className="text-[11px] text-gray-400 font-mono mt-0.5">Order: {selectedShipment.orderNumber}</p>
                     </div>
                     <button 
                       onClick={() => setSelectedShipment(null)}
@@ -569,14 +569,14 @@ export default function LogisticsPage() {
 
                   {/* Customer details */}
                   <div className="text-xs space-y-1.5 border-b border-gray-100 pb-3">
-                    <p className="text-[10px] text-gray-450 uppercase font-bold tracking-wider">Receiver</p>
+                    <p className="text-[11px] text-gray-450 uppercase font-bold tracking-wider">Receiver</p>
                     <p className="font-semibold text-gray-800">{selectedShipment.customerName}</p>
-                    <p className="text-gray-500 font-mono text-[10px]">{selectedShipment.customerPhone}</p>
+                    <p className="text-gray-500 font-mono text-[11px]">{selectedShipment.customerPhone}</p>
                   </div>
 
                   {/* Live Stepper Milestones */}
                   <div className="space-y-4">
-                    <p className="text-[10px] text-gray-450 uppercase font-bold tracking-wider">Live Tracking Milestones</p>
+                    <p className="text-[11px] text-gray-450 uppercase font-bold tracking-wider">Live Tracking Milestones</p>
                     <div className="relative pl-6 space-y-5">
                       {/* Vertical line connecting steps */}
                       <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-150"></div>
@@ -604,7 +604,7 @@ export default function LogisticsPage() {
                           </div>
                           <div className="space-y-0.5">
                             <p className={`font-semibold ${step.active ? "text-gray-900" : "text-gray-400"}`}>{step.label}</p>
-                            <p className="text-[10px] text-gray-400 font-mono leading-snug">{step.desc}</p>
+                            <p className="text-[11px] text-gray-400 font-mono leading-snug">{step.desc}</p>
                           </div>
                         </div>
                       ))}
@@ -645,7 +645,7 @@ export default function LogisticsPage() {
                             key={statusOption.value}
                             type="button"
                             onClick={() => setScanningStatus(statusOption.value as any)}
-                            className={`py-1.5 text-[10px] font-bold rounded-lg border transition-all ${
+                            className={`py-1.5 text-[11px] font-bold rounded-lg border transition-all ${
                               scanningStatus === statusOption.value
                                 ? "bg-indigo-600 text-white border-indigo-600"
                                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -710,7 +710,7 @@ export default function LogisticsPage() {
                         <TableCell className="py-3.5 px-5 font-medium">{mnf.courierPartner}</TableCell>
                         <TableCell className="py-3.5 px-5 text-gray-500 font-mono">{mnf.warehouse?.code || "N/A"}</TableCell>
                         <TableCell className="py-3.5 px-5">
-                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
+                          <span className={`px-2 py-0.5 text-[11px] font-bold rounded-full border ${
                             mnf.status === "CREATED" ? "bg-blue-50 text-blue-700 border-blue-200" :
                             mnf.status === "HANDED_OVER" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                             "bg-rose-50 text-rose-700 border-rose-200"
@@ -720,7 +720,7 @@ export default function LogisticsPage() {
                         </TableCell>
                         <TableCell className="py-3.5 px-5">
                           <p className="font-semibold text-gray-800">{mnf.driverName || "N/A"}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{mnf.driverPhone}</p>
+                          <p className="text-[11px] text-gray-400 font-mono">{mnf.driverPhone}</p>
                         </TableCell>
                         <TableCell className="py-3.5 px-5 font-mono font-bold text-gray-700">{mnf.fulfillments?.length || 0} items</TableCell>
                       </tr>
@@ -741,7 +741,7 @@ export default function LogisticsPage() {
                     <h3 className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-indigo-600" /> Manifest Sheet
                     </h3>
-                    <p className="text-[10px] text-gray-400 font-mono mt-0.5">{selectedManifest.manifestNumber}</p>
+                    <p className="text-[11px] text-gray-400 font-mono mt-0.5">{selectedManifest.manifestNumber}</p>
                   </div>
                   <button 
                     onClick={() => window.print()}
@@ -786,7 +786,7 @@ export default function LogisticsPage() {
                       <div key={item.id} className="p-2 bg-slate-50 border border-slate-100 rounded-lg text-xs flex justify-between items-center">
                         <div>
                           <p className="font-bold text-slate-800">{item.orderNumber}</p>
-                          <p className="text-[10px] text-slate-500">{item.customerName}</p>
+                          <p className="text-[11px] text-slate-500">{item.customerName}</p>
                         </div>
                         <span className="font-mono font-semibold text-slate-600">{item.awbNumber}</span>
                       </div>
@@ -837,7 +837,7 @@ export default function LogisticsPage() {
           {/* Financial Audit Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Customer Shipping Fees Collected</span>
+              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Total Customer Shipping Fees Collected</span>
               <p className="text-2xl font-bold text-gray-900 mt-1 font-mono">
                 ₹{orders.reduce((sum, o) => sum + (o.customerShippingFee || 0), 0).toLocaleString()}
               </p>
@@ -845,7 +845,7 @@ export default function LogisticsPage() {
             </div>
             
             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimated Carrier Shipping Costs</span>
+              <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Estimated Carrier Shipping Costs</span>
               <p className="text-2xl font-bold text-gray-900 mt-1 font-mono">
                 ₹{orders.reduce((sum, o) => sum + (o.shippingCost || 0), 0).toLocaleString()}
               </p>
@@ -859,7 +859,7 @@ export default function LogisticsPage() {
               const isNegative = leakage > 0;
               return (
                 <div className={`border rounded-xl p-5 shadow-sm ${isNegative ? "bg-rose-50/50 border-rose-100 text-rose-950" : "bg-emerald-50/50 border-emerald-100 text-emerald-950"}`}>
-                  <span className="text-[10px] uppercase font-bold tracking-wider">Net Shipping Margin leakage</span>
+                  <span className="text-[11px] uppercase font-bold tracking-wider">Net Shipping Margin leakage</span>
                   <p className="text-2xl font-bold mt-1 font-mono">
                     {isNegative ? `₹${leakage.toLocaleString()}` : `-₹${Math.abs(leakage).toLocaleString()}`}
                   </p>
@@ -903,11 +903,11 @@ export default function LogisticsPage() {
                         <td className="py-3.5 px-5 font-bold text-gray-800">{ord.orderNumber}</td>
                         <td className="py-3.5 px-5">
                           <p className="font-semibold">{ord.customerName}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{ord.customerPhone}</p>
+                          <p className="text-[11px] text-gray-400 font-mono">{ord.customerPhone}</p>
                         </td>
                         <td className="py-3.5 px-5 font-mono">{ord.courierPartner} (AWB: {ord.awbNumber})</td>
                         <td className="py-3.5 px-5">
-                          <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
+                          <span className={`px-2 py-0.5 text-[11px] font-bold rounded-full border ${
                             ord.deliveryStatus === "DELIVERED" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                             "bg-amber-50 text-amber-700 border-amber-200"
                           }`}>
@@ -942,7 +942,7 @@ export default function LogisticsPage() {
                                   toast.error("Failed to generate reverse AWB");
                                 }
                               }}
-                              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1 rounded text-[10px]"
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1 rounded text-[11px]"
                             >
                               Create Reverse AWB
                             </button>

@@ -953,7 +953,7 @@ export default function StockInventoryPage() {
             <div className="flex items-center gap-2 mt-1">
               <span className="text-2xl font-bold text-gray-900">{lowStockCount} Products</span>
               {lowStockCount > 0 && (
-                <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase animate-pulse">Alert active</span>
+                <span className="bg-red-50 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase animate-pulse">Alert active</span>
               )}
             </div>
           </div>
@@ -1180,7 +1180,7 @@ export default function StockInventoryPage() {
                 {filteredProducts.length} entries
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Show:</span>
+                <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Show:</span>
                 <select
                   value={itemsPerPage}
                   onChange={(e) => {
@@ -1277,13 +1277,13 @@ export default function StockInventoryPage() {
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">SKU Code & Size Breakdown</h4>
                   {selectedWarehouseId === "All" ? (
-                    <span className="text-[10px] text-amber-700 bg-amber-50 font-semibold px-2 py-0.5 rounded">
+                    <span className="text-[11px] text-amber-700 bg-amber-50 font-semibold px-2 py-0.5 rounded">
                       Read Only (Select WH to Edit)
                     </span>
                   ) : (
                     <button
                       onClick={handleOpenMatrixModal}
-                      className="text-[10px] text-indigo-750 bg-indigo-50 hover:bg-indigo-100 font-bold px-2 py-1 rounded transition-all cursor-pointer"
+                      className="text-[11px] text-indigo-750 bg-indigo-50 hover:bg-indigo-100 font-bold px-2 py-1 rounded transition-all cursor-pointer"
                     >
                       Matrix Multi-Edit
                     </button>
@@ -1353,7 +1353,7 @@ export default function StockInventoryPage() {
                           <button
                             onClick={() => handlePushToShopify(variant.id, variant.sku)}
                             disabled={syncingVariantId === variant.id}
-                            className="text-[10px] text-gray-600 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded px-2 py-1 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="text-[11px] text-gray-600 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 border border-gray-200 rounded px-2 py-1 flex items-center gap-1 transition-colors cursor-pointer"
                             title="Sync single variant to Shopify Storefront"
                           >
                             {syncingVariantId === variant.id ? (
@@ -1400,7 +1400,7 @@ export default function StockInventoryPage() {
                           ) : (
                             <div className="flex items-center gap-3">
                               <span className={`font-bold text-sm ${variant.qty <= 15 ? "text-amber-600" : "text-gray-900"}`}>
-                                {variant.qty} <span className="text-[10px] text-gray-400 font-normal">units</span>
+                                {variant.qty} <span className="text-[11px] text-gray-400 font-normal">units</span>
                               </span>
                               {selectedWarehouseId !== "All" && (
                                 <button 
@@ -1604,7 +1604,7 @@ export default function StockInventoryPage() {
                       ))}
                     </select>
                   </div>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-[11px] text-gray-400">
                     If your CSV includes the "CurrentStock" column, inventory levels will be seeded under this specific warehouse facility.
                   </p>
                 </div>
@@ -1615,7 +1615,7 @@ export default function StockInventoryPage() {
                 <div className="space-y-3">
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center justify-between">
                     <span>Preview of Parsed Data (First 5 records)</span>
-                    <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full text-[11px] font-bold">
                       {parsedRows.length} Rows Detected
                     </span>
                   </h4>
@@ -1643,7 +1643,7 @@ export default function StockInventoryPage() {
                               <td className="p-3 text-right font-mono font-bold">${parseFloat(row.price || 0).toFixed(2)}</td>
                               <td className="p-3 text-center font-bold text-indigo-600">{row.currentStock || "0"}</td>
                               <td className="p-3 text-center">
-                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                <span className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold uppercase ${
                                   isExists 
                                     ? "bg-amber-100 text-amber-800" 
                                     : "bg-emerald-100 text-emerald-800"
@@ -1656,14 +1656,14 @@ export default function StockInventoryPage() {
                                   row.discrepancies && row.discrepancies.length > 0 ? (
                                     <span className="flex flex-col gap-0.5">
                                       {row.discrepancies.map((disc: string, idx: number) => (
-                                        <span key={idx} className="block text-[10px] text-amber-700">• {disc}</span>
+                                        <span key={idx} className="block text-[11px] text-amber-700">• {disc}</span>
                                       ))}
                                     </span>
                                   ) : (
-                                    <span className="text-gray-400 italic text-[10px]">Identical SKU (No value changes)</span>
+                                    <span className="text-gray-400 italic text-[11px]">Identical SKU (No value changes)</span>
                                   )
                                 ) : (
-                                  <span className="text-gray-400 text-[10px]">—</span>
+                                  <span className="text-gray-400 text-[11px]">—</span>
                                 )}
                               </td>
                             </tr>
@@ -1762,7 +1762,7 @@ export default function StockInventoryPage() {
                       className="w-full bg-white disabled:bg-gray-100 border border-gray-250 rounded-lg p-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                     />
                     {productModalMode === "EDIT" && (
-                      <p className="text-[10px] text-amber-600">Base SKU prefix cannot be updated once variants are active.</p>
+                      <p className="text-[11px] text-amber-600">Base SKU prefix cannot be updated once variants are active.</p>
                     )}
                   </div>
 
@@ -1831,7 +1831,7 @@ export default function StockInventoryPage() {
                       <div className="flex-1 border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 rounded-xl p-3 text-center flex flex-col items-center justify-center transition-colors relative cursor-pointer">
                         <Upload className="w-5 h-5 text-indigo-600 mb-1" />
                         <span className="text-xs font-bold text-slate-800">Upload & Compress Photo</span>
-                        <span className="text-[10px] text-slate-500 mt-0.5">Auto-compresses to tiny WebP (Saves 95% storage)</span>
+                        <span className="text-[11px] text-slate-500 mt-0.5">Auto-compresses to tiny WebP (Saves 95% storage)</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -1858,7 +1858,7 @@ export default function StockInventoryPage() {
 
                       {/* Manual Image URL Input fallback */}
                       <div className="flex-1 space-y-1">
-                        <span className="text-[10px] font-semibold text-gray-400 block uppercase">Or Paste Image URL</span>
+                        <span className="text-[11px] font-semibold text-gray-400 block uppercase">Or Paste Image URL</span>
                         <input
                           type="url"
                           value={productForm.imageUrl}
@@ -1895,7 +1895,7 @@ export default function StockInventoryPage() {
                     </div>
                   </div>
                   <div className="flex items-center">
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-[11px] text-gray-400">
                       {productModalMode === "ADD" 
                         ? "If initial stock quantities are entered in the table below, they will be seeded directly inside this warehouse."
                         : "If initial stock quantities are entered for new variants below, they will be seeded inside this warehouse."}
@@ -1913,7 +1913,7 @@ export default function StockInventoryPage() {
                   <button
                     type="button"
                     onClick={handleAddVariantRow}
-                    className="flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] px-2.5 py-1 rounded transition-colors cursor-pointer"
+                    className="flex items-center gap-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] px-2.5 py-1 rounded transition-colors cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Variant Row
                   </button>
@@ -2129,22 +2129,22 @@ export default function StockInventoryPage() {
               {aiResults && (
                 <div className="space-y-4 pt-2 border-t border-slate-100">
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
-                    <span className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] block">🔍 Google Search Title Tag</span>
+                    <span className="font-bold text-indigo-700 uppercase tracking-wider text-[11px] block">🔍 Google Search Title Tag</span>
                     <p className="font-semibold text-slate-900">{aiResults.seoTitle}</p>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
-                    <span className="font-bold text-emerald-700 uppercase tracking-wider text-[10px] block">📝 Google Meta Description</span>
+                    <span className="font-bold text-emerald-700 uppercase tracking-wider text-[11px] block">📝 Google Meta Description</span>
                     <p className="text-slate-700 leading-relaxed">{aiResults.metaDescription}</p>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1">
-                    <span className="font-bold text-purple-700 uppercase tracking-wider text-[10px] block">📖 Storefront Product Story</span>
+                    <span className="font-bold text-purple-700 uppercase tracking-wider text-[11px] block">📖 Storefront Product Story</span>
                     <p className="text-slate-700 leading-relaxed">{aiResults.productStory}</p>
                   </div>
 
                   <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 space-y-1">
-                    <span className="font-bold text-purple-900 uppercase tracking-wider text-[10px] block">📱 Instagram & Social Media Hook</span>
+                    <span className="font-bold text-purple-900 uppercase tracking-wider text-[11px] block">📱 Instagram & Social Media Hook</span>
                     <p className="text-purple-900 whitespace-pre-wrap font-mono text-[11px]">{aiResults.instagramCaption}</p>
                   </div>
 

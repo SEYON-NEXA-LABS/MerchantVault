@@ -217,7 +217,7 @@ export default function DashboardPage() {
             {showDatePicker && (
               <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-50 min-w-[340px] space-y-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Preset Ranges</p>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">Preset Ranges</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {presetOptions.map((opt) => (
                       <button
@@ -246,10 +246,10 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="border-t border-gray-100 pt-3 space-y-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Custom Dates</p>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Custom Dates</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-1 font-semibold">Start Date</label>
+                      <label className="block text-[11px] text-gray-500 mb-1 font-semibold">Start Date</label>
                       <input 
                         type="date" 
                         value={startDate}
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-gray-500 mb-1 font-semibold">End Date</label>
+                      <label className="block text-[11px] text-gray-500 mb-1 font-semibold">End Date</label>
                       <input 
                         type="date" 
                         value={endDate}
@@ -432,12 +432,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right flex flex-col items-end">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] text-gray-400">{order.time}</span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${order.statusColor}`}>
+                        <span className="text-[11px] text-gray-400">{order.time}</span>
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${order.statusColor}`}>
                           {order.status}
                         </span>
                       </div>
-                      <p className="text-xs font-extrabold text-gray-900">₹ {order.amount}</p>
+                      <p className="text-xs font-bold text-gray-900">₹ {order.amount}</p>
                     </div>
                   </div>
                 ))}
@@ -448,7 +448,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-base font-bold text-gray-900">RTO Risk Overview</h3>
-                <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">{kpis?.rtoPercentage || "0.00"}% Rate</span>
+                <span className="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">{kpis?.rtoPercentage || "0.00"}% Rate</span>
               </div>
               <div className="flex flex-col items-center justify-center h-48 relative">
                 {/* SVG RTO Donut */}
@@ -458,7 +458,7 @@ export default function DashboardPage() {
                   <circle cx="18" cy="18" r="15.915" fill="none" stroke="#fda4af" strokeWidth="4" strokeDasharray="40 60" strokeDashoffset="-60" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total RTO</p>
+                  <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Total RTO</p>
                   <p className="text-xl font-extrabold text-gray-900">{totalRtoValue}</p>
                 </div>
               </div>
@@ -473,7 +473,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-base font-bold text-gray-900">Sales & Revenue Trend</h3>
-                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 uppercase tracking-wider">
                   Synced with Top Range Filter ({activePreset})
                 </span>
               </div>
@@ -490,7 +490,7 @@ export default function DashboardPage() {
                   const heightPercent = Math.max(Math.round((item.revenue / maxRev) * 100), 8);
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end">
-                      <div className="absolute -top-10 hidden group-hover:flex bg-slate-900 text-white text-[10px] py-1 px-2.5 rounded-md font-mono z-30 whitespace-nowrap shadow-xl">
+                      <div className="absolute -top-10 hidden group-hover:flex bg-slate-900 text-white text-[11px] py-1 px-2.5 rounded-md font-mono z-30 whitespace-nowrap shadow-xl">
                         ₹{item.revenue.toLocaleString('en-IN')} | {item.orders} orders
                       </div>
                       <div 
@@ -499,7 +499,7 @@ export default function DashboardPage() {
                       >
                         <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-sky-400 border border-white" />
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium">{item.name}</span>
+                      <span className="text-[11px] text-gray-400 font-medium">{item.name}</span>
                     </div>
                   );
                 })}
@@ -519,7 +519,7 @@ export default function DashboardPage() {
                   <circle cx="18" cy="18" r="15.915" fill="none" stroke="#ef4444" strokeWidth="4" strokeDasharray="7 93" strokeDashoffset="-93" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">Total SKUs</p>
+                  <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">Total SKUs</p>
                   <p className="text-xl font-extrabold text-gray-900">{totalInventorySKUs}</p>
                 </div>
               </div>
@@ -546,7 +546,7 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="text-xs font-semibold text-gray-900 leading-none mb-1">{product.name}</p>
-                        <p className="text-[10px] text-gray-500">{product.sku}</p>
+                        <p className="text-[11px] text-gray-500">{product.sku}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -569,7 +569,7 @@ export default function DashboardPage() {
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">Geographic order volume and revenue contribution across Indian retail hubs</p>
               </div>
-              <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">
+              <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-100">
                 Pan-India Logistics Active
               </span>
             </div>
@@ -582,7 +582,7 @@ export default function DashboardPage() {
                   <div key={idx} className="p-3.5 rounded-xl bg-slate-50/70 border border-slate-150/80 space-y-2.5 hover:shadow-sm transition-all relative overflow-hidden">
                     <div className="flex justify-between items-center">
                       <span className="text-xs font-bold text-gray-900">{region.state}</span>
-                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded text-white font-mono" style={{ backgroundColor: region.color }}>
+                      <span className="text-[11px] font-bold px-1.5 py-0.5 rounded text-white font-mono" style={{ backgroundColor: region.color }}>
                         {region.percentage}%
                       </span>
                     </div>

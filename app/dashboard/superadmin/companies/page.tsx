@@ -574,7 +574,7 @@ function CompaniesContent() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[10px]">
+                <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[11px]">
                   <th className="p-4">Tenant Company</th>
                   <th className="p-4">Code</th>
                   <th className="p-4">Fulfillment Hubs</th>
@@ -590,17 +590,17 @@ function CompaniesContent() {
                   <tr key={c.id} className="hover:bg-stone-50/50 transition-colors">
                     <td className="p-4">
                       <div className="font-bold text-stone-900">{c.name}</div>
-                      <div className="text-[10px] text-stone-400">{c.contactEmail || "No contact email"}</div>
+                      <div className="text-[11px] text-stone-400">{c.contactEmail || "No contact email"}</div>
                     </td>
                     <td className="p-4 font-mono font-bold text-stone-550">{c.code}</td>
                     <td className="p-4">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 border border-teal-100 text-teal-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-teal-50 border border-teal-100 text-teal-800">
                         <Home className="w-3 h-3" />
                         {c.Warehouse?.length || 0} Warehouses
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 border border-amber-100 text-amber-800">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 border border-amber-100 text-amber-800">
                         <Tag className="w-3 h-3" />
                         {c.Brand?.length || 0} Brands
                       </span>
@@ -618,7 +618,7 @@ function CompaniesContent() {
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                         c.isActive 
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
                           : "bg-stone-100 text-stone-500 border-stone-250"
@@ -653,7 +653,7 @@ function CompaniesContent() {
                 <h3 className="font-black text-stone-900 text-base flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-teal-650" /> Workspace Inspector: {selectedCompany.name}
                 </h3>
-                <p className="text-[10px] text-stone-400 font-mono mt-0.5">Code ID: {selectedCompany.code}</p>
+                <p className="text-[11px] text-stone-400 font-mono mt-0.5">Code ID: {selectedCompany.code}</p>
               </div>
               <button onClick={() => setSelectedCompany(null)} className="text-stone-400 hover:text-stone-600 font-bold text-sm">
                 ✕
@@ -763,7 +763,7 @@ function CompaniesContent() {
                           onChange={(e) => setCompCustomDomain(e.target.value)}
                           className="w-full bg-white border border-stone-200 rounded-lg py-2 px-3 text-xs font-mono focus:outline-none"
                         />
-                        <span className="text-[9px] text-stone-450 block">Points via CNAME to platform</span>
+                        <span className="text-[11px] text-stone-450 block">Points via CNAME to platform</span>
                       </div>
 
                       <div className="space-y-1">
@@ -775,14 +775,14 @@ function CompaniesContent() {
                           onChange={(e) => setCompCustomSubdomain(e.target.value)}
                           className="w-full bg-white border border-stone-200 rounded-lg py-2 px-3 text-xs font-mono focus:outline-none"
                         />
-                        <span className="text-[9px] text-stone-450 block">Platform subdomain alias</span>
+                        <span className="text-[11px] text-stone-450 block">Platform subdomain alias</span>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between border-t border-teal-100 pt-2.5 mt-2">
                       <div>
                         <span className="block font-bold text-stone-850 text-xs">White-Label Branding Add-On</span>
-                        <span className="block text-[9px] text-stone-500">Remove 'Powered by Merchant Vault' storefront footer.</span>
+                        <span className="block text-[11px] text-stone-500">Remove 'Powered by Merchant Vault' storefront footer.</span>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -799,7 +799,7 @@ function CompaniesContent() {
                   <div className="flex items-center justify-between bg-stone-50 p-3.5 border border-stone-200 rounded-xl">
                     <div>
                       <span className="block font-bold text-stone-850">Company Activation State</span>
-                      <span className="block text-[10px] text-stone-450 mt-0.5">Deactivate to restrict access for all associated accounts.</span>
+                      <span className="block text-[11px] text-stone-450 mt-0.5">Deactivate to restrict access for all associated accounts.</span>
                     </div>
                     <button
                       type="button"
@@ -946,7 +946,7 @@ function CompaniesContent() {
                   ) : (
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[9px]">
+                        <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[11px]">
                           <th className="p-3 pl-4">Warehouse</th>
                           <th className="p-3">Code</th>
                           <th className="p-3">Location</th>
@@ -964,7 +964,7 @@ function CompaniesContent() {
                             </td>
                             <td className="p-3">
                               {wh.isDefaultPickup ? (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-teal-700 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
                                   <Check className="w-3 h-3" /> Pickup
                                 </span>
                               ) : (
@@ -1052,10 +1052,10 @@ function CompaniesContent() {
                       </div>
 
                       <div className="space-y-1 col-span-2 border-t border-stone-200/50 pt-2">
-                        <h6 className="font-bold text-[10px] text-stone-500 uppercase tracking-wide mb-2">Color Palette (Tweakcn Inspired)</h6>
+                        <h6 className="font-bold text-[11px] text-stone-500 uppercase tracking-wide mb-2">Color Palette (Tweakcn Inspired)</h6>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="font-semibold text-stone-600 text-[10px]">Primary Brand Color</label>
+                            <label className="font-semibold text-stone-600 text-[11px]">Primary Brand Color</label>
                             <div className="flex gap-2 items-center">
                               <input
                                 type="color"
@@ -1067,12 +1067,12 @@ function CompaniesContent() {
                                 type="text"
                                 value={brandPrimaryColor}
                                 onChange={(e) => setBrandPrimaryColor(e.target.value)}
-                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[10px] font-mono focus:outline-none"
+                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[11px] font-mono focus:outline-none"
                               />
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <label className="font-semibold text-stone-600 text-[10px]">Accent Color</label>
+                            <label className="font-semibold text-stone-600 text-[11px]">Accent Color</label>
                             <div className="flex gap-2 items-center">
                               <input
                                 type="color"
@@ -1084,7 +1084,7 @@ function CompaniesContent() {
                                 type="text"
                                 value={brandAccentColor}
                                 onChange={(e) => setBrandAccentColor(e.target.value)}
-                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[10px] font-mono focus:outline-none"
+                                className="w-full bg-white border border-stone-200 rounded-lg py-1.5 px-2.5 text-[11px] font-mono focus:outline-none"
                               />
                             </div>
                           </div>
@@ -1165,7 +1165,7 @@ function CompaniesContent() {
                   ) : (
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[9px]">
+                        <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[11px]">
                           <th className="p-3 pl-4">Brand</th>
                           <th className="p-3">Routing Code</th>
                           <th className="p-3 pr-4 text-right">Actions</th>

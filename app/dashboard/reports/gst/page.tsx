@@ -279,7 +279,7 @@ function GstReportsContent() {
                       <td className="px-4 py-3 text-right font-black text-emerald-700">₹{totalInvoice.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          className={`text-[11px] font-bold px-2 py-0.5 rounded ${
                             ord.taxType === "INTER_STATE"
                               ? "bg-purple-100 text-purple-800"
                               : "bg-indigo-100 text-indigo-800"

@@ -82,7 +82,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
           <Link href="/blog" className="text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Journal
           </Link>
-          <span className="text-xs font-extrabold text-indigo-600 tracking-wide uppercase">MerchantVault Journal</span>
+          <span className="text-xs font-bold text-indigo-600 tracking-wide uppercase">MerchantVault Journal</span>
         </div>
       </div>
 

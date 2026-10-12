@@ -268,12 +268,12 @@ export function Sidebar({
             <h1 className="font-bold text-sm uppercase tracking-wide text-slate-900 truncate max-w-[170px]">
               {company?.name || "MerchantVault"}
             </h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">MerchantVault ERP</p>
+            <p className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">MerchantVault ERP</p>
           </div>
         </div>
 
         {/* Glassmorphic Role Badge Indicator */}
-        <div className={`flex items-center justify-between px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${currentTheme.badgeBg} border shadow-2xs`}>
+        <div className={`flex items-center justify-between px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider ${currentTheme.badgeBg} border shadow-2xs`}>
           <span className="flex items-center gap-1.5">
             <span className={`w-1.5 h-1.5 rounded-full ${currentTheme.roleDot} animate-pulse`} />
             Role Scope:
@@ -302,7 +302,7 @@ export function Sidebar({
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-black border flex-shrink-0 ${
+                  <span className={`px-2 py-0.5 rounded-md font-mono text-[11px] font-black border flex-shrink-0 ${
                     isPos
                       ? "bg-emerald-600 text-white border-emerald-600"
                       : "bg-slate-200/80 text-slate-700 border-slate-300"
@@ -313,7 +313,7 @@ export function Sidebar({
                   <span className="text-[13px] tracking-tight">{item.name}</span>
                 </div>
                 {item.badge && (
-                  <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1 shadow-xs">
+                  <span className="bg-rose-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1 shadow-xs">
                     <AlertTriangle className="w-3 h-3" />
                     {item.badge}
                   </span>
@@ -339,7 +339,7 @@ export function Sidebar({
                     <span className={`w-2.5 h-2.5 rounded-full ${section.dotColor} ring-2 ring-white shadow-xs`} />
                     <span className="text-xs font-black tracking-wide uppercase">{section.title}</span>
                   </div>
-                  <span className="text-[10px] font-mono font-bold opacity-75">SEC {section.title.split('.')[0]}</span>
+                  <span className="text-[11px] font-mono font-bold opacity-75">SEC {section.title.split('.')[0]}</span>
                 </div>
                 
                 <ul className="space-y-1.5">
@@ -376,14 +376,14 @@ export function Sidebar({
                             </span>
                           </div>
                           {item.badge && (
-                            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                            <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
                               active ? "bg-rose-500 text-white" : "bg-rose-100 text-rose-700 animate-pulse"
                             }`}>
                               {item.badge}
                             </span>
                           )}
                           {(item as any).comingSoon && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+                            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
                               Soon
                             </span>
                           )}
@@ -398,7 +398,7 @@ export function Sidebar({
 
         {/* Public Channels Section */}
         <div>
-          <h2 className="text-[10px] font-extrabold text-slate-400/90 mb-1.5 px-3 uppercase tracking-wider">
+          <h2 className="text-[11px] font-bold text-slate-400/90 mb-1.5 px-3 uppercase tracking-wider">
             External Store Channels
           </h2>
           <ul className="space-y-1">
@@ -444,7 +444,7 @@ export function Sidebar({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setDevEnvironmentMode("DEV")}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg transition-all ${
+                  className={`text-[11px] font-bold px-2 py-1 rounded-lg transition-all ${
                     devEnvironmentMode === "DEV"
                       ? "bg-amber-500 text-white shadow-xs"
                       : "text-slate-500 hover:text-slate-800"
@@ -454,7 +454,7 @@ export function Sidebar({
                 </button>
                 <button
                   onClick={() => setDevEnvironmentMode("PROD")}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg transition-all ${
+                  className={`text-[11px] font-bold px-2 py-1 rounded-lg transition-all ${
                     devEnvironmentMode === "PROD"
                       ? "bg-emerald-600 text-white shadow-xs"
                       : "text-slate-500 hover:text-slate-800"
@@ -488,7 +488,7 @@ export function Sidebar({
             <ChevronLeft className="w-4 h-4 mr-1" /> Collapse Sidebar
           </div>
           {process.env.NODE_ENV === "development" && (
-            <span className="text-[10px] font-mono font-bold bg-amber-100/80 text-amber-800 border border-amber-200/60 px-1.5 py-0.5 rounded-md">
+            <span className="text-[11px] font-mono font-bold bg-amber-100/80 text-amber-800 border border-amber-200/60 px-1.5 py-0.5 rounded-md">
               {devEnvironmentMode}
             </span>
           )}
@@ -502,7 +502,7 @@ export function Sidebar({
               className="w-full h-full object-contain"
             />
           </div>
-          <span className="text-[10px] font-medium text-slate-500 truncate">
+          <span className="text-[11px] font-medium text-slate-500 truncate">
             MerchantVault by <strong className="text-slate-700">Seyon Nexa Labs</strong>
           </span>
         </div>

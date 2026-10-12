@@ -308,7 +308,7 @@ export default function VendorsPage() {
                     </TableCell>
                     <TableCell className="py-3 px-4">
                       <span
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                        className={`px-2 py-0.5 text-[11px] font-bold rounded-full ${
                           vendor.isActive
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-gray-100 text-gray-500 border border-gray-200"
@@ -416,7 +416,7 @@ export default function VendorsPage() {
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2.5">
                       <Mail className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                       <div className="overflow-hidden">
-                        <span className="text-[10px] text-gray-400 block font-medium">Email Address</span>
+                        <span className="text-[11px] text-gray-400 block font-medium">Email Address</span>
                         <span className="font-semibold text-gray-800 truncate block">{selectedVendor.email}</span>
                       </div>
                     </div>
@@ -426,7 +426,7 @@ export default function VendorsPage() {
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2.5">
                       <Phone className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                       <div>
-                        <span className="text-[10px] text-gray-400 block font-medium">Phone Number</span>
+                        <span className="text-[11px] text-gray-400 block font-medium">Phone Number</span>
                         <span className="font-semibold text-gray-800 block">{selectedVendor.phone}</span>
                       </div>
                     </div>
@@ -436,7 +436,7 @@ export default function VendorsPage() {
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2.5 sm:col-span-2">
                       <FileText className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                       <div>
-                        <span className="text-[10px] text-gray-400 block font-medium">GSTIN Tax Identifier</span>
+                        <span className="text-[11px] text-gray-400 block font-medium">GSTIN Tax Identifier</span>
                         <span className="font-mono font-bold text-gray-800 text-xs">{selectedVendor.gstin}</span>
                       </div>
                     </div>
@@ -446,7 +446,7 @@ export default function VendorsPage() {
                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex items-start gap-2.5 sm:col-span-2">
                       <MapPin className="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" />
                       <div>
-                        <span className="text-[10px] text-gray-400 block font-medium">Registered Address</span>
+                        <span className="text-[11px] text-gray-400 block font-medium">Registered Address</span>
                         <span className="font-medium text-gray-700 leading-relaxed block">{selectedVendor.address}</span>
                       </div>
                     </div>
@@ -465,7 +465,7 @@ export default function VendorsPage() {
               )}
 
               {/* Timestamps */}
-              <div className="border-t border-gray-100 pt-3 text-[10px] text-gray-400 flex justify-between">
+              <div className="border-t border-gray-100 pt-3 text-[11px] text-gray-400 flex justify-between">
                 <span>Created: {new Date(selectedVendor.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                 <span>Updated: {new Date(selectedVendor.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
               </div>

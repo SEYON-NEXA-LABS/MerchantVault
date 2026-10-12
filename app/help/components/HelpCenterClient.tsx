@@ -278,7 +278,7 @@ function HelpContent({ isStandalone }: { isStandalone?: boolean }) {
               <p className="text-[11px] text-slate-600 leading-relaxed">
                 Scan production batches arriving from suppliers to add them to your active warehouse stock. This logs an `INWARD` stock movement and updates total catalog levels.
               </p>
-              <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
+              <ul className="text-[11px] text-slate-500 list-disc list-inside space-y-1">
                 <li>Increases catalog stock levels.</li>
                 <li>Triggers immediate sync update to Shopify (if bridge is active).</li>
                 <li>Associates stock directly with selected warehouse node.</li>
@@ -291,7 +291,7 @@ function HelpContent({ isStandalone }: { isStandalone?: boolean }) {
               <p className="text-[11px] text-slate-660 leading-relaxed">
                 Scan items to manually deduct inventory for sample dispatch, store displays, or writing off damaged garments. Logs an `OUTWARD` stock movement.
               </p>
-              <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1">
+              <ul className="text-[11px] text-slate-500 list-disc list-inside space-y-1">
                 <li>Decreases catalog stock levels.</li>
                 <li>Logs inventory adjustments reasons in the stock movements ledger.</li>
                 <li>Applies real-time decrements on the public storefront.</li>
@@ -1058,7 +1058,7 @@ function HelpContent({ isStandalone }: { isStandalone?: boolean }) {
           </button>
           <div>
             <h2 className="font-extrabold text-sm text-slate-900">MerchantVault Help Center &amp; SOPs</h2>
-            <p className="text-[10px] text-slate-500 font-mono">v1.2.0-userhelp</p>
+            <p className="text-[11px] text-slate-500 font-mono">v1.2.0-userhelp</p>
           </div>
         </div>
         
@@ -1092,7 +1092,7 @@ function HelpContent({ isStandalone }: { isStandalone?: boolean }) {
         {/* Left Side: CHM Nested TOC Navigation Tree */}
         {!sidebarCollapsed && (
           <aside className="w-80 border-r border-slate-200 flex flex-col h-full bg-slate-50 overflow-y-auto transition-all duration-200">
-            <div className="p-3 bg-slate-100/50 border-b border-slate-200 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="p-3 bg-slate-100/50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Table of Contents
             </div>
             
@@ -1169,7 +1169,7 @@ function HelpContent({ isStandalone }: { isStandalone?: boolean }) {
       </div>
 
       {/* CHM Footer Status Bar */}
-      <footer className="h-7 bg-slate-150 text-slate-600 border-t border-slate-250 flex items-center justify-between px-4 text-[9px] font-mono select-none flex-shrink-0">
+      <footer className="h-7 bg-slate-150 text-slate-600 border-t border-slate-250 flex items-center justify-between px-4 text-[11px] font-mono select-none flex-shrink-0">
         <div>
           Topic ID: <span className="font-bold text-slate-800">{activeTopic.id}</span>
         </div>

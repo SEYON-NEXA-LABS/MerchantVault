@@ -27,7 +27,7 @@ export default async function BlogListingPage() {
       {/* Top Banner Header */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white py-16 px-6">
         <div className="max-w-6xl mx-auto space-y-4 text-center">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-extrabold uppercase tracking-widest border border-indigo-500/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold uppercase tracking-widest border border-indigo-500/30">
             <BookOpen className="w-3.5 h-3.5" /> Seyon Editorial & Journal
           </span>
           <h1 className="text-3xl md:text-5xl font-black tracking-tight">Fashion, Trends & Retail Journal</h1>

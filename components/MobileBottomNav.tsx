@@ -42,7 +42,7 @@ export function MobileBottomNav({ cartCount, favoritesCount }: MobileBottomNavPr
         <div className="relative">
           <ShoppingBag className="w-5 h-5" />
           {cartCount > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black animate-pulse shadow-xs">
+            <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[11px] w-4 h-4 rounded-full flex items-center justify-center font-black animate-pulse shadow-xs">
               {cartCount}
             </span>
           )}

@@ -60,8 +60,8 @@ export default function ProductThumbnail({
 }: ProductThumbnailProps) {
 
   const sizeConfig = {
-    sm: { container: "w-10 h-10 rounded-md",  iconSize: 14, textSize: "text-[8px]" },
-    md: { container: "w-14 h-14 rounded-lg",  iconSize: 20, textSize: "text-[10px]" },
+    sm: { container: "w-10 h-10 rounded-md",  iconSize: 14, textSize: "text-[11px]" },
+    md: { container: "w-14 h-14 rounded-lg",  iconSize: 20, textSize: "text-[11px]" },
     lg: { container: "w-24 h-24 rounded-xl",  iconSize: 32, textSize: "text-xs" },
   };
 

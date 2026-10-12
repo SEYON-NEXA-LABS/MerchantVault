@@ -446,7 +446,7 @@ export default function InventoryAuditsPage() {
             
             <div className="space-y-3 pt-2">
               <div>
-                <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Operator Email</label>
+                <label className="block text-[11px] uppercase font-bold text-gray-500 mb-1">Operator Email</label>
                 <input 
                   type="email"
                   value={operatorEmail}
@@ -456,7 +456,7 @@ export default function InventoryAuditsPage() {
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Audit Type</label>
+                <label className="block text-[11px] uppercase font-bold text-gray-500 mb-1">Audit Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button 
                     onClick={() => { setAuditType("FULL"); setIsStartingAudit(false); }}
@@ -508,7 +508,7 @@ export default function InventoryAuditsPage() {
                         >
                           <div>
                             <span className="font-bold text-gray-950 block">{v.title}</span>
-                            <span className="text-[10px] text-gray-450 font-mono">SKU: {v.sku} | Barcode: {v.barcodeString}</span>
+                            <span className="text-[11px] text-gray-450 font-mono">SKU: {v.sku} | Barcode: {v.barcodeString}</span>
                           </div>
                           <input 
                             type="checkbox" 
@@ -520,7 +520,7 @@ export default function InventoryAuditsPage() {
                       );
                     })}
                   </div>
-                  <span className="text-[10px] text-slate-500 font-semibold">
+                  <span className="text-[11px] text-slate-500 font-semibold">
                     {selectedVariantIds.length} items selected for audit count.
                   </span>
                 </div>
@@ -542,7 +542,7 @@ export default function InventoryAuditsPage() {
             <div className="divide-y divide-gray-100 overflow-x-auto">
               <table className="min-w-full text-xs text-left">
                 <thead>
-                  <tr className="text-[10px] uppercase font-bold text-gray-400 tracking-wider pb-3 border-b">
+                  <tr className="text-[11px] uppercase font-bold text-gray-400 tracking-wider pb-3 border-b">
                     <th className="pb-2">Audit Date</th>
                     <th className="pb-2">Operator</th>
                     <th className="pb-2">Audited SKUs</th>
@@ -560,7 +560,7 @@ export default function InventoryAuditsPage() {
                         {a.items?.length || 0} variants
                       </td>
                       <td className="py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-wider ${
+                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wider ${
                           a.status === "COMPLETED" 
                             ? "bg-emerald-100 text-emerald-800"
                             : a.status === "CANCELLED"
@@ -595,7 +595,7 @@ export default function InventoryAuditsPage() {
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm lg:col-span-2 space-y-4">
               <div className="flex justify-between items-center border-b pb-3">
                 <div>
-                  <span className="text-[9px] font-extrabold uppercase bg-indigo-150 text-indigo-700 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-bold uppercase bg-indigo-150 text-indigo-700 px-2 py-0.5 rounded">
                     Active Session
                   </span>
                   <h2 className="text-sm font-bold text-slate-900 mt-1">
@@ -673,11 +673,11 @@ export default function InventoryAuditsPage() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 border border-slate-150 p-3 rounded-lg">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase block">Total SKUs</span>
+                    <span className="text-[11px] text-gray-500 font-bold uppercase block">Total SKUs</span>
                     <span className="text-xl font-extrabold text-slate-900">{itemsCount}</span>
                   </div>
                   <div className="bg-slate-50 border border-slate-150 p-3 rounded-lg">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase block">Discrepancies</span>
+                    <span className="text-[11px] text-gray-500 font-bold uppercase block">Discrepancies</span>
                     <span className={`text-xl font-extrabold ${discrepanciesCount > 0 ? "text-amber-600" : "text-emerald-600"}`}>
                       {discrepanciesCount}
                     </span>
@@ -686,7 +686,7 @@ export default function InventoryAuditsPage() {
 
                 <div className="mt-4 p-4 border rounded-xl flex items-center justify-between bg-slate-50/50">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase block">Shrinkage Value (Cost)</span>
+                    <span className="text-[11px] font-bold text-slate-400 uppercase block">Shrinkage Value (Cost)</span>
                     <span className="text-xs text-slate-500 mt-0.5">Est. @ {costPerUnit} INR/unit</span>
                   </div>
                   <div className="text-right">
@@ -775,7 +775,7 @@ export default function InventoryAuditsPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full text-xs text-left divide-y divide-gray-150">
-                <thead className="bg-slate-100/50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <thead className="bg-slate-100/50 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   <tr>
                     <th className="px-6 py-3.5">SKU Details</th>
                     <th className="px-6 py-3.5">Barcode</th>
@@ -800,13 +800,13 @@ export default function InventoryAuditsPage() {
                         {/* Variant info */}
                         <td className="px-6 py-4">
                           <span className="font-bold text-gray-950 block">{item.variant.title}</span>
-                          <span className="text-[10px] text-gray-500 font-semibold">
+                          <span className="text-[11px] text-gray-500 font-semibold">
                             SKU: {item.variant.sku} | Size: {item.variant.size} | Color: {item.variant.color}
                           </span>
                         </td>
                         
                         {/* Barcode String */}
-                        <td className="px-6 py-4 font-mono text-gray-600 text-[10px]">
+                        <td className="px-6 py-4 font-mono text-gray-600 text-[11px]">
                           {item.variant.barcodeString}
                         </td>
                         
@@ -888,7 +888,7 @@ export default function InventoryAuditsPage() {
 
                         {/* Badge Status */}
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider ${
+                          <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wider ${
                             isMismatched 
                               ? "bg-amber-100 text-amber-800" 
                               : "bg-emerald-100 text-emerald-800"

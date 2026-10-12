@@ -483,7 +483,7 @@ export default function OutwardDispatchPage() {
                       <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-[11px]">
                         -{log.quantity} Dispatched
                       </span>
-                      <span className="block text-[10px] text-gray-400 mt-0.5">{log.timestamp}</span>
+                      <span className="block text-[11px] text-gray-400 mt-0.5">{log.timestamp}</span>
                     </div>
                   </div>
                 ))}
@@ -529,7 +529,7 @@ export default function OutwardDispatchPage() {
                     <span className="font-mono font-bold text-gray-900 block">{v.sku}</span>
                     <span className="text-gray-500 text-[11px]">{v.title} ({v.size} / {v.color})</span>
                   </div>
-                  <span className="text-indigo-700 bg-indigo-50 font-bold px-2 py-1 rounded text-[10px]">
+                  <span className="text-indigo-700 bg-indigo-50 font-bold px-2 py-1 rounded text-[11px]">
                     Available Stock: {v.currentStockLevel}
                   </span>
                 </div>

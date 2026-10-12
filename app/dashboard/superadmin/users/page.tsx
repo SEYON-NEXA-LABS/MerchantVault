@@ -342,10 +342,10 @@ function UsersContent() {
                       <Building2 className="w-4 h-4 text-teal-700" />
                       <span className="font-bold text-stone-900 text-xs">{companyName}</span>
                       {group.code && (
-                        <span className="text-[9px] text-stone-400 font-mono">({group.code})</span>
+                        <span className="text-[11px] text-stone-400 font-mono">({group.code})</span>
                       )}
                     </div>
-                    <span className="text-[10px] text-stone-550 font-bold bg-white px-2 py-0.5 rounded border border-stone-200">
+                    <span className="text-[11px] text-stone-550 font-bold bg-white px-2 py-0.5 rounded border border-stone-200">
                       {group.users.length} {group.users.length === 1 ? "User" : "Users"}
                     </span>
                   </div>
@@ -354,7 +354,7 @@ function UsersContent() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="bg-stone-50/20 text-stone-500 font-bold border-b border-stone-150 uppercase tracking-wider text-[9px]">
+                        <tr className="bg-stone-50/20 text-stone-500 font-bold border-b border-stone-150 uppercase tracking-wider text-[11px]">
                           <th className="p-3 pl-4">User Details</th>
                           <th className="p-3">Role</th>
                           <th className="p-3">Status</th>
@@ -367,10 +367,10 @@ function UsersContent() {
                           <tr key={u.id} className="hover:bg-stone-50/20 transition-colors">
                             <td className="p-3 pl-4">
                               <div className="font-bold text-stone-900">{u.username}</div>
-                              <div className="text-[10px] text-stone-400 font-mono">{u.email}</div>
+                              <div className="text-[11px] text-stone-400 font-mono">{u.email}</div>
                             </td>
                             <td className="p-3">
-                              <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border ${
+                              <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded border ${
                                 u.role === "SUPERADMIN" ? "bg-amber-50 text-amber-700 border-amber-100" :
                                 u.role === "TENANTADMIN" ? "bg-teal-50 text-teal-700 border-teal-100" :
                                 "bg-stone-100 text-stone-700 border-stone-250"
@@ -381,7 +381,7 @@ function UsersContent() {
                             <td className="p-3">
                               <button
                                 onClick={() => handleToggleActive(u)}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all hover:scale-95 ${
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border transition-all hover:scale-95 ${
                                   u.isActive 
                                     ? "bg-emerald-50 text-emerald-755 border-emerald-150" 
                                     : "bg-red-50 text-red-755 border-red-150"
@@ -504,7 +504,7 @@ function UsersContent() {
                 <div className="flex items-center justify-between bg-stone-50 p-3.5 border border-stone-200 rounded-xl">
                   <div>
                     <span className="block font-bold text-stone-850">Initial Account State</span>
-                    <span className="block text-[10px] text-stone-450 mt-0.5">Activate account immediately upon creation.</span>
+                    <span className="block text-[11px] text-stone-450 mt-0.5">Activate account immediately upon creation.</span>
                   </div>
                   <button
                     type="button"
@@ -551,7 +551,7 @@ function UsersContent() {
                 <h3 className="font-black text-stone-900 text-base flex items-center gap-2">
                   <Users className="w-5 h-5 text-teal-650" /> Edit User Account
                 </h3>
-                <p className="text-[10px] text-stone-400 font-mono mt-0.5">
+                <p className="text-[11px] text-stone-400 font-mono mt-0.5">
                   Tenant: {selectedUser.Company?.name || "Global"}
                 </p>
               </div>
@@ -611,7 +611,7 @@ function UsersContent() {
                 <div className="flex items-center justify-between bg-stone-50 p-3.5 border border-stone-200 rounded-xl">
                   <div>
                     <span className="block font-bold text-stone-855">User Account State</span>
-                    <span className="block text-[10px] text-stone-450 mt-0.5">Deactivate to suspend platform access immediately.</span>
+                    <span className="block text-[11px] text-stone-450 mt-0.5">Deactivate to suspend platform access immediately.</span>
                   </div>
                   <button
                     type="button"

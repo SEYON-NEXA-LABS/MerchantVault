@@ -256,7 +256,7 @@ function SubscriptionsContent() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[10px]">
+                <tr className="bg-stone-50 text-stone-600 font-bold border-b border-stone-200 uppercase tracking-wider text-[11px]">
                   <th className="p-4">Tenant Company</th>
                   <th className="p-4">Code</th>
                   <th className="p-4">Billing Plan</th>
@@ -273,7 +273,7 @@ function SubscriptionsContent() {
                     <td className="p-4 font-mono font-bold text-stone-500">{c.code}</td>
                     <td className="p-4">
                       {c.subscription ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-teal-850 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-teal-850 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded">
                           {formatPlan(c.subscription.planType)}
                         </span>
                       ) : (
@@ -285,7 +285,7 @@ function SubscriptionsContent() {
                         <>
                           ₹{c.subscription.amount.toLocaleString()}
                           {c.subscription.planType === "ONETIME_AMC" && (
-                            <span className="text-[10px] text-stone-400 block mt-0.5 font-normal">
+                            <span className="text-[11px] text-stone-400 block mt-0.5 font-normal">
                               AMC: ₹{c.subscription.amcAmount.toLocaleString()}/yr
                             </span>
                           )}
@@ -299,7 +299,7 @@ function SubscriptionsContent() {
                     </td>
                     <td className="p-4">
                       {c.subscription ? (
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                           c.subscription.status === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border-emerald-250" :
                           c.subscription.status === "PAST_DUE" ? "bg-amber-50 text-amber-700 border-amber-250 animate-pulse" :
                           "bg-red-50 text-red-700 border-red-250"
@@ -335,7 +335,7 @@ function SubscriptionsContent() {
                 <h3 className="font-bold text-stone-900 text-base flex items-center gap-1.5">
                   <CreditCard className="w-5 h-5 text-teal-650" /> Billing: {selectedCompany.name}
                 </h3>
-                <p className="text-[10px] text-stone-450 font-mono mt-0.5">Code: {selectedCompany.code}</p>
+                <p className="text-[11px] text-stone-450 font-mono mt-0.5">Code: {selectedCompany.code}</p>
               </div>
               <button
                 onClick={() => setSelectedCompany(null)}

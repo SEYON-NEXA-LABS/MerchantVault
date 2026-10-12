@@ -550,7 +550,7 @@ export default function OrdersPage() {
               }`}
             >
               Active Orders
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                 activeTab === "ACTIVE" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
               }`}>
                 {tabCounts.active}
@@ -565,7 +565,7 @@ export default function OrdersPage() {
               }`}
             >
               Delivered
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                 activeTab === "DELIVERED" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
               }`}>
                 {tabCounts.delivered}
@@ -580,7 +580,7 @@ export default function OrdersPage() {
               }`}
             >
               Returns & RTO
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
                 activeTab === "RETURNS" ? "bg-indigo-100 text-indigo-700" : "bg-gray-200 text-gray-605"
               }`}>
                 {tabCounts.returns}
@@ -614,7 +614,7 @@ export default function OrdersPage() {
             {/* Dropdown Filters Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Order Source</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Order Source</label>
                 <select
                   value={sourceFilter}
                   onChange={(e) => setSourceFilter(e.target.value)}
@@ -627,7 +627,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">COD Verification</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">COD Verification</label>
                 <select
                   value={codFilter}
                   onChange={(e) => setCodFilter(e.target.value)}
@@ -642,7 +642,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Courier Partner</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Courier Partner</label>
                 <select
                   value={courierFilter}
                   onChange={(e) => setCourierFilter(e.target.value)}
@@ -658,7 +658,7 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">RTO Risk Score</label>
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">RTO Risk Score</label>
                 <select
                   value={riskFilter}
                   onChange={(e) => setRiskFilter(e.target.value)}
@@ -715,7 +715,7 @@ export default function OrdersPage() {
                       >
                         <td className="py-3.5 px-5">
                           <p className="font-bold text-gray-900">{ord.orderNumber}</p>
-                          <p className="text-[10px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
+                          <p className="text-[11px] text-gray-400 font-mono">{ord.shopifyOrderId}</p>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {(() => {
                               const address = ord.shippingAddressLine1 || "";
@@ -735,18 +735,18 @@ export default function OrdersPage() {
                               }
                               return (
                                 <>
-                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${risk.class}`}>
+                                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${risk.class}`}>
                                     {risk.label}
                                   </span>
                                   {ord.couponCode && (
-                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-teal-50 text-teal-700 border border-teal-200 flex items-center gap-1">
+                                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200 flex items-center gap-1">
                                       🏷️ {ord.couponCode} (-₹{ord.discountAmount || 0})
                                     </span>
                                   )}
                                 </>
                               );
                             })()}
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${
                               ord.paymentStatus === "PAID" ? "bg-indigo-50 text-indigo-750 border-indigo-200" :
                               ord.codVerificationStatus === "VERIFIED" ? "bg-emerald-50 text-emerald-700 border-emerald-250/30" :
                               ord.codVerificationStatus === "UNREACHABLE" ? "bg-rose-50 text-rose-700 border-rose-250/30" :
@@ -758,7 +758,7 @@ export default function OrdersPage() {
                           </div>
                         </td>
                         <td className="py-3.5 px-5">
-                          <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-md border tracking-wider ${
+                          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md border tracking-wider ${
                             sourceVal === 'STOREFRONT'
                               ? 'bg-teal-50 text-teal-700 border-teal-200'
                               : 'bg-purple-50 text-purple-700 border-purple-200'
@@ -775,7 +775,7 @@ export default function OrdersPage() {
                           {ord.awbNumber ? (
                             <div>
                               <p className="font-semibold text-gray-850 font-mono text-xs">{ord.awbNumber}</p>
-                              <p className="text-[10px] text-gray-400">{ord.courierPartner}</p>
+                              <p className="text-[11px] text-gray-400">{ord.courierPartner}</p>
                             </div>
                           ) : (
                             <span className="text-gray-400 text-xs italic">Unassigned</span>
@@ -865,11 +865,11 @@ export default function OrdersPage() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5 font-bold text-gray-900">
                         <span>{tf.variant?.title || "Product SKU"}</span>
-                        <span className="bg-gray-150 border border-gray-200 font-mono text-[9px] px-1 rounded">
+                        <span className="bg-gray-150 border border-gray-200 font-mono text-[11px] px-1 rounded">
                           {tf.variant?.sku}
                         </span>
                       </div>
-                      <div className="text-[10px] text-gray-500 flex items-center gap-1.5">
+                      <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
                         <span className="font-semibold">{tf.fromWarehouse?.name}</span>
                         <ArrowRight className="w-3 h-3" />
                         <span className="font-semibold text-indigo-700">{tf.toWarehouse?.name}</span>
@@ -879,7 +879,7 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                         tf.status === "PENDING" ? "bg-amber-50 text-amber-700 border border-amber-100" :
                         tf.status === "SENT" ? "bg-indigo-50 text-indigo-700 border border-indigo-100" :
                         tf.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" :
@@ -891,7 +891,7 @@ export default function OrdersPage() {
                       {tf.status === "PENDING" && (
                         <button
                           onClick={() => handleExecuteTransferStatus(tf.id, "SENT")}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold"
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0.5 rounded text-[11px] font-semibold"
                         >
                           Ship
                         </button>
@@ -899,7 +899,7 @@ export default function OrdersPage() {
                       {tf.status === "SENT" && (
                         <button
                           onClick={() => handleExecuteTransferStatus(tf.id, "COMPLETED")}
-                          className="bg-emerald-650 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] font-semibold"
+                          className="bg-emerald-650 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[11px] font-semibold"
                         >
                           Receive
                         </button>
@@ -921,9 +921,9 @@ export default function OrdersPage() {
                 <div className="border-b border-gray-100 pb-3 flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-gray-900 text-base">{selectedOrder.orderNumber}</h3>
-                    <p className="text-[10px] text-gray-400 font-mono">{selectedOrder.shopifyOrderId}</p>
+                    <p className="text-[11px] text-gray-400 font-mono">{selectedOrder.shopifyOrderId}</p>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${
                     selectedOrder.deliveryStatus === "PROCESSING" ? "bg-indigo-50 text-indigo-700 border border-indigo-100" :
                     selectedOrder.deliveryStatus === "SHIPPED" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-emerald-50 text-emerald-700 border border-emerald-100"
                   }`}>
@@ -934,14 +934,14 @@ export default function OrdersPage() {
                 {/* Shipping Details */}
                 <div className="space-y-3.5 text-xs">
                   <div>
-                    <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider">Customer</span>
+                    <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Customer</span>
                     <p className="font-semibold text-gray-900 text-sm mt-0.5">{selectedOrder.customerName}</p>
                     <p className="text-gray-500">{selectedOrder.customerPhone}</p>
                   </div>
                   
                   {selectedOrder.shippingAddressLine1 && (
                     <div>
-                      <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider">Shipping Address</span>
+                      <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Shipping Address</span>
                       <p className="text-gray-800 mt-0.5 font-medium leading-relaxed">
                         {selectedOrder.shippingAddressLine1}
                         {selectedOrder.shippingAddressLine2 ? `, ${selectedOrder.shippingAddressLine2}` : ""}
@@ -954,7 +954,7 @@ export default function OrdersPage() {
                   )}
                   
                   <div>
-                    <span className="text-gray-400 font-bold uppercase text-[9px] tracking-wider">Package Specification</span>
+                    <span className="text-gray-400 font-bold uppercase text-[11px] tracking-wider">Package Specification</span>
                     <p className="font-mono text-gray-900 mt-0.5">{selectedOrder.totalWeightKg} kg (Standard Parcel Box)</p>
                   </div>
 
@@ -973,8 +973,8 @@ export default function OrdersPage() {
                         </span>
                         <div>
                           <p className="font-bold text-gray-900">Order Placed & Ingested</p>
-                          <p className="text-[10px] text-gray-500">Shopify API webhook synced successfully.</p>
-                          <p className="text-[9px] text-gray-400 font-mono mt-0.5">ID: {selectedOrder.shopifyOrderId}</p>
+                          <p className="text-[11px] text-gray-500">Shopify API webhook synced successfully.</p>
+                          <p className="text-[11px] text-gray-400 font-mono mt-0.5">ID: {selectedOrder.shopifyOrderId}</p>
                         </div>
                       </div>
 
@@ -1011,7 +1011,7 @@ export default function OrdersPage() {
                               </span>
                               <div>
                                 <p className="font-bold text-gray-900">{title}</p>
-                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                                <p className="text-[11px] text-gray-500">{subtitle}</p>
                               </div>
                             </>
                           );
@@ -1032,7 +1032,7 @@ export default function OrdersPage() {
                               </span>
                               <div>
                                 <p className="font-bold text-gray-900">{title}</p>
-                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                                <p className="text-[11px] text-gray-500">{subtitle}</p>
                               </div>
                             </>
                           );
@@ -1053,7 +1053,7 @@ export default function OrdersPage() {
                               </span>
                               <div>
                                 <p className="font-bold text-gray-900">{title}</p>
-                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                                <p className="text-[11px] text-gray-500">{subtitle}</p>
                               </div>
                             </>
                           );
@@ -1087,7 +1087,7 @@ export default function OrdersPage() {
                               </span>
                               <div>
                                 <p className="font-bold text-gray-900">{title}</p>
-                                <p className="text-[10px] text-gray-500">{subtitle}</p>
+                                <p className="text-[11px] text-gray-500">{subtitle}</p>
                               </div>
                             </>
                           );
@@ -1120,7 +1120,7 @@ export default function OrdersPage() {
                       }
                       
                       return (
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${risk.class}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${risk.class}`}>
                           {risk.label}
                         </span>
                       );
@@ -1166,7 +1166,7 @@ export default function OrdersPage() {
 
                   {/* Verification Actions */}
                   <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Call Log Verification</span>
+                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Call Log Verification</span>
                     {selectedOrder.paymentStatus === "PAID" ? (
                       <div className="bg-emerald-50 border border-emerald-150 rounded-lg p-3 text-[11px] text-emerald-800 font-semibold text-center leading-relaxed">
                         Prepaid Order • Verification Bypassed
@@ -1175,7 +1175,7 @@ export default function OrdersPage() {
                       <div className="grid grid-cols-3 gap-2">
                         <button
                           onClick={() => handleCodVerify(selectedOrder.id, "VERIFIED")}
-                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          className={`py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
                             selectedOrder.codVerificationStatus === "VERIFIED"
                               ? "bg-emerald-600 text-white border-emerald-600"
                               : "bg-white text-gray-700 border-gray-200 hover:bg-emerald-50/50"
@@ -1185,7 +1185,7 @@ export default function OrdersPage() {
                         </button>
                         <button
                           onClick={() => handleCodVerify(selectedOrder.id, "UNREACHABLE")}
-                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          className={`py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
                             selectedOrder.codVerificationStatus === "UNREACHABLE"
                               ? "bg-amber-600 text-white border-amber-600"
                               : "bg-white text-gray-700 border-gray-200 hover:bg-amber-50/50"
@@ -1195,7 +1195,7 @@ export default function OrdersPage() {
                         </button>
                         <button
                           onClick={() => handleCodVerify(selectedOrder.id, "CANCELLED")}
-                          className={`py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          className={`py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
                             selectedOrder.codVerificationStatus === "CANCELLED"
                               ? "bg-red-650 text-white border-red-650"
                               : "bg-white text-gray-700 border-gray-200 hover:bg-red-50/50"
@@ -1232,7 +1232,7 @@ export default function OrdersPage() {
                       <div className="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
                         <div className="flex justify-between items-center">
                           <h4 className="font-bold text-gray-900 text-xs uppercase tracking-wide">Fulfillment Wizard</h4>
-                          <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          <span className="bg-indigo-100 text-indigo-700 text-[11px] font-bold px-1.5 py-0.5 rounded-full">
                             Step {fulfillmentStep} of 2
                           </span>
                         </div>
@@ -1240,9 +1240,9 @@ export default function OrdersPage() {
                         {fulfillmentStep === 1 && (
                           <div className="space-y-3 text-xs">
                             <div className="bg-white border border-gray-200 p-2.5 rounded-lg">
-                              <p className="text-gray-400 font-semibold uppercase text-[9px]">Required Picking Item</p>
+                              <p className="text-gray-400 font-semibold uppercase text-[11px]">Required Picking Item</p>
                               <p className="font-bold text-gray-900 mt-0.5">{targetVariant.name}</p>
-                              <p className="font-mono text-[10px] text-indigo-600 mt-0.5">SKU: {targetVariant.sku}</p>
+                              <p className="font-mono text-[11px] text-indigo-600 mt-0.5">SKU: {targetVariant.sku}</p>
                             </div>
 
                             {/* Split stock alert option selection */}
@@ -1252,10 +1252,10 @@ export default function OrdersPage() {
                                   <ShieldAlert className="w-4 h-4 text-amber-600" />
                                   Split Stock Warning
                                 </p>
-                                <p className="text-[10px] leading-relaxed">
+                                <p className="text-[11px] leading-relaxed">
                                   Stock levels are split across facilities. Total order requires **3 units**. Available stocks:
                                 </p>
-                                <ul className="text-[10px] list-disc list-inside space-y-0.5">
+                                <ul className="text-[11px] list-disc list-inside space-y-0.5">
                                   {targetVariant.stocks.map((s: any) => {
                                     const whName = warehouses.find(w => w.id === s.warehouseId)?.name || "Warehouse";
                                     return (
@@ -1267,8 +1267,8 @@ export default function OrdersPage() {
                                 </ul>
 
                                 <div className="border-t border-amber-200/60 pt-2.5 space-y-2">
-                                  <span className="font-bold text-[10px] uppercase">Option A: Split Fulfillment (Assign units)</span>
-                                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                                  <span className="font-bold text-[11px] uppercase">Option A: Split Fulfillment (Assign units)</span>
+                                  <div className="grid grid-cols-2 gap-2 text-[11px]">
                                     {targetVariant.stocks.map((s: any) => {
                                       const wh = warehouses.find(w => w.id === s.warehouseId);
                                       if (!wh) return null;
@@ -1292,21 +1292,21 @@ export default function OrdersPage() {
                                   </div>
                                   <button
                                     onClick={handleConfirmSplitFulfillment}
-                                    className="w-full bg-amber-700 hover:bg-amber-800 text-white py-1 rounded text-[10px] font-bold"
+                                    className="w-full bg-amber-700 hover:bg-amber-800 text-white py-1 rounded text-[11px] font-bold"
                                   >
                                     Confirm Split Allocation
                                   </button>
                                 </div>
 
                                 <form onSubmit={handleInitiateTransfer} className="border-t border-amber-200/60 pt-2.5 space-y-2">
-                                  <span className="font-bold text-[10px] uppercase">Option B: Inter-Warehouse Stock Transfer</span>
+                                  <span className="font-bold text-[11px] uppercase">Option B: Inter-Warehouse Stock Transfer</span>
                                   
-                                  <div className="space-y-1 text-[10px]">
+                                  <div className="space-y-1 text-[11px]">
                                     <label className="text-gray-650">Source (Transfer From):</label>
                                     <select
                                       value={transferSourceWh}
                                       onChange={(e) => setTransferSourceWh(e.target.value)}
-                                      className="w-full bg-white border border-gray-300 rounded p-1 text-[10px]"
+                                      className="w-full bg-white border border-gray-300 rounded p-1 text-[11px]"
                                     >
                                       {warehouses.map(w => (
                                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -1314,12 +1314,12 @@ export default function OrdersPage() {
                                     </select>
                                   </div>
 
-                                  <div className="space-y-1 text-[10px]">
+                                  <div className="space-y-1 text-[11px]">
                                     <label className="text-gray-650">Destination (Fulfill At):</label>
                                     <select
                                       value={transferDestWh}
                                       onChange={(e) => setTransferDestWh(e.target.value)}
-                                      className="w-full bg-white border border-gray-300 rounded p-1 text-[10px]"
+                                      className="w-full bg-white border border-gray-300 rounded p-1 text-[11px]"
                                     >
                                       {warehouses.map(w => (
                                         <option key={w.id} value={w.id}>{w.name}</option>
@@ -1327,7 +1327,7 @@ export default function OrdersPage() {
                                     </select>
                                   </div>
 
-                                  <div className="flex justify-between items-center text-[10px]">
+                                  <div className="flex justify-between items-center text-[11px]">
                                     <label className="text-gray-650">Qty to Transfer:</label>
                                     <input
                                       type="number"
@@ -1341,7 +1341,7 @@ export default function OrdersPage() {
                                   <button
                                     type="submit"
                                     disabled={processingTransfer}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded text-[10px] font-bold disabled:opacity-50"
+                                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-1 rounded text-[11px] font-bold disabled:opacity-50"
                                   >
                                     {processingTransfer ? "Processing..." : "Process Stock Transfer"}
                                   </button>
@@ -1367,7 +1367,7 @@ export default function OrdersPage() {
                                     Verify
                                   </button>
                                 </div>
-                                <p className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-1">
+                                <p className="text-[11px] text-gray-400 flex items-center gap-1.5 mt-1">
                                   <QrCode className="w-3.5 h-3.5" />
                                   Or click: 
                                   <span 

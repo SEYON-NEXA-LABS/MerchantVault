@@ -529,13 +529,13 @@ function CRMContent() {
                         >
                           <td className="p-4">
                             <p className="font-bold text-gray-900 leading-snug">{c.name}</p>
-                            <span className={`inline-block text-[9px] font-bold px-1.5 py-0.5 rounded border mt-1 ${badge.color}`}>
+                            <span className={`inline-block text-[11px] font-bold px-1.5 py-0.5 rounded border mt-1 ${badge.color}`}>
                               {badge.label}
                             </span>
                           </td>
                           <td className="p-4">
                             <p className="font-mono text-gray-600">{c.phone}</p>
-                            <p className="text-[10px] text-gray-400 flex items-center gap-0.5 mt-0.5">
+                            <p className="text-[11px] text-gray-400 flex items-center gap-0.5 mt-0.5">
                               <MapPin className="w-3 h-3 text-gray-300" />
                               {c.city ? `${c.city}, ${c.state || ""}` : "Not provided"}
                             </p>
@@ -597,7 +597,7 @@ function CRMContent() {
                       <Users className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest block">Customer Profile</span>
+                      <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest block">Customer Profile</span>
                       <h3 className="font-bold text-gray-900 text-base leading-tight">{selectedCustomer.name}</h3>
                     </div>
                   </div>
@@ -613,17 +613,17 @@ function CRMContent() {
                   {/* Basic Contact Info */}
                   <div className="bg-slate-50 border border-slate-150 rounded-xl p-4 flex flex-wrap gap-4 justify-between items-center text-xs">
                     <div>
-                      <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Phone</span>
+                      <span className="text-gray-400 block text-[11px] uppercase font-bold tracking-wider">Phone</span>
                       <span className="font-mono font-bold text-slate-800">{selectedCustomer.phone}</span>
                     </div>
                     {selectedCustomer.email && (
                       <div>
-                        <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Email</span>
+                        <span className="text-gray-400 block text-[11px] uppercase font-bold tracking-wider">Email</span>
                         <span className="font-mono text-slate-700">{selectedCustomer.email}</span>
                       </div>
                     )}
                     <div>
-                      <span className="text-gray-400 block text-[10px] uppercase font-bold tracking-wider">Location</span>
+                      <span className="text-gray-400 block text-[11px] uppercase font-bold tracking-wider">Location</span>
                       <span className="text-slate-700">{selectedCustomer.city ? `${selectedCustomer.city}, ${selectedCustomer.state || ""}` : "Not provided"}</span>
                     </div>
                   </div>
@@ -631,11 +631,11 @@ function CRMContent() {
                   {/* Metrics Breakdown */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                      <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Lifetime Value</span>
+                      <span className="text-[11px] text-indigo-600 font-bold uppercase tracking-wider">Lifetime Value</span>
                       <span className="font-black text-indigo-950 text-xl block font-mono">₹{getCustomerLtv(selectedCustomer).toLocaleString()}</span>
                     </div>
                     <div className="space-y-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Avg Order Value</span>
+                      <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Avg Order Value</span>
                       <span className="font-black text-slate-900 text-xl block font-mono">₹{getCustomerAov(selectedCustomer).toLocaleString()}</span>
                     </div>
                   </div>
@@ -653,10 +653,10 @@ function CRMContent() {
                           <div key={o.id} className="p-3.5 border border-gray-200 rounded-xl text-xs bg-white hover:bg-slate-50/50 transition-colors shadow-2xs">
                             <div className="flex justify-between items-center">
                               <span className="font-bold text-gray-900 font-mono">{o.orderNumber}</span>
-                              <span className="text-[10px] text-gray-400 font-mono">{new Date(o.createdAt).toLocaleDateString()}</span>
+                              <span className="text-[11px] text-gray-400 font-mono">{new Date(o.createdAt).toLocaleDateString()}</span>
                             </div>
                             <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
-                              <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                              <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${
                                 o.deliveryStatus === "DELIVERED" ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50" :
                                 o.deliveryStatus === "SHIPPED" ? "bg-blue-50 text-blue-700 border border-blue-200/50" :
                                 "bg-amber-50 text-amber-700 border border-amber-200/50"
@@ -664,7 +664,7 @@ function CRMContent() {
                                 {o.deliveryStatus}
                               </span>
                               {o.awbNumber && (
-                                <span className="font-mono text-[10px] text-gray-500 font-bold">
+                                <span className="font-mono text-[11px] text-gray-500 font-bold">
                                   AWB: {o.awbNumber}
                                 </span>
                               )}
@@ -725,17 +725,17 @@ function CRMContent() {
                       <td className="p-4 font-mono font-bold text-gray-900">₹{(cart.cartValue || 0).toLocaleString()}</td>
                       <td className="p-4">
                         {cart.recoveryStatus === "PENDING" && (
-                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                             <Clock className="w-3 h-3 animate-pulse" /> Pending
                           </span>
                         )}
                         {cart.recoveryStatus === "WHATSAPP_SENT" && (
-                          <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                             <MessageSquare className="w-3 h-3" /> Recovery Template Sent
                           </span>
                         )}
                         {cart.recoveryStatus === "RECOVERED" && (
-                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                             <CheckCircle2 className="w-3 h-3" /> Recovered
                           </span>
                         )}
@@ -870,7 +870,7 @@ function CRMContent() {
                       <tr key={log.id} className="hover:bg-gray-50/40 transition-colors">
                         <td className="p-4">
                           <p className="font-bold text-gray-900 leading-snug">{log.name}</p>
-                          <span className="text-[10px] text-gray-400 font-mono mt-0.5">{new Date(log.createdAt).toLocaleDateString()}</span>
+                          <span className="text-[11px] text-gray-400 font-mono mt-0.5">{new Date(log.createdAt).toLocaleDateString()}</span>
                         </td>
                         <td className="p-4 text-gray-500 font-bold">{log.segment}</td>
                         <td className="p-4 text-center font-mono font-bold text-gray-800">{log.sentCount}</td>
@@ -943,19 +943,19 @@ function CRMContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
               <div className="p-4 rounded-xl border border-amber-300 bg-amber-50/40 space-y-2">
-                <span className="bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 1</span>
+                <span className="bg-amber-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">Theme 1</span>
                 <h4 className="font-bold text-amber-950 text-sm">🔥 Big Billion Day</h4>
                 <p className="text-xs text-amber-900">Amber Gold Mesh gradient banner with BBD50 promo code and 50% strike-through discount.</p>
               </div>
 
               <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/40 space-y-2">
-                <span className="bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 2</span>
+                <span className="bg-indigo-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">Theme 2</span>
                 <h4 className="font-bold text-indigo-950 text-sm">⚡ Wednesday Midnight Blitz</h4>
                 <p className="text-xs text-indigo-900">Electric Cyan/Blue gradient banner for 10 PM - 2 AM flash sales with live inventory stock meters.</p>
               </div>
 
               <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 space-y-2">
-                <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">Theme 3</span>
+                <span className="bg-rose-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">Theme 3</span>
                 <h4 className="font-bold text-rose-950 text-sm">✨ Festive Mega Sale</h4>
                 <p className="text-xs text-rose-900">Deep Violet/Ruby Rose gradient marquee banner for holiday & Diwali festival promotions.</p>
               </div>
@@ -1030,13 +1030,13 @@ function CRMContent() {
             <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b pb-3">
                 <span className="font-extrabold text-sm text-slate-900">{aiCampaignResult.segmentName}</span>
-                <span className="bg-purple-100 text-purple-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                <span className="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">
                   Promo Code: {aiCampaignResult.couponCode}
                 </span>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Personalized WhatsApp Broadcast Template</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">Personalized WhatsApp Broadcast Template</span>
                 <p className="font-mono text-xs text-slate-800 whitespace-pre-wrap leading-relaxed">
                   {aiCampaignResult.message}
                 </p>
@@ -1197,7 +1197,7 @@ function CouponsManagerSection() {
                   </td>
                   <td className="py-3.5 px-5 font-medium text-gray-800">
                     {c.discountType === "PERCENTAGE" ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT OFF`}
-                    {c.maxDiscountAmount && <span className="text-[10px] text-gray-400 block">(Max cap: ₹{c.maxDiscountAmount})</span>}
+                    {c.maxDiscountAmount && <span className="text-[11px] text-gray-400 block">(Max cap: ₹{c.maxDiscountAmount})</span>}
                   </td>
                   <td className="py-3.5 px-5 text-gray-600 text-xs">
                     {c.minOrderValue > 0 ? `₹${c.minOrderValue.toLocaleString()}` : "No Minimum"}
@@ -1206,7 +1206,7 @@ function CouponsManagerSection() {
                     {c.usedCount} {c.usageLimit ? `/ ${c.usageLimit}` : "uses"}
                   </td>
                   <td className="py-3.5 px-5">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${c.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${c.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-gray-100 text-gray-500'}`}>
                       {c.isActive ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </td>

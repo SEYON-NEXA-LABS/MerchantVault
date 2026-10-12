@@ -407,7 +407,7 @@ export default function InwardOutwardPage() {
                     className="w-full bg-gray-50 border border-gray-250 rounded-lg py-2.5 pl-9 pr-24 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 no-print">
-                    <span className="text-[10px] text-gray-400 bg-white border border-gray-200 px-1.5 py-0.5 rounded font-mono select-none">
+                    <span className="text-[11px] text-gray-400 bg-white border border-gray-200 px-1.5 py-0.5 rounded font-mono select-none">
                       SCANNING
                     </span>
                   </div>
@@ -419,18 +419,18 @@ export default function InwardOutwardPage() {
                 {selectedVariant ? (
                   <div className="w-full flex items-center justify-between flex-wrap gap-4">
                     <div className="space-y-1">
-                      <p className="text-gray-450 uppercase font-bold tracking-wider text-[9px]">Matched Product</p>
+                      <p className="text-gray-450 uppercase font-bold tracking-wider text-[11px]">Matched Product</p>
                       <h3 className="font-bold text-gray-900 text-sm">{selectedVariant.title}</h3>
-                      <p className="text-gray-500 font-mono text-[10px]">SKU: {selectedVariant.sku}</p>
+                      <p className="text-gray-500 font-mono text-[11px]">SKU: {selectedVariant.sku}</p>
                     </div>
 
                     <div className="flex gap-4 items-center">
                       <div className="text-right">
-                        <p className="text-[10px] text-gray-400">Color/Size</p>
+                        <p className="text-[11px] text-gray-400">Color/Size</p>
                         <p className="font-semibold text-gray-800">{selectedVariant.color} / {selectedVariant.size}</p>
                       </div>
                       <div className="text-right border-l border-gray-200 pl-4">
-                        <p className="text-[10px] text-gray-400">Current Stock</p>
+                        <p className="text-[11px] text-gray-400">Current Stock</p>
                         <p className="font-bold text-gray-900 text-sm">{selectedVariant.currentStockLevel} units</p>
                       </div>
                     </div>
@@ -494,7 +494,7 @@ export default function InwardOutwardPage() {
                 <h3 className="font-bold text-gray-950 text-sm flex items-center gap-2">
                   <span>📋</span> Scanned Items Queue
                 </h3>
-                <p className="text-[10px] text-gray-500 mt-0.5">Review items locally before sending them to the server.</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">Review items locally before sending them to the server.</p>
               </div>
               <div className="flex gap-2">
                 {scannedQueue.length > 0 && (
@@ -527,7 +527,7 @@ export default function InwardOutwardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-gray-50/70 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[10px]">
+                    <tr className="bg-gray-50/70 border-b border-gray-200 text-gray-500 font-semibold uppercase tracking-wider text-[11px]">
                       <th className="py-2.5 px-4">Variant details</th>
                       <th className="py-2.5 px-4">SKU</th>
                       <th className="py-2.5 px-4">Direction</th>
@@ -540,13 +540,13 @@ export default function InwardOutwardPage() {
                       <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                         <td className="py-3 px-4 font-semibold text-gray-900">
                           {item.variant.title}
-                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5">
+                          <span className="block text-[11px] text-gray-400 font-normal mt-0.5">
                             Color: {item.variant.color} | Size: {item.variant.size}
                           </span>
                         </td>
                         <td className="py-3 px-4 font-mono text-gray-650">{item.variant.sku}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold ${
                             item.mode === "INWARD" ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-rose-50 text-rose-700 border border-rose-100"
                           }`}>
                             {item.mode}
@@ -621,12 +621,12 @@ export default function InwardOutwardPage() {
                       <div className="flex items-center gap-1.5 font-bold text-gray-900">
                         <span>{log.title}</span>
                       </div>
-                      <div className="text-[10px] text-gray-400 font-mono">
+                      <div className="text-[11px] text-gray-400 font-mono">
                         {log.sku} • {log.warehouseName} • {log.timestamp}
                       </div>
                     </div>
 
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                       log.type === "INWARD" 
                         ? "bg-emerald-50 text-emerald-700 border border-emerald-100" 
                         : "bg-rose-50 text-rose-700 border border-rose-100"
@@ -678,7 +678,7 @@ export default function InwardOutwardPage() {
                 >
                   <div>
                     <p className="font-semibold text-gray-900">{v.title}</p>
-                    <p className="text-gray-400 font-mono text-[10px]">SKU: {v.sku}</p>
+                    <p className="text-gray-400 font-mono text-[11px]">SKU: {v.sku}</p>
                   </div>
                   <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold font-mono">
                     {v.color} / {v.size}

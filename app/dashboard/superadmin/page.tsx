@@ -150,38 +150,38 @@ function SuperadminContent() {
       {/* Platform Overview Metrics */}
       <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white/80 border border-stone-200 rounded-xl p-5 shadow-sm space-y-2">
-          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Estimated ARR</p>
+          <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Estimated ARR</p>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-black text-teal-950">₹{arr.toLocaleString()}</span>
-            <span className="text-[10px] text-teal-600 font-bold flex items-center gap-0.5">
+            <span className="text-[11px] text-teal-600 font-bold flex items-center gap-0.5">
               <TrendingUp className="w-3 h-3" /> Annual
             </span>
           </div>
         </div>
 
         <div className="bg-white/80 border border-stone-200 rounded-xl p-5 shadow-sm space-y-2">
-          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Active Tenants</p>
+          <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Active Tenants</p>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-stone-900">{activeTenants}</span>
-            <span className="text-[10px] text-stone-400 font-bold">paying companies</span>
+            <span className="text-[11px] text-stone-400 font-bold">paying companies</span>
           </div>
         </div>
 
         <div className="bg-white/80 border border-stone-200 rounded-xl p-5 shadow-sm space-y-2">
-          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Trial Accounts</p>
+          <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Trial Accounts</p>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-stone-900">{trialTenants}</span>
-            <span className="text-[10px] text-amber-600 font-bold">evaluating SaaS</span>
+            <span className="text-[11px] text-amber-600 font-bold">evaluating SaaS</span>
           </div>
         </div>
 
         <div className="bg-white/80 border border-stone-200 rounded-xl p-5 shadow-sm space-y-2">
-          <p className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Suspended / Overdue</p>
+          <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Suspended / Overdue</p>
           <div className="flex items-baseline gap-2">
             <span className={`text-2xl font-black ${alertTenants > 0 ? "text-amber-605" : "text-stone-900"}`}>
               {alertTenants}
             </span>
-            <span className="text-[10px] text-stone-400 font-bold">requiring support</span>
+            <span className="text-[11px] text-stone-400 font-bold">requiring support</span>
           </div>
         </div>
       </div>
@@ -206,7 +206,7 @@ function SuperadminContent() {
               Create and edit user credentials, assign roles, toggle login states, and review audit history.
             </p>
           </div>
-          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[10px] font-bold text-stone-500">
+          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[11px] font-bold text-stone-500">
             <span>Total Accounts</span>
             <span className="bg-stone-100 px-2 py-0.5 rounded border border-stone-200 text-stone-700">
               {loading ? "..." : usersCount}
@@ -231,7 +231,7 @@ function SuperadminContent() {
               Onboard new tenants, adjust company timezones, base currencies, support emails, and activate profiles.
             </p>
           </div>
-          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[10px] font-bold text-stone-500">
+          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[11px] font-bold text-stone-500">
             <span>Total Tenants</span>
             <span className="bg-stone-100 px-2 py-0.5 rounded border border-stone-200 text-stone-700">
               {loading ? "..." : companies.length}
@@ -256,7 +256,7 @@ function SuperadminContent() {
               Configure billing schemes, monthly/annual AMC pricing models, adjust renewal dates, and execute recoveries.
             </p>
           </div>
-          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[10px] font-bold text-stone-500">
+          <div className="pt-2 border-t border-stone-100 flex justify-between items-center text-[11px] font-bold text-stone-500">
             <span>Billing Actions</span>
             <span className="bg-stone-100 px-2 py-0.5 rounded border border-stone-200 text-stone-700">
               Manage Rates
@@ -273,7 +273,7 @@ function SuperadminContent() {
             <h2 className="text-sm font-black text-stone-900 flex items-center gap-1.5">
               <Shield className="w-4 h-4 text-teal-650" /> Database Schema & RLS Integrity Auditor
             </h2>
-            <p className="text-[10px] text-stone-500 font-medium">
+            <p className="text-[11px] text-stone-500 font-medium">
               Run verification audits on table structures, Row Level Security (RLS) policies, and database constraints.
             </p>
           </div>
@@ -311,7 +311,7 @@ function SuperadminContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 {/* Table details */}
                 <div className="space-y-2 bg-stone-50/50 p-4 border border-stone-200 rounded-xl">
-                  <h3 className="font-bold text-stone-900 uppercase tracking-wider text-[9px] border-b border-stone-200 pb-1.5">
+                  <h3 className="font-bold text-stone-900 uppercase tracking-wider text-[11px] border-b border-stone-200 pb-1.5">
                     Tables & RLS Status
                   </h3>
                   <div className="max-h-[220px] overflow-y-auto space-y-1.5 divide-y divide-stone-100 pr-1">
@@ -331,7 +331,7 @@ function SuperadminContent() {
                           </div>
                           <div className="flex items-center gap-2">
                             <span
-                              className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                              className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${
                                 isRlsActive
                                   ? "bg-teal-50 text-teal-700 border border-teal-100"
                                   : "bg-red-50 text-red-700 border border-red-100"
@@ -339,7 +339,7 @@ function SuperadminContent() {
                             >
                               {isRlsActive ? "RLS Active" : "RLS Off"}
                             </span>
-                            <span className="font-mono text-stone-500 text-[10px]">{t.rows} rows</span>
+                            <span className="font-mono text-stone-500 text-[11px]">{t.rows} rows</span>
                           </div>
                         </div>
                       );
@@ -350,7 +350,7 @@ function SuperadminContent() {
                 {/* Isolation checks */}
                 <div className="space-y-3">
                   <div className="space-y-2 bg-stone-50/50 p-4 border border-stone-200 rounded-xl">
-                    <h3 className="font-bold text-stone-900 uppercase tracking-wider text-[9px] border-b border-stone-200 pb-1.5 flex items-center gap-1">
+                    <h3 className="font-bold text-stone-900 uppercase tracking-wider text-[11px] border-b border-stone-200 pb-1.5 flex items-center gap-1">
                       <AlertCircle className="w-3.5 h-3.5 text-teal-650" /> Tenant Database Isolation Check
                     </h3>
                     <div className="space-y-2">
@@ -358,10 +358,10 @@ function SuperadminContent() {
                         <div key={o.table} className="flex justify-between items-center text-[11px]">
                           <div>
                             <span className="font-mono font-bold text-stone-900">{o.table}</span>
-                            <span className="text-stone-400 block text-[9px]">Relation field: {o.field}</span>
+                            <span className="text-stone-400 block text-[11px]">Relation field: {o.field}</span>
                           </div>
                           <span
-                            className={`font-bold px-1.5 py-0.5 rounded text-[9px] ${
+                            className={`font-bold px-1.5 py-0.5 rounded text-[11px] ${
                               o.orphanedCount === 0 ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
                             }`}
                           >
@@ -376,7 +376,7 @@ function SuperadminContent() {
                     <h4 className="font-bold text-white text-[11px] flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Platform Security Integrity
                     </h4>
-                    <p className="text-[10px] leading-relaxed text-stone-300">
+                    <p className="text-[11px] leading-relaxed text-stone-300">
                       Schemas verified on{" "}
                       <strong className="text-white">{new Date(integrityReport.verifiedAt || integrityReport.checkedAt || Date.now()).toLocaleDateString()}</strong>. Row Level Security policies prevent crosstalk between client domains.
                     </p>

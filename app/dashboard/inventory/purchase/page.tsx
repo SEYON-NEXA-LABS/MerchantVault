@@ -490,11 +490,11 @@ export default function PurchaseOrdersPage() {
                         <div className="flex justify-between items-start">
                           <div>
                             <span className="font-bold text-slate-900 text-xs">{item.variant?.title}</span>
-                            <span className="text-[10px] text-slate-600 font-mono block mt-0.5">{item.variant?.sku}</span>
-                            <span className="text-[10px] bg-slate-100 text-slate-700 font-medium px-1.5 py-0.5 rounded mt-1 inline-block mr-1 border border-slate-200">
+                            <span className="text-[11px] text-slate-600 font-mono block mt-0.5">{item.variant?.sku}</span>
+                            <span className="text-[11px] bg-slate-100 text-slate-700 font-medium px-1.5 py-0.5 rounded mt-1 inline-block mr-1 border border-slate-200">
                               Size: {item.variant?.size}
                             </span>
-                            <span className="text-[10px] bg-slate-100 text-slate-700 font-medium px-1.5 py-0.5 rounded mt-1 inline-block border border-slate-200">
+                            <span className="text-[11px] bg-slate-100 text-slate-700 font-medium px-1.5 py-0.5 rounded mt-1 inline-block border border-slate-200">
                               Color: {item.variant?.color}
                             </span>
                           </div>
@@ -515,7 +515,7 @@ export default function PurchaseOrdersPage() {
                           {/* Qty Input if PO can still receive items */}
                           {selectedPO.status !== "COMPLETED" && selectedPO.status !== "CANCELLED" && (
                             <div className="flex items-center gap-1">
-                              <label className="text-[10px] font-bold text-slate-500 mr-1">Inward Qty:</label>
+                              <label className="text-[11px] font-bold text-slate-500 mr-1">Inward Qty:</label>
                               <input
                                 type="number"
                                 min="0"
@@ -651,7 +651,7 @@ export default function PurchaseOrdersPage() {
                     ))}
                   </select>
                   {vendorsList.length === 0 && (
-                    <p className="text-[10px] text-amber-600 mt-1">No vendors found. Add vendors from the Vendor Directory first.</p>
+                    <p className="text-[11px] text-amber-600 mt-1">No vendors found. Add vendors from the Vendor Directory first.</p>
                   )}
                 </div>
 
@@ -667,7 +667,7 @@ export default function PurchaseOrdersPage() {
                       ...prev,
                       items: [...prev.items, { variantId: "", quantityOrdered: 10, costPrice: 0 }]
                     }))}
-                    className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-none font-semibold text-[10px] px-2.5 py-1 rounded flex items-center gap-1"
+                    className="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-none font-semibold text-[11px] px-2.5 py-1 rounded flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3" /> Add Item
                   </Button>
@@ -717,7 +717,7 @@ export default function PurchaseOrdersPage() {
                       </div>
 
                       <div className="w-28 flex items-center gap-1 bg-white border border-gray-200 rounded-md px-1.5 py-1">
-                        <span className="text-[10px] text-gray-400">₹</span>
+                        <span className="text-[11px] text-gray-400">₹</span>
                         <input
                           type="number"
                           min="0"

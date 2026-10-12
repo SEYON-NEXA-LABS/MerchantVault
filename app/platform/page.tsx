@@ -104,7 +104,7 @@ export default function PlatformLandingPage() {
       <div className="bg-slate-900 text-white text-xs py-2.5 px-4 text-center font-semibold tracking-wide flex items-center justify-center gap-2">
         <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
         <span>Disrupting Indian E-Commerce: 0% Platform Transaction Fees & Multi-Store Stock Pooling</span>
-        <span className="hidden sm:inline-block bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">New Release</span>
+        <span className="hidden sm:inline-block bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded text-[11px] uppercase font-bold">New Release</span>
       </div>
 
       {/* Main Navbar */}
@@ -127,7 +127,7 @@ export default function PlatformLandingPage() {
                   by {PLATFORM_COMPANY}
                 </span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-indigo-600 block tracking-widest uppercase mt-1">Enterprise ERP & Commerce</span>
+              <span className="text-[11px] font-mono font-bold text-indigo-600 block tracking-widest uppercase mt-1">Enterprise ERP & Commerce</span>
             </div>
           </div>
 
@@ -380,7 +380,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-slate-900 text-sm">MICRO</span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">POS ERP</span>
+                    <span className="text-[11px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">POS ERP</span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Retail stores & counter POS billing (includes 500 MB storage)</span>
                 </td>
@@ -399,7 +399,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-slate-900 text-sm">BASIC</span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Storefront Lite</span>
+                    <span className="text-[11px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Storefront Lite</span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Early D2C brands launching standalone storefront + custom domain</span>
                 </td>
@@ -418,7 +418,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-slate-900 text-sm">STARTER</span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">GST + Tally</span>
+                    <span className="text-[11px] uppercase font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">GST + Tally</span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Automated GSTR-1, Tally XML & e-Invoicing compliance built-in</span>
                 </td>
@@ -437,7 +437,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-slate-900 text-sm">GROWTH</span>
-                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">★ Popular</span>
+                    <span className="text-[11px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">★ Popular</span>
                   </div>
                   <span className="text-[11px] text-slate-600 font-medium block mt-0.5">Multi-channel sync (Amazon/Flipkart/Shopify) + 10 GB Media Bucket</span>
                 </td>
@@ -456,7 +456,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-extrabold text-slate-900 text-sm">ENTERPRISE HUB</span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">Scale</span>
+                    <span className="text-[11px] uppercase font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">Scale</span>
                   </div>
                   <span className="text-[11px] text-slate-500 font-medium block mt-0.5">Multi-warehouse ERP, B2B TDS, AI WhatsApp & 50 GB Media Vault</span>
                 </td>
@@ -475,7 +475,7 @@ export default function PlatformLandingPage() {
                 <td className="py-4 px-5">
                   <div className="flex items-center gap-2">
                     <span className="font-black text-indigo-950 text-sm">PERPETUAL LICENSE</span>
-                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-indigo-600 text-white">Full Ownership</span>
+                    <span className="text-[11px] uppercase font-black px-2 py-0.5 rounded-full bg-indigo-600 text-white">Full Ownership</span>
                   </div>
                   <span className="text-[11px] text-indigo-800 font-medium block mt-0.5">₹75,000 one-time setup (Yr 1 included) + ₹15k/yr AMC starting 2nd year</span>
                 </td>
@@ -681,7 +681,7 @@ export default function PlatformLandingPage() {
             </button>
 
             <div className="space-y-2">
-              <span className="text-[10px] font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <span className="text-[11px] font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
                 {enquirePlan}
               </span>
               <h3 className="text-xl font-extrabold text-slate-900">Enquire & Book Platform Demo</h3>

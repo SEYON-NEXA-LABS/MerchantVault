@@ -148,7 +148,7 @@ export function BillingContent() {
       <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 rounded-full">
               Dual-Razorpay Integration Compliance
             </span>
             <h3 className="text-lg font-extrabold text-white flex items-center gap-2">

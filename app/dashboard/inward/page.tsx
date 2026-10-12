@@ -458,7 +458,7 @@ export default function InwardStockingPage() {
                       <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
                         +{log.quantity} Received
                       </span>
-                      <span className="block text-[10px] text-gray-400 mt-0.5">{log.timestamp}</span>
+                      <span className="block text-[11px] text-gray-400 mt-0.5">{log.timestamp}</span>
                     </div>
                   </div>
                 ))}
@@ -504,7 +504,7 @@ export default function InwardStockingPage() {
                     <span className="font-mono font-bold text-gray-900 block">{v.sku}</span>
                     <span className="text-gray-500 text-[11px]">{v.title} ({v.size} / {v.color})</span>
                   </div>
-                  <span className="text-emerald-700 bg-emerald-50 font-bold px-2 py-1 rounded text-[10px]">
+                  <span className="text-emerald-700 bg-emerald-50 font-bold px-2 py-1 rounded text-[11px]">
                     In Stock: {v.currentStockLevel}
                   </span>
                 </div>

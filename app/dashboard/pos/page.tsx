@@ -263,7 +263,7 @@ function PosTerminalContent() {
           <div>
             <h1 className="text-base font-bold text-gray-900 tracking-tight flex items-center gap-2">
               POS Counter Billing Terminal
-              <span className="text-[10px] uppercase font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">
+              <span className="text-[11px] uppercase font-extrabold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full">
                 POS
               </span>
             </h1>
@@ -351,9 +351,9 @@ function PosTerminalContent() {
                       }`}
                     >
                       <div className="w-full">
-                        {/* 1. Full-Width Title at Top (Fully Wrapped, No Ellipsis) */}
-                        <div className="mb-2">
-                          <h4 className="font-extrabold text-xs text-gray-900 leading-tight break-words">
+                        {/* 1. Full-Width Title at Top (Clean legible spacing, no crowding) */}
+                        <div className="mb-2.5">
+                          <h4 className="font-bold text-xs sm:text-[13px] text-slate-900 leading-snug tracking-normal break-words">
                             {v.title || v.Product?.title || "Apparel Item"}
                           </h4>
                         </div>
@@ -371,20 +371,20 @@ function PosTerminalContent() {
 
                           {/* Right Column: SKU, Size & Color, and Stock Status */}
                           <div className="flex-1 min-w-0 space-y-1">
-                            <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-wider block truncate">
+                            <span className="text-[11px] font-mono font-bold text-gray-500 uppercase tracking-wider block truncate">
                               {v.sku}
                             </span>
                             <div className="flex items-center gap-1 text-[11px] font-medium text-gray-600">
-                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">
+                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[11px] font-mono font-bold">
                                 {v.size || "M"}
                               </span>
-                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] truncate max-w-[70px]">
+                              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[11px] truncate max-w-[70px]">
                                 {v.color || "Black"}
                               </span>
                             </div>
                             <div>
                               <span
-                                className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                className={`inline-block text-[11px] font-bold px-1.5 py-0.5 rounded ${
                                   inStock
                                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
                                     : "bg-red-50 text-red-700 border border-red-200/60"
@@ -471,13 +471,13 @@ function PosTerminalContent() {
                       className="rounded-lg shadow-2xs border border-gray-200"
                     />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-xs text-gray-900 truncate">{item.title}</h4>
-                      <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-gray-500 font-mono">
+                      <h4 className="font-bold text-xs sm:text-[13px] text-slate-900 leading-snug tracking-normal truncate">{item.title}</h4>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-gray-500 font-mono">
                         <span>SKU: {item.sku}</span>
                         <span>•</span>
                         <span>{item.size}/{item.color}</span>
                       </div>
-                      <span className="font-extrabold text-xs text-indigo-950 mt-1 block">
+                      <span className="font-bold text-xs text-indigo-950 mt-1 block">
                         ₹{item.price.toLocaleString()} × {item.quantity} = ₹{(item.price * item.quantity).toLocaleString()}
                       </span>
                     </div>
@@ -619,8 +619,8 @@ function PosTerminalContent() {
             <div id="printable-pos-receipt" className="bg-amber-50/40 border border-amber-200/60 rounded-xl p-4 text-left space-y-3 font-mono text-xs text-gray-800">
               <div className="text-center border-b border-dashed border-amber-300/80 pb-2">
                 <span className="font-bold text-sm uppercase block text-amber-950">{company?.name || "MerchantVault Retail"}</span>
-                <span className="text-[10px] text-amber-800 block mt-0.5">📍 {activeWarehouse.name}</span>
-                <span className="text-[10px] text-amber-800 block">{new Date().toLocaleString()}</span>
+                <span className="text-[11px] text-amber-800 block mt-0.5">📍 {activeWarehouse.name}</span>
+                <span className="text-[11px] text-amber-800 block">{new Date().toLocaleString()}</span>
               </div>
 
               <div className="space-y-1">

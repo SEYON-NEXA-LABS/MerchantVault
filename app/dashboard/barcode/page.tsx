@@ -495,9 +495,9 @@ export default function BarcodePage() {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-400 uppercase font-bold tracking-wider text-[9px]">Active Variant</span>
+                      <span className="text-gray-400 uppercase font-bold tracking-wider text-[11px]">Active Variant</span>
                       {selectedProduct.category && (
-                        <span className="bg-indigo-100 text-indigo-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                        <span className="bg-indigo-100 text-indigo-800 text-[11px] font-semibold px-2.5 py-0.5 rounded-full">
                           {selectedProduct.category}
                         </span>
                       )}
@@ -512,7 +512,7 @@ export default function BarcodePage() {
                 </div>
 
                 <div className="bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-2xs text-right shrink-0">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Price (MRP)</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Price (MRP)</p>
                   <p className="font-extrabold text-indigo-950 text-xl leading-none mt-1">
                     ₹{selectedProduct.price.toLocaleString("en-IN")}
                   </p>
@@ -522,31 +522,31 @@ export default function BarcodePage() {
               {/* Grid of full product properties */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-1.5 border-t border-slate-200/80 text-xs">
                 <div className="bg-white p-2.5 rounded-lg border border-slate-200/70 shadow-2xs">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">SKU Code</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">SKU Code</p>
                   <p className="font-mono font-bold text-gray-900 truncate mt-0.5">{selectedProduct.sku}</p>
                 </div>
 
                 <div className="bg-white p-2.5 rounded-lg border border-slate-200/70 shadow-2xs">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Barcode</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Barcode</p>
                   <div className="flex items-center justify-between gap-1 mt-0.5">
                     <p className="font-mono font-bold text-indigo-900 truncate">{selectedProduct.barcode || selectedProduct.sku}</p>
                     {selectedProduct.barcode && !selectedProduct.barcode.startsWith("BAR-") ? (
-                      <span className="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0">Shopify</span>
+                      <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-1.5 py-0.5 rounded shrink-0">Shopify</span>
                     ) : (
-                      <span className="bg-slate-200 text-slate-700 text-[9px] font-semibold px-1.5 py-0.5 rounded shrink-0">ERP</span>
+                      <span className="bg-slate-200 text-slate-700 text-[11px] font-semibold px-1.5 py-0.5 rounded shrink-0">ERP</span>
                     )}
                   </div>
                 </div>
 
                 <div className="bg-white p-2.5 rounded-lg border border-slate-200/70 shadow-2xs">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Color & Size</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Color & Size</p>
                   <p className="font-semibold text-gray-900 truncate mt-0.5">
                     {selectedProduct.color || "Default"} <span className="text-gray-300">•</span> <span className="font-extrabold text-indigo-600">{selectedProduct.size || "Std"}</span>
                   </p>
                 </div>
 
                 <div className="bg-white p-2.5 rounded-lg border border-slate-200/70 shadow-2xs">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Target Group</p>
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Target Group</p>
                   <p className="font-medium text-gray-800 truncate mt-0.5">
                     {selectedProduct.targetGroup || "General"} {selectedProduct.ageRange ? `(${selectedProduct.ageRange})` : ""}
                   </p>
@@ -554,7 +554,7 @@ export default function BarcodePage() {
               </div>
 
               {selectedProduct.shopifyVariantId && (
-                <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-1 border-t border-slate-200/50">
+                <div className="flex items-center justify-between text-[11px] font-mono text-gray-400 pt-1 border-t border-slate-200/50">
                   <span>Shopify Variant ID: {selectedProduct.shopifyVariantId}</span>
                   <span>Internal ID: {selectedProduct.id}</span>
                 </div>
@@ -618,7 +618,7 @@ export default function BarcodePage() {
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-gray-700">QR Payload Target</label>
                       {qrPayloadType === "AUTO" && (
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${selectedProduct?.shopifyVariantId ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-indigo-50 text-indigo-700 border border-indigo-200"}`}>
+                        <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${selectedProduct?.shopifyVariantId ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-indigo-50 text-indigo-700 border border-indigo-200"}`}>
                           {selectedProduct?.shopifyVariantId ? "Detected: Shopify" : "Detected: In-House"}
                         </span>
                       )}
@@ -767,7 +767,7 @@ export default function BarcodePage() {
                 When printing serialized tags, the QR payload is formatted as a structured token delimited by colons. 
                 This enables instantaneous scanning and validation on check-in/check-out.
               </p>
-              <div className="p-3 bg-white border rounded-lg space-y-1.5 font-mono text-[10px]">
+              <div className="p-3 bg-white border rounded-lg space-y-1.5 font-mono text-[11px]">
                 <div className="flex justify-between border-b pb-1">
                   <span className="text-gray-400">Token Format:</span>
                   <span className="font-bold text-indigo-700">company:warehouse:sku:serial</span>
@@ -812,7 +812,7 @@ export default function BarcodePage() {
               }`}>
                 <div className="w-full space-y-1 text-left border-b border-gray-100 pb-1.5 mb-1">
                   {showBrand && customBrand && (
-                    <p className="text-[9px] font-extrabold text-indigo-900 uppercase tracking-wider leading-none truncate">
+                    <p className="text-[11px] font-bold text-indigo-900 uppercase tracking-wider leading-none truncate">
                       {customBrand}
                     </p>
                   )}
@@ -820,7 +820,7 @@ export default function BarcodePage() {
                     <h4 className="text-xs font-black text-gray-900 leading-tight line-clamp-2 flex-1">
                       {selectedProduct.name}
                     </h4>
-                    <span className="bg-slate-900 text-white rounded font-extrabold text-xs px-1.5 py-0.5 min-w-[22px] text-center shrink-0 border border-black shadow-xs">
+                    <span className="bg-slate-900 text-white rounded font-bold text-xs px-1.5 py-0.5 min-w-[22px] text-center shrink-0 border border-black shadow-xs">
                       {selectedProduct.size || "STD"}
                     </span>
                   </div>
@@ -852,7 +852,7 @@ export default function BarcodePage() {
 
                 {codeType === "QR" && displayValue && (
                   <div className="mt-2 text-center w-full bg-slate-100 border border-slate-300 rounded py-1.5 px-2 shadow-sm">
-                    <p className="text-[9px] text-slate-700 font-extrabold uppercase tracking-wide select-none mb-1">
+                    <p className="text-[11px] text-slate-700 font-extrabold uppercase tracking-wide select-none mb-1">
                       Manual SKU Entry
                     </p>
                     <p className="text-xs text-black font-black tracking-wider break-all">
@@ -863,7 +863,7 @@ export default function BarcodePage() {
 
                 {showPrice && (
                   <div className="border-t border-gray-300 w-full mt-2 pt-1.5 flex justify-between items-center text-xs font-black text-slate-950 tracking-wide">
-                    <span className="text-[10px] text-slate-500 font-extrabold uppercase">MRP</span>
+                    <span className="text-[11px] text-slate-500 font-extrabold uppercase">MRP</span>
                     <div className="flex items-center gap-1.5">
                       {showCompareAtPrice && (
                         <span className="line-through text-gray-400 text-[11px] font-bold">
@@ -879,7 +879,7 @@ export default function BarcodePage() {
               </div>
             </div>
 
-            <div className="text-[10px] text-gray-400 flex flex-col gap-1 bg-gray-50 p-2.5 rounded-lg">
+            <div className="text-[11px] text-gray-400 flex flex-col gap-1 bg-gray-50 p-2.5 rounded-lg">
               <span className="flex items-center gap-1.5 font-semibold text-gray-500">
                 <FileText className="w-3.5 h-3.5" /> Size is printed as a high-visibility bold badge for quick catalog identification.
               </span>
@@ -964,7 +964,7 @@ export default function BarcodePage() {
               <Layers className="w-4 h-4 text-indigo-600" />
               Print Queue
             </h2>
-            <span className="text-[10px] text-gray-400 font-mono">{printQueue.length} item(s)</span>
+            <span className="text-[11px] text-gray-400 font-mono">{printQueue.length} item(s)</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1019,7 +1019,7 @@ export default function BarcodePage() {
                       </div>
                       <div>
                         <p className="font-semibold text-gray-700 leading-snug">{item.variant.name}</p>
-                        <p className="text-gray-400 font-mono text-[10px] mt-0.5">{item.variant.sku} · {item.preset} · ×{item.quantity}</p>
+                        <p className="text-gray-400 font-mono text-[11px] mt-0.5">{item.variant.sku} · {item.preset} · ×{item.quantity}</p>
                       </div>
                     </div>
                     <button 
@@ -1206,7 +1206,7 @@ function PrintTag({
     }`}>
       <div className="w-full space-y-1 text-left border-b border-gray-200 pb-1.5 mb-1">
         {printShowBrand && customBrand && (
-          <p className="text-[9px] font-extrabold text-slate-900 uppercase tracking-wider leading-none truncate">
+          <p className="text-[11px] font-bold text-slate-900 uppercase tracking-wider leading-none truncate">
             {customBrand}
           </p>
         )}
@@ -1214,7 +1214,7 @@ function PrintTag({
           <h4 className="text-xs font-black text-slate-950 leading-tight line-clamp-2 flex-1">
             {variant.name}
           </h4>
-          <span className="bg-slate-900 text-white rounded font-extrabold text-xs px-1.5 py-0.5 min-w-[22px] text-center shrink-0 border border-black shadow-xs">
+          <span className="bg-slate-900 text-white rounded font-bold text-xs px-1.5 py-0.5 min-w-[22px] text-center shrink-0 border border-black shadow-xs">
             {variant.size || "STD"}
           </span>
         </div>
@@ -1263,7 +1263,7 @@ function PrintTag({
 
       {printDisplayValue && (
         <div className="mt-1.5 text-center w-full bg-slate-100 border border-slate-350 rounded py-1 px-1.5">
-          <p className="text-[8px] text-slate-800 font-extrabold uppercase tracking-wide mb-0.5">
+          <p className="text-[11px] text-slate-800 font-extrabold uppercase tracking-wide mb-0.5">
             SKU Code
           </p>
           <p className="text-xs text-black font-black tracking-wider truncate">
@@ -1274,7 +1274,7 @@ function PrintTag({
 
       {printShowPrice && (
         <div className="border-t border-gray-400 w-full mt-2 pt-1 flex justify-between items-center text-xs font-black text-black tracking-wide">
-          <span className="text-[10px] text-gray-700 font-extrabold uppercase">MRP</span>
+          <span className="text-[11px] text-gray-700 font-extrabold uppercase">MRP</span>
           <div className="flex items-center gap-1.5">
             {showCompareAtPrice && (
               <span className="line-through text-gray-500 text-[11px] font-bold">

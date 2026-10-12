@@ -239,7 +239,7 @@ export default function BlogCMSPage() {
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="font-mono text-[10px] text-slate-400 truncate max-w-[150px]">/{post.slug}</span>
+                <span className="font-mono text-[11px] text-slate-400 truncate max-w-[150px]">/{post.slug}</span>
                 <Link
                   href={`/blog/${post.slug}`}
                   target="_blank"
@@ -278,7 +278,7 @@ export default function BlogCMSPage() {
                 <span className="font-bold text-xs flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-amber-300" /> 1-Click AI Article Generator
                 </span>
-                <span className="text-[10px] bg-white/20 text-purple-100 px-2 py-0.5 rounded font-mono">SEO Optimized</span>
+                <span className="text-[11px] bg-white/20 text-purple-100 px-2 py-0.5 rounded font-mono">SEO Optimized</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input
@@ -292,7 +292,7 @@ export default function BlogCMSPage() {
                   type="button"
                   onClick={handleGenerateAiArticle}
                   disabled={generatingAi}
-                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-extrabold text-xs rounded-lg py-2 px-3 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded-lg py-2 px-3 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {generatingAi ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                   Generate AI Article & SEO Meta

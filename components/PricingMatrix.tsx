@@ -228,11 +228,11 @@ export function SharedPricingMatrix({
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex items-center gap-2">
-                    <span className="bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                    <span className="bg-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
                       Lifetime Buyout
                     </span>
                     {isSelected && (
-                      <span className="bg-indigo-600 text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                      <span className="bg-indigo-600 text-white font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
                         {isCurrentActive && !isPublicView ? "Active Tier" : "Selected Plan"}
                       </span>
                     )}
@@ -318,7 +318,7 @@ export function SharedPricingMatrix({
                 billingCycle === "YEARLY" ? "bg-indigo-600 text-white shadow-xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
-              Annual Billing <span className="bg-emerald-400 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded">2 Mo Free</span>
+              Annual Billing <span className="bg-emerald-400 text-slate-950 text-[11px] font-black px-1.5 py-0.2 rounded">2 Mo Free</span>
             </button>
           </div>
         </div>
@@ -333,7 +333,7 @@ export function SharedPricingMatrix({
           <div className="space-y-0.5">
             <div className="text-xs font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <span>{activePlanDef.name} Advantage</span>
-              <span className="bg-emerald-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">Bundled Savings</span>
+              <span className="bg-emerald-600 text-white text-[11px] px-2 py-0.5 rounded-full font-bold">Bundled Savings</span>
             </div>
             <p className="text-xs font-semibold text-slate-800">{activePlanDef.savingsTip}</p>
           </div>
@@ -369,12 +369,12 @@ export function SharedPricingMatrix({
               }`}
             >
               {plan.popular && !isSelected && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-950 font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
                   Most Popular
                 </span>
               )}
               {isSelected && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white font-black text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white font-black text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
                   {isCurrentActive && !isPublicView ? "Active Tier" : "Selected Plan"}
                 </span>
               )}
@@ -391,7 +391,7 @@ export function SharedPricingMatrix({
               </div>
 
               <div className="space-y-3 pt-3 border-t border-slate-100">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bundled Features:</div>
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bundled Features:</div>
                 <ul className="space-y-1.5 text-[11px]">
                   <li className="flex items-center gap-1.5 text-slate-700">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> POS ERP Terminal
@@ -466,12 +466,12 @@ export function SharedPricingMatrix({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/90 text-slate-700">
                 <th className="py-3.5 px-4 font-bold uppercase tracking-wider text-slate-800 min-w-[200px]">Feature / Module</th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Micro<br /><span className="text-[10px] font-normal text-slate-500">₹499/mo</span></th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Basic<br /><span className="text-[10px] font-normal text-slate-500">₹799/mo</span></th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Starter<br /><span className="text-[10px] font-normal text-slate-500">₹999/mo</span></th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-50/50 text-indigo-700">Growth<br /><span className="text-[10px] font-bold text-indigo-600">₹1,999/mo</span></th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Enterprise<br /><span className="text-[10px] font-normal text-slate-500">₹4,999/mo</span></th>
-                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-900 text-white">Perpetual<br /><span className="text-[10px] font-medium text-indigo-200">₹75k + AMC</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Micro<br /><span className="text-[11px] font-normal text-slate-500">₹499/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Basic<br /><span className="text-[11px] font-normal text-slate-500">₹799/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Starter<br /><span className="text-[11px] font-normal text-slate-500">₹999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-50/50 text-indigo-700">Growth<br /><span className="text-[11px] font-bold text-indigo-600">₹1,999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider">Enterprise<br /><span className="text-[11px] font-normal text-slate-500">₹4,999/mo</span></th>
+                <th className="py-3.5 px-3 font-bold text-center uppercase tracking-wider bg-indigo-900 text-white">Perpetual<br /><span className="text-[11px] font-medium text-indigo-200">₹75k + AMC</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
@@ -481,7 +481,7 @@ export function SharedPricingMatrix({
                   <HardDrive className="w-4 h-4 text-indigo-600 flex-shrink-0" />
                   <div>
                     <span>Media Cloud Storage</span>
-                    <span className="block text-[10px] font-normal text-slate-500">WebP CDN, lookbooks & video banners</span>
+                    <span className="block text-[11px] font-normal text-slate-500">WebP CDN, lookbooks & video banners</span>
                   </div>
                 </td>
                 <td className="py-3 px-3 text-center font-medium text-slate-600">500 MB</td>
@@ -496,7 +496,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>Storefront & Custom Domain</span>
-                  <span className="block text-[10px] font-normal text-slate-500">brand.com + mobile-optimized catalog</span>
+                  <span className="block text-[11px] font-normal text-slate-500">brand.com + mobile-optimized catalog</span>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-400 font-medium">Add-on (+₹499)</td>
                 <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
@@ -510,7 +510,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>POS Terminal & USB Barcode Billing</span>
-                  <span className="block text-[10px] font-normal text-slate-500">Sub-50ms dispatch, thermal receipt printing</span>
+                  <span className="block text-[11px] font-normal text-slate-500">Sub-50ms dispatch, thermal receipt printing</span>
                 </td>
                 <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
                 <td className="py-3 px-3 text-center font-bold text-emerald-600">✓ Included</td>
@@ -524,7 +524,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>GST Engine & 1-Click Tally XML</span>
-                  <span className="block text-[10px] font-normal text-slate-500">CGST/SGST/IGST splits + GSTR-1 CSV</span>
+                  <span className="block text-[11px] font-normal text-slate-500">CGST/SGST/IGST splits + GSTR-1 CSV</span>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹299)</td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹299)</td>
@@ -538,7 +538,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>Multi-Channel Inventory Sync</span>
-                  <span className="block text-[10px] font-normal text-slate-500">Shopify + Amazon SP-API + Flipkart</span>
+                  <span className="block text-[11px] font-normal text-slate-500">Shopify + Amazon SP-API + Flipkart</span>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹699)</td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹699)</td>
@@ -552,7 +552,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>B2B Ledger & TDS Compliance</span>
-                  <span className="block text-[10px] font-normal text-slate-500">Sec 194C/194Q & credit limits</span>
+                  <span className="block text-[11px] font-normal text-slate-500">Sec 194C/194Q & credit limits</span>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹499)</td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹499)</td>
@@ -566,7 +566,7 @@ export function SharedPricingMatrix({
               <tr className="hover:bg-slate-50/70 transition-colors">
                 <td className="py-3 px-4 font-bold text-slate-900">
                   <span>WhatsApp CRM & AI Marketing</span>
-                  <span className="block text-[10px] font-normal text-slate-500">Automated cart recovery & broadcasts</span>
+                  <span className="block text-[11px] font-normal text-slate-500">Automated cart recovery & broadcasts</span>
                 </td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹599)</td>
                 <td className="py-3 px-3 text-center text-slate-400">Optional (+₹599)</td>

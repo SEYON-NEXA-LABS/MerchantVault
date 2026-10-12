@@ -353,7 +353,7 @@ function StaffContent() {
                     <tr key={member.id} className={`hover:bg-gray-50/50 transition-colors ${!member.isActive ? "opacity-60 bg-gray-50/20" : ""}`}>
                       <td className="py-3.5 px-6">
                         <div className="font-semibold text-gray-900 font-mono text-xs">{member.username}</div>
-                        <div className="text-[10px] text-gray-400 font-mono mt-0.5">{member.email}</div>
+                        <div className="text-[11px] text-gray-400 font-mono mt-0.5">{member.email}</div>
                       </td>
                       <td className="py-3.5 px-6">
                         <select
@@ -372,7 +372,7 @@ function StaffContent() {
                         </select>
                       </td>
                       <td className="py-3.5 px-6">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                           member.isActive ? "bg-emerald-50 text-emerald-700" : "bg-gray-150 text-gray-500"
                         }`}>
                           <span className={`w-1.2 h-1.2 rounded-full ${
@@ -384,19 +384,19 @@ function StaffContent() {
                       <td className="py-3.5 px-6 text-xs text-gray-500 space-y-1">
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-gray-700">Pwd Reset:</span>{" "}
-                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                          <span className="font-mono text-[11px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
                             {member.passwordChangedAt ? new Date(member.passwordChangedAt).toLocaleString() : "Never"}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-gray-700">Status Changed:</span>{" "}
-                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                          <span className="font-mono text-[11px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
                             {member.statusChangedAt ? new Date(member.statusChangedAt).toLocaleString() : "Never"}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-gray-700">Modified:</span>{" "}
-                          <span className="font-mono text-[10px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
+                          <span className="font-mono text-[11px] bg-gray-50 px-1 py-0.5 rounded border border-gray-100">
                             {member.updatedAt ? new Date(member.updatedAt).toLocaleString() : "Never"}
                           </span>
                         </div>
@@ -422,7 +422,7 @@ function StaffContent() {
                           </button>
 
                           {member.username === "vetrivel" ? (
-                            <span className="text-[10px] text-gray-400 flex items-center gap-1 font-semibold pr-2 select-none">
+                            <span className="text-[11px] text-gray-400 flex items-center gap-1 font-semibold pr-2 select-none">
                               <Lock className="w-3.5 h-3.5" /> Protected
                             </span>
                           ) : (
@@ -520,7 +520,7 @@ function StaffContent() {
           ) : (
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-gray-50 text-gray-500 font-medium border-b border-gray-150 uppercase tracking-wider text-[10px]">
+                <tr className="bg-gray-50 text-gray-500 font-medium border-b border-gray-150 uppercase tracking-wider text-[11px]">
                   <th className="py-2.5 px-4">Operator Handle</th>
                   <th className="py-2.5 px-4">Operation</th>
                   <th className="py-2.5 px-4">Product details</th>
@@ -533,7 +533,7 @@ function StaffContent() {
                   <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="py-2.5 px-4 font-mono font-bold text-gray-900">{log.operatorEmail}</td>
                     <td className="py-2.5 px-4">
-                      <span className={`inline-block text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-full ${
                         log.type === "INWARD" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
                       }`}>
                         {log.type} ({log.quantity} units)
@@ -541,7 +541,7 @@ function StaffContent() {
                     </td>
                     <td className="py-2.5 px-4">
                       <div className="font-bold text-gray-900">{log.variant?.title}</div>
-                      <div className="text-[10px] text-gray-400 font-mono mt-0.5">
+                      <div className="text-[11px] text-gray-400 font-mono mt-0.5">
                         SKU: {log.variant?.sku} | Color: {log.variant?.color || "N/A"} | Size: {log.variant?.size || "N/A"}
                       </div>
                     </td>

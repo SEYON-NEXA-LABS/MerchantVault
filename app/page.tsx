@@ -1046,7 +1046,7 @@ export default function StorefrontPage() {
           {/* Theme 1: Big Billion Day (Amber Gold Glow) */}
           <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-700 text-slate-950 px-4 py-2 text-xs font-bold flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
             <div className="flex items-center gap-2 flex-1 justify-center sm:justify-start">
-              <span className="bg-slate-950 text-amber-400 text-[10px] px-2 py-0.5 rounded font-black tracking-wider uppercase animate-pulse">
+              <span className="bg-slate-950 text-amber-400 text-[11px] px-2 py-0.5 rounded font-black tracking-wider uppercase animate-pulse">
                 🔥 BIG BILLION SALE
               </span>
               <span className="font-extrabold text-slate-950 truncate">
@@ -1055,7 +1055,7 @@ export default function StorefrontPage() {
             </div>
             
             <div className="hidden md:flex items-center gap-2 text-[11px] font-mono font-bold bg-slate-950/15 px-3 py-1 rounded-full border border-slate-950/20">
-              <span className="text-slate-900 uppercase text-[9px]">Ends In:</span>
+              <span className="text-slate-900 uppercase text-[11px]">Ends In:</span>
               <span className="text-slate-950">04h 22m 15s</span>
             </div>
 

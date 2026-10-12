@@ -261,7 +261,7 @@ export default function StorefrontConfigPage() {
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-sm text-slate-900">{preset.title}</span>
-                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
                               {preset.badge}
                             </span>
                           </div>
@@ -323,7 +323,7 @@ export default function StorefrontConfigPage() {
                         <span className="w-4 h-4 rounded-full border border-black/10" style={{ backgroundColor: preset.accent }} />
                       </div>
                       <span className="font-bold text-xs text-slate-900 block">{preset.name}</span>
-                      <span className="text-[10px] text-slate-500 block truncate">{preset.desc}</span>
+                      <span className="text-[11px] text-slate-500 block truncate">{preset.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -493,10 +493,10 @@ export default function StorefrontConfigPage() {
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               </div>
-              <span className="text-[10px] font-mono text-slate-400 truncate">
+              <span className="text-[11px] font-mono text-slate-400 truncate">
                 https://store.seyon.app
               </span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase">{theme.layoutPreset}</span>
+              <span className="text-[11px] text-slate-500 font-bold uppercase">{theme.layoutPreset}</span>
             </div>
 
             {/* Mockup Store Body */}
@@ -518,9 +518,9 @@ export default function StorefrontConfigPage() {
 
               {/* Header Navigation */}
               <div className="flex items-center justify-between border-b border-slate-200/20 pb-2">
-                <span className="font-extrabold text-sm tracking-tight">STOREFRONT</span>
+                <span className="font-bold text-sm tracking-normal">STOREFRONT</span>
                 <span
-                  className="text-[9px] font-extrabold px-2 py-0.5 uppercase tracking-wider"
+                  className="text-[11px] font-bold px-2 py-0.5 uppercase tracking-wider"
                   style={{ backgroundColor: theme.accent, color: "#000000", borderRadius: theme.radius }}
                 >
                   CART (2)
@@ -536,7 +536,7 @@ export default function StorefrontConfigPage() {
                   borderRadius: theme.radius
                 }}
               >
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-200 block drop-shadow-xs">NEW COLLECTION 2026</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-slate-200 block drop-shadow-xs">NEW COLLECTION 2026</span>
                 <h3 className="font-extrabold text-base text-white drop-shadow-xs">Summer Handloom Drop</h3>
                 <button
                   type="button"
@@ -559,12 +559,12 @@ export default function StorefrontConfigPage() {
                     }`}
                     style={{ borderRadius: theme.radius }}
                   >
-                    <div className="h-24 bg-slate-200/50 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-bold">
+                    <div className="h-24 bg-slate-200/50 rounded-lg flex items-center justify-center text-[11px] text-slate-400 font-bold">
                       PRODUCT IMAGE #{idx}
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold">Premium Linen Shirt</span>
-                      <span className="text-xs font-extrabold text-emerald-600">₹1,999</span>
+                      <span className="text-xs font-bold text-emerald-600">₹1,999</span>
                     </div>
                     <button
                       type="button"

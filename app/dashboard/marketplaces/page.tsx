@@ -250,7 +250,7 @@ function MarketplaceContent() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-indigo-800/60 pb-5">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     Native Active Channel (0% Fees)
                   </span>
                   <span className="text-xs text-indigo-300 font-mono">Channel Code: {company?.code || "syn"}</span>
@@ -296,7 +296,7 @@ function MarketplaceContent() {
                 <code className="block bg-slate-950 px-2.5 py-1.5 rounded text-[11px] font-mono text-emerald-400 border border-slate-800 truncate">
                   {storefrontUrl}
                 </code>
-                <p className="text-[10px] text-slate-400">Shareable tenant channel link</p>
+                <p className="text-[11px] text-slate-400">Shareable tenant channel link</p>
               </div>
 
               <div className="bg-slate-900/80 border border-indigo-500/20 rounded-xl p-4 space-y-2">
@@ -310,7 +310,7 @@ function MarketplaceContent() {
                 ) : (
                   <span className="block text-[11px] text-slate-500 italic py-1">Not mapped (e.g. brand.seyon.app)</span>
                 )}
-                <p className="text-[10px] text-slate-400">Configured in Tenant Company Settings</p>
+                <p className="text-[11px] text-slate-400">Configured in Tenant Company Settings</p>
               </div>
 
               <div className="bg-slate-900/80 border border-indigo-500/20 rounded-xl p-4 space-y-2">
@@ -324,7 +324,7 @@ function MarketplaceContent() {
                 ) : (
                   <span className="block text-[11px] text-slate-500 italic py-1">Custom domain add-on inactive</span>
                 )}
-                <p className="text-[10px] text-slate-400">CNAME / A Record DNS routing</p>
+                <p className="text-[11px] text-slate-400">CNAME / A Record DNS routing</p>
               </div>
             </div>
           </div>

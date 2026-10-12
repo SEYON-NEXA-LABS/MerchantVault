@@ -71,7 +71,7 @@ export function RoleGuard({ allowedRoles, children }: RoleGuardProps) {
             >
               <ArrowLeft className="w-4 h-4" /> Back to Dashboard
             </Link>
-            <p className="text-[10px] text-gray-400">
+            <p className="text-[11px] text-gray-400">
               If you believe this is an error, please switch your active role in the profile menu or contact your workspace administrator.
             </p>
           </div>

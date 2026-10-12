@@ -541,7 +541,7 @@ export default function SopWorkflowsClient() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200">
                 Official Operations Manual
               </span>
               <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
@@ -586,7 +586,7 @@ export default function SopWorkflowsClient() {
                     </span>
 
                     {/* High-Contrast Color Tag matching exact sidebar code */}
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-black border shadow-2xs ${
+                    <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-black border shadow-2xs ${
                       isActive
                         ? "bg-white text-slate-900 border-white"
                         : getSidebarBadgeStyle(sop.sidebarCode)
@@ -616,7 +616,7 @@ export default function SopWorkflowsClient() {
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-600 bg-white/80 border border-slate-200/80 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-600 bg-white/80 border border-slate-200/80 px-2 py-0.5 rounded">
                     SOP {currentSop.id} of 12
                   </span>
                   
@@ -678,10 +678,10 @@ export default function SopWorkflowsClient() {
                       </h3>
                       {st.route && (
                         <div className="flex flex-wrap items-center gap-1.5 self-start">
-                          <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded shadow-2xs border ${effectiveBadgeStyle}`}>
+                          <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded shadow-2xs border ${effectiveBadgeStyle}`}>
                             Sidebar: {effectiveCode} {st.sidebarNavName ? `(${st.sidebarNavName})` : ""}
                           </span>
-                          <span className="text-[10px] font-mono text-slate-500 bg-white border border-slate-200/80 px-2 py-0.5 rounded-md">
+                          <span className="text-[11px] font-mono text-slate-500 bg-white border border-slate-200/80 px-2 py-0.5 rounded-md">
                             {st.route}
                           </span>
                         </div>

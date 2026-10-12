@@ -477,8 +477,8 @@ export default function DashboardLayout({
                   className={`w-full bg-white/80 backdrop-blur-md border border-slate-200/80 rounded-xl py-1.5 pl-9 pr-12 text-xs sm:text-sm focus:outline-none focus:ring-2 ${currentTheme.searchFocus} transition-all shadow-xs`}
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 font-mono shadow-xs">⌘</kbd>
-                  <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-400 font-mono shadow-xs">K</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[11px] text-slate-400 font-mono shadow-xs">⌘</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[11px] text-slate-400 font-mono shadow-xs">K</kbd>
                 </div>
               </div>
             </div>
@@ -523,7 +523,7 @@ export default function DashboardLayout({
                 >
                   <Bell className="w-5 h-5" />
                   {lowStockAlerts.length > 0 && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-white animate-pulse">
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 text-white text-[11px] font-black rounded-full flex items-center justify-center border-2 border-white animate-pulse">
                       {lowStockAlerts.length}
                     </span>
                   )}
@@ -535,7 +535,7 @@ export default function DashboardLayout({
                       <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
                         <AlertTriangle className="w-4 h-4 text-amber-500" /> Low Stock Notifications
                       </h4>
-                      <span className="text-[10px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-full">
+                      <span className="text-[11px] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-full">
                         {lowStockAlerts.length} Alerts
                       </span>
                     </div>
@@ -548,14 +548,14 @@ export default function DashboardLayout({
                           <div key={item.id} className="pt-2 text-xs">
                             <div className="flex justify-between items-start gap-2">
                               <span className="font-bold text-slate-950 leading-tight block">{item.title}</span>
-                              <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded flex-shrink-0">
+                              <span className="text-[11px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded flex-shrink-0">
                                 {item.currentStockLevel} left
                               </span>
                             </div>
-                            <div className="text-[10px] text-slate-450 font-mono mt-0.5">
+                            <div className="text-[11px] text-slate-450 font-mono mt-0.5">
                               SKU: {item.sku} | Size: {item.size} | Color: {item.color}
                             </div>
-                            <div className="mt-1 flex justify-between items-center text-[10px] pt-1">
+                            <div className="mt-1 flex justify-between items-center text-[11px] pt-1">
                               <span className="text-slate-400">Limit: {item.safetyStockLimit} units</span>
                               <Link 
                                 href="/dashboard/inventory/purchase" 
@@ -583,7 +583,7 @@ export default function DashboardLayout({
                     <span className="block text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                       {currentUser.name}
                     </span>
-                    <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${currentTheme.roleBadgeBg} ${currentTheme.roleBadgeText} border ${currentTheme.roleBadgeBorder} mt-0.5`}>
+                    <span className={`inline-block text-[11px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${currentTheme.roleBadgeBg} ${currentTheme.roleBadgeText} border ${currentTheme.roleBadgeBorder} mt-0.5`}>
                       {userRole}
                     </span>
                   </div>
@@ -606,7 +606,7 @@ export default function DashboardLayout({
                       <div>
                         <h4 className="font-bold text-sm text-slate-950 leading-snug">{currentUser.name}</h4>
                         <p className="text-xs text-slate-500 leading-tight font-medium">{currentUser.email}</p>
-                        <span className={`inline-block mt-1.5 px-2 py-0.5 font-mono text-[9px] font-extrabold uppercase rounded ${currentTheme.roleBadgeBg} ${currentTheme.roleBadgeText} border ${currentTheme.roleBadgeBorder}`}>
+                        <span className={`inline-block mt-1.5 px-2 py-0.5 font-mono text-[11px] font-bold uppercase rounded ${currentTheme.roleBadgeBg} ${currentTheme.roleBadgeText} border ${currentTheme.roleBadgeBorder}`}>
                           {currentUser.roleLabel}
                         </span>
                       </div>
@@ -614,14 +614,14 @@ export default function DashboardLayout({
 
                     {/* Role Specific Activity Logs Section */}
                     <div>
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2 px-1">
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2 px-1">
                         <Activity className="w-3.5 h-3.5 text-indigo-500" /> Recent Activities ({userRole})
                       </div>
                       <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
                         {simulatedActivities[userRole].map((act) => (
                           <div key={act.id} className="p-2 rounded-xl bg-slate-50/80 border border-slate-200/60 text-[11px] leading-snug">
                             <p className="text-slate-800 font-medium">{act.action}</p>
-                            <span className="text-[9px] text-slate-400 block mt-0.5 font-sans">🕒 {act.time}</span>
+                            <span className="text-[11px] text-slate-400 block mt-0.5 font-sans">🕒 {act.time}</span>
                           </div>
                         ))}
                       </div>
@@ -668,7 +668,7 @@ export default function DashboardLayout({
           </main>
 
           {/* Global Operational Status Bar */}
-          <footer className={`h-8 border-t flex items-center justify-between px-6 text-[10px] font-mono select-none flex-shrink-0 transition-colors duration-300 ${currentTheme.footerBg}`}>
+          <footer className={`h-8 border-t flex items-center justify-between px-6 text-[11px] font-mono select-none flex-shrink-0 transition-colors duration-300 ${currentTheme.footerBg}`}>
             <div className="flex items-center gap-3">
               {/* Online / Offline Connectivity Pill */}
               <span className={`flex items-center gap-1.5 font-bold px-2 py-0.5 rounded ${isOffline ? "bg-rose-100 text-rose-800" : "bg-emerald-100/70 text-emerald-800"}`}>
@@ -706,7 +706,7 @@ export default function DashboardLayout({
               <span className="opacity-30">|</span>
               <span className="flex items-center gap-1">
                 <span>BUILD:</span>
-                <code className="bg-slate-200/80 text-slate-800 px-1 py-0.5 rounded font-mono text-[9px] font-bold">
+                <code className="bg-slate-200/80 text-slate-800 px-1 py-0.5 rounded font-mono text-[11px] font-bold">
                   {process.env.NEXT_PUBLIC_GIT_COMMIT_HASH || "f80b57b"}
                 </code>
               </span>
@@ -769,12 +769,12 @@ export default function DashboardLayout({
                           <h4 className="font-bold text-gray-950 text-xs flex items-center gap-1.5">
                             {w.name}
                             {w.isDefaultPickup && (
-                              <span className="bg-indigo-100 text-indigo-700 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase">
+                              <span className="bg-indigo-100 text-indigo-700 text-[11px] font-bold px-1.5 py-0.5 rounded uppercase">
                                 Default
                               </span>
                             )}
                           </h4>
-                          <p className="text-[10px] text-gray-500 font-mono mt-0.5 uppercase tracking-wide">
+                          <p className="text-[11px] text-gray-500 font-mono mt-0.5 uppercase tracking-wide">
                             Code: {w.code}
                           </p>
                         </div>
@@ -785,7 +785,7 @@ export default function DashboardLayout({
                         )}
                       </div>
                       
-                      <div className="border-t border-gray-100 mt-2 pt-1.5 text-[10px] text-gray-400 flex items-center gap-1 font-sans">
+                      <div className="border-t border-gray-100 mt-2 pt-1.5 text-[11px] text-gray-400 flex items-center gap-1 font-sans">
                         <span>📍 {w.addressLine1}, {w.city}, {w.state}</span>
                       </div>
                     </div>

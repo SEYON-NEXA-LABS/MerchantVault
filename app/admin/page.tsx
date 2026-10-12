@@ -201,7 +201,7 @@ export default function AdminLoginPage() {
                     className="py-2 px-2 rounded-lg bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-indigo-700 dark:text-indigo-300 transition-colors flex flex-col items-center gap-0.5 cursor-pointer"
                   >
                     <span className="font-bold">SuperAdmin</span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400">Platform Admin</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Platform Admin</span>
                   </button>
 
                   <button
@@ -210,7 +210,7 @@ export default function AdminLoginPage() {
                     className="py-2 px-2 rounded-lg bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-emerald-700 dark:text-emerald-300 transition-colors flex flex-col items-center gap-0.5 cursor-pointer"
                   >
                     <span className="font-bold font-mono">TenantAdmin</span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400">Seyon Merchant</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Seyon Merchant</span>
                   </button>
 
                   <button
@@ -219,7 +219,7 @@ export default function AdminLoginPage() {
                     className="py-2 px-2 rounded-lg bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-[11px] font-mono text-sky-700 dark:text-sky-300 transition-colors flex flex-col items-center gap-0.5 cursor-pointer"
                   >
                     <span className="font-bold font-mono">Staff</span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400">Counter Operator</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">Counter Operator</span>
                   </button>
                 </div>
               )}
